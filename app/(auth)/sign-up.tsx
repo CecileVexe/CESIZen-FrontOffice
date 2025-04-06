@@ -2,10 +2,14 @@ import * as React from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useSignUp, useUser } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
+import { createCitizen } from "../../services/citizen.services";
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
+
+  const [name, setName] = React.useState("");
+  const [surname, setSurname] = React.useState("");
 
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -16,11 +20,11 @@ export default function SignUpScreen() {
   const onSignUpPress = async () => {
     if (!isLoaded) return;
 
-    console.log(emailAddress, password);
-
     // Start sign-up process using email and password provided
     try {
       await signUp.create({
+        firstName: name,
+        lastName: surname,
         emailAddress,
         password,
       });
@@ -52,9 +56,14 @@ export default function SignUpScreen() {
       // and redirect the user
       if (signUpAttempt.status === "complete") {
         await setActive({ session: signUpAttempt.createdSessionId });
-        console.log(signUpAttempt);
-        //registerUser(signUpAttempt.createdUserId) appel le create User du back
-        router.replace("/");
+        const clerkUserID = signUpAttempt.createdUserId;
+
+        try {
+          await createCitizen(clerkUserID);
+          router.replace("/");
+        } catch (error) {
+          console.log(error);
+        }
       } else {
         // If the status is not complete, check why. User may need to
         // complete further steps.
@@ -87,6 +96,18 @@ export default function SignUpScreen() {
     <View>
       <>
         <Text>Sign up</Text>
+        <TextInput
+          autoCapitalize="none"
+          value={name}
+          placeholder="Enter name"
+          onChangeText={(email) => setName(email)}
+        />
+        <TextInput
+          autoCapitalize="none"
+          value={surname}
+          placeholder="Enter surname"
+          onChangeText={(email) => setSurname(email)}
+        />
         <TextInput
           autoCapitalize="none"
           value={emailAddress}
