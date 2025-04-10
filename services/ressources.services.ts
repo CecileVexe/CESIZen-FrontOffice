@@ -9,7 +9,22 @@ export const getRessources = async (): Promise<
   try {
     const response = await fetch(`${_URL}ressource`, {
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json; charset=utf-8",
+      },
+    });
+    return await response.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const getRessource = async (
+  id: string
+): Promise<ApiResponse<Ressource> | undefined> => {
+  try {
+    const response = await fetch(`${_URL}ressource/${id}`, {
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
       },
     });
     return await response.json();
