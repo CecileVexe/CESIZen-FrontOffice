@@ -4,7 +4,7 @@ import { Card, Text } from "react-native-paper";
 
 import { Link } from "expo-router";
 import { Ressource } from "../../../utils/types/Ressources.types";
-import { getRessources } from "../../../services/ressources.services";
+import { getRessources } from "../../../services/ressources.service";
 
 const renderItem = ({ item }: { item: Ressource }) => {
   return (

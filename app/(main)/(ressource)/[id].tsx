@@ -1,10 +1,17 @@
 import { useLocalSearchParams } from "expo-router";
-import { Button, Chip, Text } from "react-native-paper";
+import {
+  Avatar,
+  Button,
+  Card,
+  Chip,
+  IconButton,
+  Text,
+} from "react-native-paper";
 import { useCallback, useEffect, useState } from "react";
 
 import { Image, View } from "react-native";
 import { Ressource } from "../../../utils/types/Ressources.types";
-import { getRessource } from "../../../services/ressources.services";
+import { getRessource } from "../../../services/ressources.service";
 
 const RessourceDetails = () => {
   const { id } = useLocalSearchParams<Record<string, string>>();
@@ -49,6 +56,15 @@ const RessourceDetails = () => {
         </Button>
         <Chip icon="information">{ressource.status}</Chip>
         <Text variant="bodyLarge">{ressource.description}</Text>
+
+        <Card.Title
+          title="Card Title"
+          subtitle="Card Subtitle"
+          left={(props) => <Avatar.Icon {...props} icon="folder" />}
+          right={(props) => (
+            <IconButton {...props} icon="dots-vertical" onPress={() => {}} />
+          )}
+        />
       </View>
     )
   );

@@ -2,7 +2,7 @@ import * as React from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useSignUp, useUser } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
-import { createCitizen } from "../../services/citizen.services";
+import { createCitizen } from "../../services/citizen.service";
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
