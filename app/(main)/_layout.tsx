@@ -20,15 +20,16 @@ export default function Layout() {
           headerShown: false,
         }}
       />
-      {/* <Tabs.Screen
-        name="(add)"
+      <Tabs.Screen
+        name="(ressource)"
         options={{
-          title: "Ajouter",
+          href: null, //Pour masquer la route sur les tabs en bas
+          title: "Test",
           headerShown: false,
           tabBarIcon: () => <Icon size={20} source="plus-box" />,
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="account"
         options={{
           title: "Profil",

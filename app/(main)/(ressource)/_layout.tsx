@@ -10,14 +10,5 @@ export default function Layout() {
     return <Redirect href={"/sign-in"} />;
   }
 
-  return (
-    <Stack>
-      <Stack.Screen
-        name="[id]"
-        options={{
-          title: "Details",
-        }}
-      />
-    </Stack>
-  );
+  return <Stack />;
 }

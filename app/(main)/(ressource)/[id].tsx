@@ -1,9 +1,10 @@
 import { useLocalSearchParams } from "expo-router";
 import { Button, Chip, Text } from "react-native-paper";
-import { getRessource } from "../../services/ressources.services";
 import { useCallback, useEffect, useState } from "react";
-import { Ressource } from "../../utils/types/Ressources.types";
+
 import { Image, View } from "react-native";
+import { Ressource } from "../../../utils/types/Ressources.types";
+import { getRessource } from "../../../services/ressources.services";
 
 const RessourceDetails = () => {
   const { id } = useLocalSearchParams<Record<string, string>>();
