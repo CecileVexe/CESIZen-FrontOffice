@@ -1,4 +1,7 @@
+import { CommentType } from "./Comment.types";
+
 export interface Ressource {
+  id: string;
   deadLine: string;
   description: string;
   file: File;
@@ -7,4 +10,5 @@ export interface Ressource {
   nbParticipant: number;
   status: string;
   title: string;
+  comment: CommentType[];
 }

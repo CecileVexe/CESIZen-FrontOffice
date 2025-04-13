@@ -1,15 +1,15 @@
-import { ApiResponse } from "../utils/types/Api.types";
+import { CreateComment } from "../utils/types/Comment.types";
 
 const _URL = process.env.EXPO_PUBLIC_API_URL;
 
-export const getCommentByRessource = async (
-  ressourceId: string
-): Promise<ApiResponse<any> | undefined> => {
+export const leaveAComment = async (comment: CreateComment) => {
   try {
-    const response = await fetch(`${_URL}ressource`, {
+    const response = await fetch(`${_URL}comment`, {
+      method: "POST",
       headers: {
-        "Content-Type": "application/json; charset=utf-8",
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify(comment),
     });
     return await response.json();
   } catch (e) {

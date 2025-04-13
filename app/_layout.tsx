@@ -4,6 +4,7 @@ import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { SafeAreaView, useColorScheme } from "react-native";
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
+import { ConnectedUserProvider } from "../utils/ConnectedUserContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -51,9 +52,11 @@ function RootLayoutNav() {
     // <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <ClerkLoaded>
-        <SafeAreaView style={{ flex: 1 }}>
-          <Slot />
-        </SafeAreaView>
+        <ConnectedUserProvider>
+          <SafeAreaView style={{ flex: 1 }}>
+            <Slot />
+          </SafeAreaView>
+        </ConnectedUserProvider>
       </ClerkLoaded>
     </ClerkProvider>
     // </ThemeProvider>
