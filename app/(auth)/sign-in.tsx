@@ -2,11 +2,13 @@ import { useSignIn } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import React from "react";
+import { Button } from "react-native-paper";
+import { useConntedUser } from "../../utils/ConnectedUserContext";
 
 export default function Page() {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
-
+  const { handleNonConnectedUser } = useConntedUser();
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
 
@@ -38,6 +40,11 @@ export default function Page() {
     }
   };
 
+  const handleNonSignIn = () => {
+    handleNonConnectedUser(true);
+    router.navigate("/");
+  };
+
   return (
     <View>
       <Text>Sign in</Text>
@@ -62,6 +69,9 @@ export default function Page() {
           <Text>Sign up</Text>
         </Link>
       </View>
+      <Button onPress={handleNonSignIn}>
+        <Text>Je souhaite continuer sans compte</Text>
+      </Button>
     </View>
   );
 }

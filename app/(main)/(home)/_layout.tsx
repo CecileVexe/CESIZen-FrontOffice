@@ -1,12 +1,14 @@
 import { useAuth } from "@clerk/clerk-expo";
-import { Redirect, Tabs } from "expo-router";
+import { Redirect } from "expo-router";
 import { Stack } from "expo-router/stack";
-import { Icon } from "react-native-paper";
+import { useConntedUser } from "../../../utils/ConnectedUserContext";
 
 export default function Layout() {
   const { isSignedIn } = useAuth();
 
-  if (!isSignedIn) {
+  const { userChoseToUnconnect } = useConntedUser();
+
+  if (!userChoseToUnconnect && !isSignedIn) {
     return <Redirect href={"/sign-in"} />;
   }
 
@@ -18,12 +20,6 @@ export default function Layout() {
           title: "Home",
         }}
       />
-      {/* <Stack.Screen
-        name="[id]"
-        options={{
-          title: "Details",
-        }}
-      /> */}
     </Stack>
   );
 }

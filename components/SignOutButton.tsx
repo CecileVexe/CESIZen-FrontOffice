@@ -1,14 +1,17 @@
 import { useClerk } from "@clerk/clerk-expo";
 import * as Linking from "expo-linking";
 import { Text, TouchableOpacity } from "react-native";
+import { useConntedUser } from "../utils/ConnectedUserContext";
 
 export const SignOutButton = () => {
   // Use `useClerk()` to access the `signOut()` function
   const { signOut } = useClerk();
+  const { handleNonConnectedUser } = useConntedUser();
 
   const handleSignOut = async () => {
     try {
       await signOut();
+      handleNonConnectedUser(false);
       // Redirect to your desired page
       Linking.openURL(Linking.createURL("/"));
     } catch (err) {

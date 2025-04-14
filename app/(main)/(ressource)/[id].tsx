@@ -7,17 +7,20 @@ import { Ressource } from "../../../utils/types/Ressources.types";
 import { getRessource } from "../../../services/ressources.service";
 import CommentCard from "../../../components/CommentCard";
 import { parseStringDate } from "../../../utils/functions/datesFunction";
-import { useAuth } from "@clerk/clerk-expo";
+import { SignedIn, useAuth } from "@clerk/clerk-expo";
 import CommentForm from "../../../components/CommentForm";
 import { useForm } from "react-hook-form";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
 import { leaveAComment } from "../../../services/comment.service";
+import SubscribeToRessource from "../../../components/SubscribeToRessource";
 
 const RessourceDetails = () => {
   const { isSignedIn } = useAuth();
   const { connectedUser } = useConntedUser();
 
-  const [visible, setVisible] = useState(false);
+  const [commentFormVisible, setCommentFormVisible] = useState(false);
+  const [subscribeVisible, setSubscribeVisible] = useState(false);
+
   const {
     control,
     handleSubmit,
@@ -30,11 +33,18 @@ const RessourceDetails = () => {
     },
   });
 
-  const showDialog = () => setVisible(true);
+  const showCommentFormDialog = () => setCommentFormVisible(true);
 
-  const hideDialog = () => {
+  const hideCommentFormDialog = () => {
     reset();
-    setVisible(false);
+    setCommentFormVisible(false);
+  };
+
+  const showSubscribeDialog = () => setSubscribeVisible(true);
+
+  const hideSubscribeDialog = () => {
+    reset();
+    setSubscribeVisible(false);
   };
 
   const { id } = useLocalSearchParams<Record<string, string>>();
@@ -61,7 +71,7 @@ const RessourceDetails = () => {
       try {
         await leaveAComment(comment);
         reset();
-        setVisible(false);
+        setCommentFormVisible(false);
         getDatas();
       } catch (e) {
         console.error(e);
@@ -84,35 +94,44 @@ const RessourceDetails = () => {
             Nombre de participant {ressource.nbParticipant} /
             {ressource.maxParticipant}
           </Text>
-          {isSignedIn && (
-            <Button
-              mode="contained"
-              onPress={() => console.log("Pressed")}
-              disabled={
-                ressource.nbParticipant === ressource.maxParticipant ||
-                !ressource.isValidate ||
-                ressource.status !== "En cours"
-              }
-            >
-              S'inscrire
-            </Button>
+
+          <Button
+            mode="contained"
+            onPress={showSubscribeDialog}
+            disabled={
+              ressource.nbParticipant === ressource.maxParticipant ||
+              !ressource.isValidate ||
+              ressource.status === "En cours" ||
+              !SignedIn
+            }
+          >
+            {!isSignedIn ? "Créez un compte pour vous inscrire" : "S'inscrire"}
+          </Button>
+
+          {ressource.status === ("En cours" || "Terminé") && (
+            <Chip icon="information">{ressource.status}</Chip>
           )}
-          <Chip icon="information">{ressource.status}</Chip>
           <Text variant="bodyLarge">{ressource.description}</Text>
 
           {isSignedIn && (
-            <Button mode="contained" onPress={showDialog}>
+            <Button mode="contained" onPress={showCommentFormDialog}>
               Laisser un commentaire
             </Button>
           )}
 
           <CommentForm
-            visible={visible}
-            hideDialog={hideDialog}
+            visible={commentFormVisible}
+            hideDialog={hideCommentFormDialog}
             control={control}
             handleSubmit={handleSubmit}
             onSubmit={onSubmit}
             errors={errors}
+          />
+
+          <SubscribeToRessource
+            visible={subscribeVisible}
+            hideDialog={hideSubscribeDialog}
+            ressource={ressource}
           />
 
           {ressource.comment.map((comment) => (

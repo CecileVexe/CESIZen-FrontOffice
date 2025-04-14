@@ -12,6 +12,8 @@ import { getCitizen } from "../services/citizen.service";
 
 interface UserContextType {
   connectedUser: CitizenType | undefined;
+  userChoseToUnconnect: boolean;
+  handleNonConnectedUser: (_: boolean) => void;
 }
 
 const ConnectedUserContext = createContext<UserContextType | undefined>(
@@ -27,6 +29,9 @@ export const ConnectedUserProvider = ({ children }: UserProviderProps) => {
     undefined,
   );
 
+  const [userChoseToUnconnect, setUserChoseToUnconnect] =
+    useState<boolean>(false);
+
   const { user } = useUser();
 
   const getUser = useCallback(async () => {
@@ -34,15 +39,23 @@ export const ConnectedUserProvider = ({ children }: UserProviderProps) => {
 
     if (user) {
       bddUser = await getCitizen(user.id);
+      setConnectedUser(bddUser.data);
+      setUserChoseToUnconnect(false);
     }
-    setConnectedUser(bddUser.data);
   }, [user]);
 
   useEffect(() => {
     getUser();
   }, [getUser]);
+
+  const handleNonConnectedUser = (boolean: boolean) => {
+    setUserChoseToUnconnect(boolean);
+  };
+
   return (
-    <ConnectedUserContext.Provider value={{ connectedUser }}>
+    <ConnectedUserContext.Provider
+      value={{ connectedUser, userChoseToUnconnect, handleNonConnectedUser }}
+    >
       {children}
     </ConnectedUserContext.Provider>
   );

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 import { Card, Text } from "react-native-paper";
 
 import { Link } from "expo-router";
@@ -25,13 +25,22 @@ export default function Page() {
   const [ressources, setRessources] = useState<Ressource[] | undefined>(
     undefined,
   );
+  const [loading, setLoading] = useState(false);
 
   const getDatas = useCallback(async () => {
     const response = await getRessources();
     if (response) {
-      setRessources(response.data);
+      const validatedRessrouces = response.data.filter(
+        (ressource) => ressource.isValidate,
+      );
+      setRessources(validatedRessrouces);
+      setLoading(false);
     }
   }, []);
+
+  const onRefresh = useCallback(() => {
+    getDatas();
+  }, [getDatas]);
 
   useEffect(() => {
     getDatas();
@@ -45,6 +54,9 @@ export default function Page() {
           data={ressources}
           keyExtractor={(item) => `${item.title}_card`}
           renderItem={renderItem}
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={onRefresh} />
+          }
         />
       ) : (
         <Text>Aucune ressources disponnibles !</Text>
