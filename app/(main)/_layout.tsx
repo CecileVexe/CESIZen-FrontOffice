@@ -30,6 +30,14 @@ export default function Layout() {
           tabBarIcon: () => <Icon size={20} source="plus-box" />,
         }}
       />
+      <Tabs.Screen
+        name="(onGoingRessource)"
+        options={{
+          title: "En cours",
+          headerShown: false,
+          tabBarIcon: () => <Icon size={20} source="camera-timer" />,
+        }}
+      />
     </Tabs>
   );
 }
