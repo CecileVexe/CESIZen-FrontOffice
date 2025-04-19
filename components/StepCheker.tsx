@@ -15,7 +15,10 @@ const StepCheckerList = (props: StepCheckerProps) => {
       data={steps.sort((a, b) => a.order - b.order)}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <Card style={{ margin: 8 }}>
+        <Card
+          style={{ margin: 8 }}
+          onPress={() => onCheckStepChange(item.progressionId, !item.completed)}
+        >
           <Card.Content>
             <View style={{ flexDirection: "row" }}>
               <Checkbox
@@ -27,6 +30,7 @@ const StepCheckerList = (props: StepCheckerProps) => {
               <Text variant="titleMedium">{item.title}</Text>
             </View>
             <Text>{item.description}</Text>
+
             {item.completed && item.dateCompleted && (
               <Text style={{ marginTop: 4, fontStyle: "italic" }}>
                 {`Complété le : ${new Date(item.dateCompleted).toLocaleDateString()}`}
@@ -35,6 +39,7 @@ const StepCheckerList = (props: StepCheckerProps) => {
           </Card.Content>
         </Card>
       )}
+      style={{ height: "75%" }}
     />
   );
 };

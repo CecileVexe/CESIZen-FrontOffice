@@ -4,7 +4,7 @@ import {
   getProgressionFromUser,
 } from "../../../services/progression.service";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
-import { Text } from "react-native-paper";
+import { ProgressBar, Text, useTheme } from "react-native-paper";
 import { SignInButton } from "../../../components/SignInButton";
 import { View } from "react-native";
 import { getRessource } from "../../../services/ressources.service";
@@ -14,6 +14,7 @@ import { Step, StepWithProgression } from "../../../utils/types/Step.types";
 import { mergeStepsWithProgressions } from "../../../utils/functions/mergeStepWithProgression";
 import { Ressource } from "../../../utils/types/Ressources.types";
 import { Progression } from "../../../utils/types/Progression.types";
+import { completedStep } from "../../../utils/functions/completedSteps";
 
 interface StepWithRessourceId extends Step {
   ressourceId: string;
@@ -35,6 +36,7 @@ const OnGoingRessource = () => {
   >(undefined);
 
   const { connectedUser } = useConntedUser();
+  const theme = useTheme();
 
   const getProgressionDatas = useCallback(async () => {
     if (connectedUser) {
@@ -91,6 +93,11 @@ const OnGoingRessource = () => {
     }
   };
 
+  const getProgress = (completed: number, total: number): number => {
+    if (total === 0) return 0;
+    return completed / total;
+  };
+
   return connectedUser !== undefined ? (
     userRessource !== undefined ? (
       <View>
@@ -103,10 +110,22 @@ const OnGoingRessource = () => {
         </Text>
         <Text variant="bodyLarge">{userRessource.description}</Text>
         {userRessourceStep && (
-          <StepCheckerList
-            steps={userRessourceStep}
-            onCheckStepChange={handleCheckStepChange}
-          />
+          <View>
+            <View>
+              <Text>{`Progression : ${completedStep(userRessourceStep)}/${userRessourceStep.length}`}</Text>
+              <ProgressBar
+                progress={getProgress(
+                  completedStep(userRessourceStep),
+                  userRessourceStep.length,
+                )}
+                color={theme.colors.primary}
+              />
+            </View>
+            <StepCheckerList
+              steps={userRessourceStep}
+              onCheckStepChange={handleCheckStepChange}
+            />
+          </View>
         )}
       </View>
     ) : (
