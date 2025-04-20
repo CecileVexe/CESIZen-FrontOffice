@@ -1,46 +1,39 @@
 import { Card, Checkbox, Text } from "react-native-paper";
 import { StepWithProgression } from "../utils/types/Step.types";
-import { FlatList, View } from "react-native";
+import { View } from "react-native";
 
 interface StepCheckerProps {
-  steps: StepWithProgression[];
+  step: StepWithProgression;
   onCheckStepChange: (progressionId: string, isCompleted: boolean) => void;
 }
 
 const StepCheckerList = (props: StepCheckerProps) => {
-  const { steps, onCheckStepChange } = props;
+  const { step, onCheckStepChange } = props;
 
   return (
-    <FlatList
-      data={steps.sort((a, b) => a.order - b.order)}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <Card
-          style={{ margin: 8 }}
-          onPress={() => onCheckStepChange(item.progressionId, !item.completed)}
-        >
-          <Card.Content>
-            <View style={{ flexDirection: "row" }}>
-              <Checkbox
-                status={item.completed ? "checked" : "unchecked"}
-                onPress={() =>
-                  onCheckStepChange(item.progressionId, !item.completed)
-                }
-              />
-              <Text variant="titleMedium">{item.title}</Text>
-            </View>
-            <Text>{item.description}</Text>
+    <Card
+      style={{ margin: 8 }}
+      onPress={() => onCheckStepChange(step.progressionId, !step.completed)}
+    >
+      <Card.Content>
+        <View style={{ flexDirection: "row" }}>
+          <Checkbox
+            status={step.completed ? "checked" : "unchecked"}
+            onPress={() =>
+              onCheckStepChange(step.progressionId, !step.completed)
+            }
+          />
+          <Text variant="titleMedium">{step.title}</Text>
+        </View>
+        <Text>{step.description}</Text>
 
-            {item.completed && item.dateCompleted && (
-              <Text style={{ marginTop: 4, fontStyle: "italic" }}>
-                {`Complété le : ${new Date(item.dateCompleted).toLocaleDateString()}`}
-              </Text>
-            )}
-          </Card.Content>
-        </Card>
-      )}
-      style={{ height: "75%" }}
-    />
+        {step.completed && step.dateCompleted && (
+          <Text style={{ marginTop: 4, fontStyle: "italic" }}>
+            {`Complété le : ${new Date(step.dateCompleted).toLocaleDateString()}`}
+          </Text>
+        )}
+      </Card.Content>
+    </Card>
   );
 };
 

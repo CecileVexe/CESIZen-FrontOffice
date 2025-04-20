@@ -4,9 +4,9 @@ import {
   getProgressionFromUser,
 } from "../../../services/progression.service";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
-import { ProgressBar, Text, useTheme } from "react-native-paper";
+import { ProgressBar, Text, useTheme, FAB } from "react-native-paper"; // Importer FAB ici
 import { SignInButton } from "../../../components/SignInButton";
-import { View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import { getRessource } from "../../../services/ressources.service";
 import { parseStringDate } from "../../../utils/functions/datesFunction";
 import StepCheckerList from "../../../components/StepCheker";
@@ -15,6 +15,7 @@ import { mergeStepsWithProgressions } from "../../../utils/functions/mergeStepWi
 import { Ressource } from "../../../utils/types/Ressources.types";
 import { Progression } from "../../../utils/types/Progression.types";
 import { completedStep } from "../../../utils/functions/completedSteps";
+import { useRouter } from "expo-router";
 
 interface StepWithRessourceId extends Step {
   ressourceId: string;
@@ -37,6 +38,7 @@ const OnGoingRessource = () => {
 
   const { connectedUser } = useConntedUser();
   const theme = useTheme();
+  const router = useRouter();
 
   const getProgressionDatas = useCallback(async () => {
     if (connectedUser) {
@@ -73,6 +75,9 @@ const OnGoingRessource = () => {
         userRessource.step,
         userProgression,
       );
+
+      merged.sort((a, b) => a.order - b.order);
+
       setUserRessourceStep(merged);
     }
   }, [userProgression, userRessource?.step]);
@@ -100,17 +105,17 @@ const OnGoingRessource = () => {
 
   return connectedUser !== undefined ? (
     userRessource !== undefined ? (
-      <View>
+      <View style={{ flex: 1 }}>
         <Text variant="titleLarge">{userRessource.title}</Text>
-        {/* WAIT API <Text variant="labelLarge">{userRessource.categorie}</Text> */}
         <Text variant="labelMedium">{`Date limite : ${parseStringDate(userRessource.deadLine)}`}</Text>
         <Text variant="labelMedium">
-          Nombre de participant {userRessource.nbParticipant} /
+          Nombre de participant {userRessource.nbParticipant} /{" "}
           {userRessource.maxParticipant}
         </Text>
         <Text variant="bodyLarge">{userRessource.description}</Text>
+
         {userRessourceStep && (
-          <View>
+          <View style={{ flex: 1 }}>
             <View>
               <Text>{`Progression : ${completedStep(userRessourceStep)}/${userRessourceStep.length}`}</Text>
               <ProgressBar
@@ -121,12 +126,29 @@ const OnGoingRessource = () => {
                 color={theme.colors.primary}
               />
             </View>
-            <StepCheckerList
-              steps={userRessourceStep}
-              onCheckStepChange={handleCheckStepChange}
+            <FlatList
+              data={userRessourceStep}
+              keyExtractor={(item) => `${item.id}_card`}
+              renderItem={({ item }) => (
+                <StepCheckerList
+                  step={item}
+                  onCheckStepChange={handleCheckStepChange}
+                />
+              )}
+              contentContainerStyle={{ paddingBottom: 120, paddingTop: 20 }}
+              style={{ flex: 1 }}
             />
           </View>
         )}
+
+        <FAB
+          style={styles.fab}
+          icon="message"
+          customSize={70}
+          onPress={() =>
+            router.push(`/chatScreen?ressourceId=${userRessource.id}`)
+          }
+        />
       </View>
     ) : (
       <Text>Retrouvez votre activité en cours ici ! </Text>
@@ -138,5 +160,14 @@ const OnGoingRessource = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  fab: {
+    position: "absolute",
+    bottom: 10,
+    right: 16,
+    margin: 10,
+  },
+});
 
 export default OnGoingRessource;

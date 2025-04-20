@@ -33,9 +33,10 @@ export default function Layout() {
       <Tabs.Screen
         name="(onGoingRessource)"
         options={{
-          title: "En cours",
+          title: "Activité",
           headerShown: false,
           tabBarIcon: () => <Icon size={20} source="camera-timer" />,
+          popToTopOnBlur: true,
         }}
       />
     </Tabs>
