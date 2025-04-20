@@ -29,7 +29,7 @@ const SubscribeToRessource = (props: SubscribeToRessourceProps) => {
     <View>
       <Portal>
         <Dialog visible={visible} onDismiss={hideDialog}>
-          <Dialog.Title>S'inscrire à la ressoruce</Dialog.Title>
+          <Dialog.Title>S'inscrire à la ressource</Dialog.Title>
           <Dialog.Content>
             <Text variant="bodyMedium">
               {`Vous confirmer vous inscrire à la ressrouce ${ressource.title} ?`}
