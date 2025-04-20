@@ -5,6 +5,14 @@ export const parseStringDate = (date: string) => {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-    timeZone: "Europe/Paris",
+  });
+};
+
+export const parseStringHour = (date: string) => {
+  const newDate = new Date(date);
+
+  return newDate.toLocaleTimeString("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };

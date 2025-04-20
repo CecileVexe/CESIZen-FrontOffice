@@ -2,7 +2,7 @@ import { useLocalSearchParams } from "expo-router";
 import { Button, Chip, PaperProvider, Text } from "react-native-paper";
 import { useCallback, useEffect, useState } from "react";
 
-import { Image, View } from "react-native";
+import { FlatList, Image, View } from "react-native";
 import { Ressource } from "../../../utils/types/Ressources.types";
 import { getRessource } from "../../../services/ressources.service";
 import CommentCard from "../../../components/CommentCard";
@@ -88,13 +88,11 @@ const RessourceDetails = () => {
       /> */}
           <Text variant="titleLarge">{ressource.title}</Text>
           {/* WAIT API <Text variant="labelLarge">{ressource.categorie}</Text> */}
-
           <Text variant="labelMedium">{`Date limite : ${parseStringDate(ressource.deadLine)}`}</Text>
           <Text variant="labelMedium">
             Nombre de participant {ressource.nbParticipant} /
             {ressource.maxParticipant}
           </Text>
-
           <Button
             mode="contained"
             onPress={showSubscribeDialog}
@@ -107,18 +105,15 @@ const RessourceDetails = () => {
           >
             {!isSignedIn ? "Créez un compte pour vous inscrire" : "S'inscrire"}
           </Button>
-
           {ressource.status === ("En cours" || "Terminé") && (
             <Chip icon="information">{ressource.status}</Chip>
           )}
           <Text variant="bodyLarge">{ressource.description}</Text>
-
           {isSignedIn && (
             <Button mode="contained" onPress={showCommentFormDialog}>
               Laisser un commentaire
             </Button>
           )}
-
           <CommentForm
             visible={commentFormVisible}
             hideDialog={hideCommentFormDialog}
@@ -127,16 +122,18 @@ const RessourceDetails = () => {
             onSubmit={onSubmit}
             errors={errors}
           />
-
           <SubscribeToRessource
             visible={subscribeVisible}
             hideDialog={hideSubscribeDialog}
             ressource={ressource}
           />
-
-          {ressource.comment.map((comment) => (
-            <CommentCard comment={comment} />
-          ))}
+          {ressource.comment && (
+            <FlatList
+              data={ressource.comment}
+              keyExtractor={(item) => `${item.title}_card`}
+              renderItem={({ item }) => <CommentCard comment={item} />}
+            />
+          )}
         </View>
       )}
     </PaperProvider>
