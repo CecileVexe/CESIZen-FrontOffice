@@ -2,7 +2,7 @@ import { useSignIn } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { TextInput, Button, Title, Text, Card } from "react-native-paper";
+import { TextInput, Button, Title, Text, Card, IconButton } from "react-native-paper";
 import { useConntedUser } from "../../utils/ConnectedUserContext";
 
 export default function Page() {
@@ -11,6 +11,7 @@ export default function Page() {
   const { handleNonConnectedUser } = useConntedUser();
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
 
   const onSignInPress = async () => {
     if (!isLoaded) return;
@@ -56,9 +57,15 @@ export default function Page() {
             label="Mot de passe"
             mode="outlined"
             value={password}
-            secureTextEntry
+            secureTextEntry={!showPassword}
             onChangeText={setPassword}
             style={styles.input}
+            right={
+              <TextInput.Icon
+                icon={showPassword ? "eye-off" : "eye"}
+                onPress={() => setShowPassword((prev) => !prev)}
+              />
+            }
           />
 
           <Button

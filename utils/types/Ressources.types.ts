@@ -10,5 +10,9 @@ export interface Ressource {
   nbParticipant: number;
   status: string;
   title: string;
+  category: {
+    id: string;
+    name: string;
+  };   
   comment: CommentType[];
 }

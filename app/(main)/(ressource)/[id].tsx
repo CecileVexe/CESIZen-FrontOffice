@@ -87,7 +87,7 @@ const RessourceDetails = () => {
         source={require('@expo/snack-static/react-native-logo.png')}
       /> */}
           <Text variant="titleLarge">{ressource.title}</Text>
-          {/* WAIT API <Text variant="labelLarge">{ressource.categorie}</Text> */}
+          <Text variant="labelLarge">{ressource.categorie}</Text>
 
           <Text variant="labelMedium">{`Date limite : ${parseStringDate(ressource.deadLine)}`}</Text>
           <Text variant="labelMedium">
