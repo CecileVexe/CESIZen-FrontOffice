@@ -48,7 +48,7 @@ export default function Page() {
 
   return (
     <View>
-      {/* <SignOutButton /> */}
+      <SignOutButton />
       {ressources ? (
         <FlatList
           data={ressources}

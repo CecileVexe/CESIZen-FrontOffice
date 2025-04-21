@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
 import { leaveAComment } from "../../../services/comment.service";
 import SubscribeToRessource from "../../../components/SubscribeToRessource";
+import InviteForm from "../../../components/InviteForm";
 
 const RessourceDetails = () => {
   const { isSignedIn } = useAuth();
@@ -20,6 +21,7 @@ const RessourceDetails = () => {
 
   const [commentFormVisible, setCommentFormVisible] = useState(false);
   const [subscribeVisible, setSubscribeVisible] = useState(false);
+  const [inviteFormVisible, setInviteFormVisible] = useState(false);
 
   const {
     control,
@@ -45,6 +47,13 @@ const RessourceDetails = () => {
   const hideSubscribeDialog = () => {
     reset();
     setSubscribeVisible(false);
+  };
+
+  const showInviteFormDialog = () => setInviteFormVisible(true);
+
+  const hideInviteFormDialog = () => {
+    reset();
+    setInviteFormVisible(false);
   };
 
   const { id } = useLocalSearchParams<Record<string, string>>();
@@ -110,9 +119,15 @@ const RessourceDetails = () => {
           )}
           <Text variant="bodyLarge">{ressource.description}</Text>
           {isSignedIn && (
-            <Button mode="contained" onPress={showCommentFormDialog}>
-              Laisser un commentaire
-            </Button>
+            <>
+              <Button mode="contained" onPress={showCommentFormDialog}>
+                Laisser un commentaire
+              </Button>
+
+              <Button mode="contained" onPress={showInviteFormDialog}>
+                Inviter
+              </Button>
+            </>
           )}
           <CommentForm
             visible={commentFormVisible}
@@ -122,11 +137,19 @@ const RessourceDetails = () => {
             onSubmit={onSubmit}
             errors={errors}
           />
+
+          <InviteForm
+            visible={inviteFormVisible}
+            hideDialog={hideInviteFormDialog}
+            ressourceId={ressource.id}
+          />
+
           <SubscribeToRessource
             visible={subscribeVisible}
             hideDialog={hideSubscribeDialog}
             ressource={ressource}
           />
+
           {ressource.comment && (
             <FlatList
               data={ressource.comment}
