@@ -23,7 +23,7 @@ export default function Page() {
 
       if (signInAttempt.status === "complete") {
         await setActive({ session: signInAttempt.createdSessionId });
-        router.replace("/");
+        router.replace("/(home)");
       } else {
         console.error(JSON.stringify(signInAttempt, null, 2));
       }
@@ -34,7 +34,7 @@ export default function Page() {
 
   const handleNonSignIn = () => {
     handleNonConnectedUser(true);
-    router.navigate("/");
+    router.navigate("/(home)");
   };
 
   return (

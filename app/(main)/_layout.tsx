@@ -19,6 +19,7 @@ export default function Layout() {
           title: "Home",
           tabBarIcon: () => <Icon size={20} source="home" />,
           headerShown: false,
+          popToTopOnBlur: true,
         }}
       />
       <Tabs.Screen
@@ -36,6 +37,16 @@ export default function Layout() {
           title: "Activité",
           headerShown: false,
           tabBarIcon: () => <Icon size={20} source="camera-timer" />,
+          popToTopOnBlur: true,
+        }}
+      />
+
+      <Tabs.Screen
+        name="(citizen)"
+        options={{
+          title: "Compte",
+          headerShown: false,
+          tabBarIcon: () => <Icon size={20} source="account" />,
           popToTopOnBlur: true,
         }}
       />

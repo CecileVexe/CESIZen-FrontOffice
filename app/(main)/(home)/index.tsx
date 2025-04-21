@@ -6,6 +6,7 @@ import { Link } from "expo-router";
 import { Ressource } from "../../../utils/types/Ressources.types";
 import { getRessources } from "../../../services/ressources.service";
 import { SignOutButton } from "../../../components/SignOutButton";
+import { SignInButton } from "../../../components/SignInButton";
 
 const renderItem = ({ item }: { item: Ressource }) => {
   return (
@@ -48,7 +49,7 @@ export default function Page() {
 
   return (
     <View>
-      {/* <SignOutButton /> */}
+      <SignOutButton />
       {ressources ? (
         <FlatList
           data={ressources}
