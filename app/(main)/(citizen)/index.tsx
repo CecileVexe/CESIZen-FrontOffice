@@ -1,11 +1,4 @@
-import {
-  Button,
-  Divider,
-  Text,
-  Title,
-  useTheme,
-  IconButton,
-} from "react-native-paper";
+import { Button, Divider, Title, IconButton } from "react-native-paper";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
 import { Redirect, useRouter } from "expo-router";
 import { StyleSheet, View } from "react-native";
@@ -38,7 +31,7 @@ const UserPage = () => {
           mode="contained"
           icon="email-outline"
           style={styles.button}
-          onPress={() => router.push("/invitations")}
+          onPress={() => router.push("/invitationsPage")}
         >
           Voir mes invitations
         </Button>
