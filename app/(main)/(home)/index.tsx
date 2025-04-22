@@ -122,8 +122,8 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   imageContainer: {
-    width: 100,
-    height: 100,
+    width: 150,
+    height: 150,
     marginRight: 12,
   },
   cover: {
