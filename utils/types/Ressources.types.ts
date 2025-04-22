@@ -10,7 +10,10 @@ export interface Ressource {
   maxParticipant: number;
   nbParticipant: number;
   status: string;
+  category: {
+    id: string;
+    name: string;
+  };   
   title: string;
-  step: Step[];
   comment: CommentType[];
 }

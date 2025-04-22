@@ -13,6 +13,7 @@ export default function SignUpScreen() {
   const [surname, setSurname] = React.useState("");
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [pendingVerification, setPendingVerification] = React.useState(false);
   const [code, setCode] = React.useState("");
 
@@ -114,9 +115,15 @@ export default function SignUpScreen() {
             label="Mot de passe"
             mode="outlined"
             value={password}
-            secureTextEntry
+            secureTextEntry={!showPassword}
             onChangeText={setPassword}
             style={styles.input}
+            right={
+              <TextInput.Icon
+                icon={showPassword ? "eye-off" : "eye"}
+                onPress={() => setShowPassword((prev) => !prev)}
+              />
+            }
           />
 
           <Button mode="contained" onPress={onSignUpPress} style={styles.button}>
@@ -168,7 +175,3 @@ const styles = StyleSheet.create({
   },
 });
 
-// 👇 Cela masque le header de la page
-export const screenOptions = {
-  headerShown: false,
-};

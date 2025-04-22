@@ -97,6 +97,7 @@ const RessourceDetails = () => {
       /> */}
           <Text variant="titleLarge">{ressource.title}</Text>
           {/* WAIT API <Text variant="labelLarge">{ressource.categorie}</Text> */}
+
           <Text variant="labelMedium">{`Date limite : ${parseStringDate(ressource.deadLine)}`}</Text>
           <Text variant="labelMedium">
             Nombre de participant {ressource.nbParticipant} /

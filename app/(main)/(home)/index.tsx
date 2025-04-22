@@ -1,22 +1,56 @@
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, RefreshControl, View } from "react-native";
-import { Card, Text } from "react-native-paper";
-
+import { FlatList, RefreshControl, View, StyleSheet } from "react-native";
+import { Card, Text, ProgressBar } from "react-native-paper";
 import { Link } from "expo-router";
+
 import { Ressource } from "../../../utils/types/Ressources.types";
 import { getRessources } from "../../../services/ressources.service";
-import { SignOutButton } from "../../../components/SignOutButton";
 import { SignInButton } from "../../../components/SignInButton";
 
 const renderItem = ({ item }: { item: Ressource }) => {
+  const progress = item.nbParticipant / item.maxParticipant;
   return (
-    <Link href={`/(ressource)/${item.id}`}>
-      <Card>
-        {item.file && <Card.Cover source={{ uri: `${item.file}` }} />}
-        <Card.Content>
-          <Text variant="titleLarge">{item.title}</Text>
-          <Text variant="bodyMedium">{item.description}</Text>
-        </Card.Content>
+    <Link href={`/(ressource)/${item.id}`} asChild>
+      <Card style={styles.card} mode="elevated">
+        <View style={styles.cardContent}>
+          <View style={styles.imageContainer}>
+            {item.file ? (
+              <Card.Cover
+                source={{ uri: `${item.file}` }}
+                style={styles.cover}
+              />
+            ) : (
+              <View style={styles.placeholder}>
+                <Text style={styles.placeholderText}>Image</Text>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.infoContainer}>
+            <Text variant="titleLarge" style={styles.title}>
+              {item.title}
+            </Text>
+
+            <View style={styles.Participant_progress}>
+              <Text variant="bodyMedium" style={styles.Participant}>
+                {item.nbParticipant} / {item.maxParticipant}
+              </Text>
+              
+              <ProgressBar
+                progress={progress}
+                color="#74a5dd"
+                style={styles.progressBar}
+                />
+            </View>
+            
+            <View style={[styles.badge]}>
+              <Text style={styles.badgeText}>{item.category.name}</Text>
+            </View>
+            <Text variant="bodyMedium">
+              {new Date(item.deadLine).toLocaleDateString('fr-FR')}
+            </Text>
+          </View>
+        </View>
       </Card>
     </Link>
   );
@@ -24,19 +58,21 @@ const renderItem = ({ item }: { item: Ressource }) => {
 
 export default function Page() {
   const [ressources, setRessources] = useState<Ressource[] | undefined>(
-    undefined,
+    undefined
   );
   const [loading, setLoading] = useState(false);
 
   const getDatas = useCallback(async () => {
+    setLoading(true);
+
     const response = await getRessources();
     if (response) {
-      const validatedRessrouces = response.data.filter(
-        (ressource) => ressource.isValidate,
+      const validatedRessources = response.data.filter(
+        (ressource) => ressource.isValidate
       );
-      setRessources(validatedRessrouces);
-      setLoading(false);
+      setRessources(validatedRessources);
     }
+    setLoading(false);
   }, []);
 
   const onRefresh = useCallback(() => {
@@ -49,19 +85,105 @@ export default function Page() {
 
   return (
     <View>
-      <SignOutButton />
+      {/* <SignOutButton /> */}
       {ressources ? (
         <FlatList
           data={ressources}
           keyExtractor={(item) => `${item.title}_card`}
           renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
           refreshControl={
             <RefreshControl refreshing={loading} onRefresh={onRefresh} />
           }
         />
       ) : (
-        <Text>Aucune ressources disponnibles !</Text>
+        <Text style={styles.emptyText}>Aucune ressource disponible !</Text>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f4f6f8",
+    padding: 12,
+  },
+  listContent: {
+    paddingBottom: 16,
+  },
+  card: {
+    marginBottom: 16,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  cardContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+  },
+  imageContainer: {
+    width: 150,
+    height: 150,
+    marginRight: 12,
+  },
+  cover: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 8,
+  },
+  placeholder: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#ccc",
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  placeholderText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  infoContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  title: {
+    marginBottom: 4,
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  Participant: {
+    color: "#555",
+    marginRight: 8, 
+  },
+  Participant_progress: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  progressBar: {
+    height: 15,
+    borderRadius: 3,
+    flex: 1,
+  },
+  emptyText: {
+    marginTop: 40,
+    textAlign: "center",
+    fontSize: 16,
+    color: "#777",
+  },
+  badge: {
+    alignSelf: "flex-start",
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderRadius: 12,
+    marginTop: 8,
+    backgroundColor: "#00949f",
+  },
+  badgeText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+});

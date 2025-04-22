@@ -7,9 +7,14 @@ export default function AuthRoutesLayout() {
   const { userChoseToUnconnect } = useConntedUser();
 
   if (userChoseToUnconnect || isSignedIn) {
-    // eslint-disable-next-line prettier/prettier
-    return <Redirect href={"/"} />
+    return <Redirect href={"/"} />;
   }
 
-  return <Stack />;
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    />
+  );
 }

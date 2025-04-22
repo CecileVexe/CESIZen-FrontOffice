@@ -5,7 +5,6 @@ import { useConntedUser } from "../../../utils/ConnectedUserContext";
 
 export default function Layout() {
   const { isSignedIn } = useAuth();
-
   const { userChoseToUnconnect } = useConntedUser();
 
   if (!userChoseToUnconnect && !isSignedIn) {
@@ -17,7 +16,7 @@ export default function Layout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Home",
+          headerShown: false,
         }}
       />
     </Stack>
