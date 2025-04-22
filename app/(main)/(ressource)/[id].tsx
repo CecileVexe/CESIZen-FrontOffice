@@ -1,8 +1,14 @@
 import { useLocalSearchParams } from "expo-router";
-import { Button, Chip, PaperProvider, Text } from "react-native-paper";
+import {
+  Button,
+  Chip,
+  Divider,
+  PaperProvider,
+  Text,
+  Card,
+} from "react-native-paper";
 import { useCallback, useEffect, useState } from "react";
-
-import { FlatList, Image, View } from "react-native";
+import { FlatList, View, StyleSheet } from "react-native";
 import { Ressource } from "../../../utils/types/Ressources.types";
 import { getRessource } from "../../../services/ressources.service";
 import CommentCard from "../../../components/CommentCard";
@@ -36,21 +42,18 @@ const RessourceDetails = () => {
   });
 
   const showCommentFormDialog = () => setCommentFormVisible(true);
-
   const hideCommentFormDialog = () => {
     reset();
     setCommentFormVisible(false);
   };
 
   const showSubscribeDialog = () => setSubscribeVisible(true);
-
   const hideSubscribeDialog = () => {
     reset();
     setSubscribeVisible(false);
   };
 
   const showInviteFormDialog = () => setInviteFormVisible(true);
-
   const hideInviteFormDialog = () => {
     reset();
     setInviteFormVisible(false);
@@ -88,48 +91,85 @@ const RessourceDetails = () => {
     }
   };
 
+  const getStatusChipStyle = (status: string) => {
+    switch (status) {
+      case "En cours":
+        return { backgroundColor: "#74a5dd" };
+      case "Expirée":
+        return { backgroundColor: "#6c757d" };
+      case "En attente":
+        return { backgroundColor: "#ff9800" };
+      case "Validée":
+        return { backgroundColor: "#4caf50" };
+      default:
+        return { backgroundColor: "#ccc" };
+    }
+  };
+
   return (
     <PaperProvider>
       {ressource && (
-        <View>
-          {/* EN ATTENTE DU BACK <Image
-        source={require('@expo/snack-static/react-native-logo.png')}
-      /> */}
-          <Text variant="titleLarge">{ressource.title}</Text>
-          {/* WAIT API <Text variant="labelLarge">{ressource.categorie}</Text> */}
+        <View style={styles.container}>
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text variant="titleLarge" style={styles.title}>
+                {ressource.title}
+              </Text>
 
-          <Text variant="labelMedium">{`Date limite : ${parseStringDate(ressource.deadLine)}`}</Text>
-          <Text variant="labelMedium">
-            Nombre de participant {ressource.nbParticipant} /
-            {ressource.maxParticipant}
-          </Text>
-          <Button
-            mode="contained"
-            onPress={showSubscribeDialog}
-            disabled={
-              ressource.nbParticipant === ressource.maxParticipant ||
-              !ressource.isValidate ||
-              ressource.status === "En cours" ||
-              !SignedIn
-            }
-          >
-            {!isSignedIn ? "Créez un compte pour vous inscrire" : "S'inscrire"}
-          </Button>
-          {ressource.status === ("En cours" || "Terminé") && (
-            <Chip icon="information">{ressource.status}</Chip>
-          )}
-          <Text variant="bodyLarge">{ressource.description}</Text>
-          {isSignedIn && (
-            <>
-              <Button mode="contained" onPress={showCommentFormDialog}>
-                Laisser un commentaire
+              {isSignedIn && (
+                <Button
+                  mode="contained"
+                  onPress={showInviteFormDialog}
+                  style={[styles.button, { marginBottom: 10 }]}
+                  icon="account-plus"
+                >
+                  Inviter
+                </Button>
+              )}
+
+              <Text variant="labelMedium" style={styles.label}>
+                {`Date limite : ${parseStringDate(ressource.deadLine)}`}
+              </Text>
+
+              <Text variant="labelMedium" style={styles.label}>
+                Participants : {ressource.nbParticipant} / {ressource.maxParticipant}
+              </Text>
+
+              <View style={styles.badgeContainer}>
+                <Chip icon="information" style={[styles.statusChip, getStatusChipStyle(ressource.status)]}>
+                  {ressource.status}
+                </Chip>
+
+                <Chip icon="tag" style={styles.categoryChip}>
+                  {ressource.category.name}
+                </Chip>
+              </View>
+
+              <Divider style={styles.divider} />
+
+              <Button
+                mode="contained"
+                onPress={showSubscribeDialog}
+                disabled={
+                  ressource.nbParticipant === ressource.maxParticipant ||
+                  !ressource.isValidate ||
+                  ressource.status === "En cours" ||
+                  !SignedIn
+                }
+                style={styles.button}
+              >
+                {!isSignedIn
+                  ? "Créez un compte pour vous inscrire"
+                  : "S'inscrire"}
               </Button>
 
-              <Button mode="contained" onPress={showInviteFormDialog}>
-                Inviter
-              </Button>
-            </>
-          )}
+              <Text variant="bodyLarge" style={styles.description}>
+                {ressource.description}
+              </Text>
+
+            </Card.Content>
+          </Card>
+
           <CommentForm
             visible={commentFormVisible}
             hideDialog={hideCommentFormDialog}
@@ -151,11 +191,29 @@ const RessourceDetails = () => {
             ressource={ressource}
           />
 
+          <View style={styles.commentHeader}>
+            <Text variant="headlineMedium" style={styles.commentSectionTitle}>
+              Espace commentaire
+            </Text>
+            {isSignedIn && (
+              <Button
+                mode="contained"
+                onPress={showCommentFormDialog}
+                style={styles.commentButton}
+                icon="plus"
+              >
+                Commentaire
+              </Button>
+            )}
+          </View>
+
           {ressource.comment && (
             <FlatList
               data={ressource.comment}
               keyExtractor={(item) => `${item.title}_card`}
               renderItem={({ item }) => <CommentCard comment={item} />}
+              style={styles.commentList}
+              contentContainerStyle={{ paddingBottom: 40 }}
             />
           )}
         </View>
@@ -165,3 +223,69 @@ const RessourceDetails = () => {
 };
 
 export default RessourceDetails;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#f8f9fa",
+  },
+  card: {
+    marginBottom: 20,
+    borderRadius: 12,
+    backgroundColor: "#ffffff",
+  },
+  title: {
+    marginBottom: 8,
+  },
+  label: {
+    marginBottom: 4,
+    color: "#555",
+  },
+  divider: {
+    marginVertical: 12,
+  },
+  button: {
+    marginTop: 0,
+  },
+  description: {
+    marginTop: 16,
+    lineHeight: 20,
+    color: "#333",
+  },
+  commentList: {
+    marginTop: 20,
+  },
+  commentSectionTitle: {
+    fontWeight: "bold",
+    fontSize: 20,
+    color: "#333",
+  },
+  commentHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  commentButton: {
+    borderRadius: 8,
+    elevation: 2,
+  },
+  badgeContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 12,
+    marginBottom: 12,
+  },
+  statusChip: {
+    alignSelf: "flex-start",
+    marginRight: 8,
+    color: "#fff",
+  },
+  categoryChip: {
+    backgroundColor: "#e3f2fd",
+    alignSelf: "flex-start",
+  },
+});

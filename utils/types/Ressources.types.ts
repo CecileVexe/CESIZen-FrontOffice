@@ -16,4 +16,5 @@ export interface Ressource {
   };   
   title: string;
   comment: CommentType[];
+  step:Step[];
 }
