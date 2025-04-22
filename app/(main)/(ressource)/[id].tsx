@@ -2,7 +2,7 @@ import { useLocalSearchParams } from "expo-router";
 import { Button, Chip, PaperProvider, Text } from "react-native-paper";
 import { useCallback, useEffect, useState } from "react";
 
-import { Image, View } from "react-native";
+import { FlatList, Image, View } from "react-native";
 import { Ressource } from "../../../utils/types/Ressources.types";
 import { getRessource } from "../../../services/ressources.service";
 import CommentCard from "../../../components/CommentCard";
@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
 import { leaveAComment } from "../../../services/comment.service";
 import SubscribeToRessource from "../../../components/SubscribeToRessource";
+import InviteForm from "../../../components/InviteForm";
 
 const RessourceDetails = () => {
   const { isSignedIn } = useAuth();
@@ -20,6 +21,7 @@ const RessourceDetails = () => {
 
   const [commentFormVisible, setCommentFormVisible] = useState(false);
   const [subscribeVisible, setSubscribeVisible] = useState(false);
+  const [inviteFormVisible, setInviteFormVisible] = useState(false);
 
   const {
     control,
@@ -45,6 +47,13 @@ const RessourceDetails = () => {
   const hideSubscribeDialog = () => {
     reset();
     setSubscribeVisible(false);
+  };
+
+  const showInviteFormDialog = () => setInviteFormVisible(true);
+
+  const hideInviteFormDialog = () => {
+    reset();
+    setInviteFormVisible(false);
   };
 
   const { id } = useLocalSearchParams<Record<string, string>>();
@@ -87,14 +96,13 @@ const RessourceDetails = () => {
         source={require('@expo/snack-static/react-native-logo.png')}
       /> */}
           <Text variant="titleLarge">{ressource.title}</Text>
-          <Text variant="labelLarge">{ressource.categorie}</Text>
+          {/* WAIT API <Text variant="labelLarge">{ressource.categorie}</Text> */}
 
           <Text variant="labelMedium">{`Date limite : ${parseStringDate(ressource.deadLine)}`}</Text>
           <Text variant="labelMedium">
             Nombre de participant {ressource.nbParticipant} /
             {ressource.maxParticipant}
           </Text>
-
           <Button
             mode="contained"
             onPress={showSubscribeDialog}
@@ -107,18 +115,21 @@ const RessourceDetails = () => {
           >
             {!isSignedIn ? "Créez un compte pour vous inscrire" : "S'inscrire"}
           </Button>
-
           {ressource.status === ("En cours" || "Terminé") && (
             <Chip icon="information">{ressource.status}</Chip>
           )}
           <Text variant="bodyLarge">{ressource.description}</Text>
-
           {isSignedIn && (
-            <Button mode="contained" onPress={showCommentFormDialog}>
-              Laisser un commentaire
-            </Button>
-          )}
+            <>
+              <Button mode="contained" onPress={showCommentFormDialog}>
+                Laisser un commentaire
+              </Button>
 
+              <Button mode="contained" onPress={showInviteFormDialog}>
+                Inviter
+              </Button>
+            </>
+          )}
           <CommentForm
             visible={commentFormVisible}
             hideDialog={hideCommentFormDialog}
@@ -128,15 +139,25 @@ const RessourceDetails = () => {
             errors={errors}
           />
 
+          <InviteForm
+            visible={inviteFormVisible}
+            hideDialog={hideInviteFormDialog}
+            ressourceId={ressource.id}
+          />
+
           <SubscribeToRessource
             visible={subscribeVisible}
             hideDialog={hideSubscribeDialog}
             ressource={ressource}
           />
 
-          {ressource.comment.map((comment) => (
-            <CommentCard comment={comment} />
-          ))}
+          {ressource.comment && (
+            <FlatList
+              data={ressource.comment}
+              keyExtractor={(item) => `${item.title}_card`}
+              renderItem={({ item }) => <CommentCard comment={item} />}
+            />
+          )}
         </View>
       )}
     </PaperProvider>

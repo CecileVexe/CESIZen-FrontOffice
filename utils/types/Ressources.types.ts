@@ -1,4 +1,5 @@
 import { CommentType } from "./Comment.types";
+import { Step } from "./Step.types";
 
 export interface Ressource {
   id: string;
@@ -10,9 +11,5 @@ export interface Ressource {
   nbParticipant: number;
   status: string;
   title: string;
-  category: {
-    id: string;
-    name: string;
-  };   
   comment: CommentType[];
 }

@@ -83,7 +83,8 @@ export default function Page() {
   }, [getDatas]);
 
   return (
-    <View style={styles.container}>
+    <View>
+      {/* <SignOutButton /> */}
       {ressources ? (
         <FlatList
           data={ressources}
