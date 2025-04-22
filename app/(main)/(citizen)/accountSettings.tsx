@@ -47,7 +47,6 @@ const AccountSettings = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Partie 1 - Infos perso */}
       <Text style={styles.title}>Modifier mes informations</Text>
 
       <Controller
