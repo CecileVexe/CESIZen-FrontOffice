@@ -19,10 +19,6 @@ export default function Layout() {
         options={{ headerShown: false }}
       />
       <Stack.Screen name="accountSettings" options={{ title: "Paramètres" }} />
-      <Stack.Screen
-        name="invitationsPage"
-        options={{ title: "Mes invitations" }}
-      />
     </Stack>
   );
 }
