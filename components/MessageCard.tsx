@@ -13,7 +13,7 @@ interface MessageCardProps {
 const MessageCard = ({ message }: MessageCardProps) => {
   const { connectedUser } = useConntedUser();
   const isCurrentUser = connectedUser?.id === message.citizen.id;
-
+  
   return (
     <View
       style={[

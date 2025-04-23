@@ -5,6 +5,7 @@ import { Link } from "expo-router";
 
 import { Ressource } from "../../../utils/types/Ressources.types";
 import { getRessources } from "../../../services/ressources.service";
+import { SignOutButton } from "../../../components/SignOutButton";
 import { SignInButton } from "../../../components/SignInButton";
 
 const renderItem = ({ item }: { item: Ressource }) => {
@@ -35,17 +36,19 @@ const renderItem = ({ item }: { item: Ressource }) => {
               <Text variant="bodyMedium" style={styles.Participant}>
                 {item.nbParticipant} / {item.maxParticipant}
               </Text>
-              
-              <ProgressBar
+               <ProgressBar
                 progress={progress}
                 color="#74a5dd"
                 style={styles.progressBar}
                 />
             </View>
             
-            <View style={[styles.badge]}>
-              <Text style={styles.badgeText}>{item.category.name}</Text>
+            <View style={styles.badgeContainer}>
+              <View style={[styles.categoryBadge]}>
+                <Text style={styles.badgeText}>{item.category.name}</Text>
+              </View>
             </View>
+
             <Text variant="bodyMedium">
               {new Date(item.deadLine).toLocaleDateString('fr-FR')}
             </Text>
@@ -85,7 +88,7 @@ export default function Page() {
 
   return (
     <View>
-      {/* <SignOutButton /> */}
+      <SignOutButton />
       {ressources ? (
         <FlatList
           data={ressources}
@@ -174,13 +177,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#777",
   },
-  badge: {
-    alignSelf: "flex-start",
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: 12,
-    marginTop: 8,
-    backgroundColor: "#00949f",
+  badgeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  categoryBadge: {
+    backgroundColor: "#74a5dd",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
   },
   badgeText: {
     color: "#fff",

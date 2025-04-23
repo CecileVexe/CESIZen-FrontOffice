@@ -5,8 +5,8 @@ export interface CommentType {
   title: string;
   description: string;
   updatedAt: string;
-  citizen: Pick<CitizenType, "name" | "surname">;
-  ressourceId: string | undefined;
+  citizen: Pick<CitizenType, "email" | "id" | "name" | "surname">;
+  ressourceId: string | undefined; 
 }
 
 export interface CreateComment
