@@ -1,40 +1,83 @@
-import { Card, Checkbox, Text } from "react-native-paper";
+import { Checkbox, Divider, Text, TouchableRipple } from "react-native-paper";
 import { StepWithProgression } from "../utils/types/Step.types";
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
 
 interface StepCheckerProps {
   step: StepWithProgression;
   onCheckStepChange: (progressionId: string, isCompleted: boolean) => void;
 }
 
-const StepCheckerList = (props: StepCheckerProps) => {
-  const { step, onCheckStepChange } = props;
+const StepCheckerList = ({ step, onCheckStepChange }: StepCheckerProps) => {
+  const isCompleted = step.completed;
+
+  const handlePress = () => {
+    onCheckStepChange(step.progressionId, !isCompleted);
+  };
 
   return (
-    <Card
-      style={{ margin: 8 }}
-      onPress={() => onCheckStepChange(step.progressionId, !step.completed)}
-    >
-      <Card.Content>
-        <View style={{ flexDirection: "row" }}>
+    <View>
+      <TouchableRipple onPress={handlePress} rippleColor="rgba(0, 0, 0, .1)">
+        <View style={styles.stepContainer}>
           <Checkbox
-            status={step.completed ? "checked" : "unchecked"}
-            onPress={() =>
-              onCheckStepChange(step.progressionId, !step.completed)
-            }
+            status={isCompleted ? "checked" : "unchecked"}
+            onPress={handlePress}
           />
-          <Text variant="titleMedium">{step.title}</Text>
-        </View>
-        <Text>{step.description}</Text>
 
-        {step.completed && step.dateCompleted && (
-          <Text style={{ marginTop: 4, fontStyle: "italic" }}>
-            {`Complété le : ${new Date(step.dateCompleted).toLocaleDateString()}`}
-          </Text>
-        )}
-      </Card.Content>
-    </Card>
+          <View style={styles.textContainer}>
+            <Text
+              variant="titleSmall"
+              style={[styles.title, isCompleted && styles.completedTitle]}
+            >
+              {step.title}
+            </Text>
+            <Text style={styles.description}>{step.description}</Text>
+            {isCompleted && step.dateCompleted && (
+              <Text style={styles.date}>
+                Complété le : {new Date(step.dateCompleted).toLocaleDateString()}
+              </Text>
+            )}
+          </View>
+        </View>
+      </TouchableRipple>
+      <Divider style={styles.divider} />
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  stepContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+  },
+  textContainer: {
+    flex: 1,
+    paddingLeft: 8,
+  },
+  title: {
+    fontWeight: "600",
+    marginBottom: 2,
+  },
+  completedTitle: {
+    textDecorationLine: "line-through",
+    color: "#888",
+  },
+  description: {
+    color: "#555",
+    fontSize: 14,
+  },
+  date: {
+    fontSize: 12,
+    color: "#999",
+    fontStyle: "italic",
+    marginTop: 4,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#ddd",
+    marginHorizontal: 12,
+  },
+});
 
 export default StepCheckerList;

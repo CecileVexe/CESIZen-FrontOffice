@@ -25,8 +25,8 @@ export default function Layout() {
       <Tabs.Screen
         name="(ressource)"
         options={{
-          href: null, //Pour masquer la route sur les tabs en bas
-          title: "Test",
+          href: null,
+          title: "",
           headerShown: false,
           tabBarIcon: () => <Icon size={20} source="plus-box" />,
         }}

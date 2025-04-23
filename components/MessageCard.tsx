@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 0,
   },
   currentUserBubble: {
-    backgroundColor: "#4A90E2",
+    backgroundColor: "#f9921e",
     borderTopRightRadius: 0,
   },
   messageText: {

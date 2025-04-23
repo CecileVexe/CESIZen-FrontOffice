@@ -20,6 +20,8 @@ import { useConntedUser } from "../../../utils/ConnectedUserContext";
 import { leaveAComment } from "../../../services/comment.service";
 import SubscribeToRessource from "../../../components/SubscribeToRessource";
 import InviteForm from "../../../components/InviteForm";
+import { customTheme } from '../../../utils/theme/theme';
+
 
 const RessourceDetails = () => {
   const { isSignedIn } = useAuth();
@@ -107,7 +109,7 @@ const RessourceDetails = () => {
   };
 
   return (
-    <PaperProvider>
+    <PaperProvider theme={customTheme}>
       {ressource && (
         <View style={styles.container}>
           <Card style={styles.card}>
