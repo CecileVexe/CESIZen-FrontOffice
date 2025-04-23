@@ -1,7 +1,22 @@
 import React from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
-import { Text, TextInput, Button, Divider, useTheme } from "react-native-paper";
-import { useForm, Controller, useWatch } from "react-hook-form";
+import { StyleSheet, ScrollView } from "react-native";
+import {
+  Text,
+  TextInput,
+  Button,
+  Divider,
+  useTheme,
+  PaperProvider,
+} from "react-native-paper";
+import { useForm, Controller } from "react-hook-form";
+import { customTheme } from "../../../utils/theme/theme";
+import {
+  updateCitizen,
+  updateCitizenCredtials,
+} from "../../../services/citizen.service";
+import { useConntedUser } from "../../../utils/ConnectedUserContext";
+import { useRouter } from "expo-router";
+import { useUser } from "@clerk/clerk-expo";
 
 type FormData = {
   name: string;
@@ -13,12 +28,13 @@ type FormData = {
 
 const AccountSettings = () => {
   const theme = useTheme();
-
+  const router = useRouter();
   const {
     control,
     handleSubmit,
     formState: { errors },
     watch,
+    setError,
   } = useForm<FormData>({
     defaultValues: {
       name: "",
@@ -29,163 +45,224 @@ const AccountSettings = () => {
     },
   });
 
-  const newPassword = useWatch({ control, name: "newPassword" });
+  const { user } = useUser();
+  const { connectedUser } = useConntedUser();
 
-  const onSubmitInfo = (data: FormData) => {
-    console.log("Infos mises à jour :", data.name, data.surname);
-    // Appelle API update user
+  const onSubmitInfo = async (data: FormData) => {
+    const dataToSend = {
+      name: data.name,
+      surname: data.surname,
+      clerkId: user?.id,
+    };
+    if (connectedUser) {
+      const response = await updateCitizen(connectedUser.id, dataToSend);
+      if (response.data) {
+        router.back();
+      }
+    }
   };
 
-  const onSubmitPassword = (data: FormData) => {
+  const onSubmitPassword = async (data: FormData) => {
     console.log(
       "Mot de passe mis à jour :",
       data.oldPassword,
       data.newPassword,
     );
-    // Appelle API update password
+    if (user) {
+      const dataToSend = {
+        clerkId: user.id,
+        oldPassword: data.oldPassword,
+        password: data.newPassword,
+      };
+      const response = await updateCitizenCredtials(dataToSend);
+
+      if (response.data) {
+        router.back();
+      } else if (response.error) {
+        return setError("oldPassword", {
+          type: "manual",
+          message: "Mot de passe actuel incorrect.",
+        });
+      }
+    }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Modifier mes informations</Text>
+    <PaperProvider theme={customTheme}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Modifier mes informations</Text>
 
-      <Controller
-        control={control}
-        name="name"
-        rules={{ required: "Le prénom est requis" }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            label="Prénom"
-            value={value}
-            onChangeText={onChange}
-            error={!!errors.name}
-            style={styles.input}
-          />
-        )}
-      />
-      {errors.name && <Text style={styles.error}>{errors.name.message}</Text>}
+        <Controller
+          control={control}
+          name="name"
+          render={({ field: { onChange, value } }) => (
+            <>
+              <TextInput
+                label="Prénom"
+                value={value}
+                onChangeText={onChange}
+                error={!!errors.name}
+                style={styles.input}
+              />
+              {errors.name && (
+                <Text style={styles.error}>{errors.name.message}</Text>
+              )}
+            </>
+          )}
+        />
 
-      <Controller
-        control={control}
-        name="surname"
-        rules={{ required: "Le nom est requis" }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            label="Nom"
-            value={value}
-            onChangeText={onChange}
-            error={!!errors.surname}
-            style={styles.input}
-          />
-        )}
-      />
-      {errors.surname && (
-        <Text style={styles.error}>{errors.surname.message}</Text>
-      )}
+        <Controller
+          control={control}
+          name="surname"
+          render={({ field: { onChange, value } }) => (
+            <>
+              <TextInput
+                label="Nom"
+                value={value}
+                onChangeText={onChange}
+                error={!!errors.surname}
+                style={styles.input}
+              />
+              {errors.surname && (
+                <Text style={styles.error}>{errors.surname.message}</Text>
+              )}
+            </>
+          )}
+        />
 
-      <Button
-        mode="contained"
-        style={styles.button}
-        onPress={handleSubmit(onSubmitInfo)}
-      >
-        Enregistrer les modifications
-      </Button>
+        <Button
+          mode="contained"
+          style={styles.button}
+          onPress={handleSubmit(onSubmitInfo)}
+        >
+          Enregistrer les modifications
+        </Button>
 
-      <Divider style={styles.divider} />
+        <Divider style={styles.divider} />
 
-      {/* Partie 2 - Mot de passe */}
-      <Text style={styles.title}>Changer mon mot de passe</Text>
+        <Text style={styles.title}>Changer mon mot de passe</Text>
 
-      <Controller
-        control={control}
-        name="oldPassword"
-        rules={{ required: "L'ancien mot de passe est requis" }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            label="Ancien mot de passe"
-            value={value}
-            onChangeText={onChange}
-            secureTextEntry
-            error={!!errors.oldPassword}
-            style={styles.input}
-          />
-        )}
-      />
-      {errors.oldPassword && (
-        <Text style={styles.error}>{errors.oldPassword.message}</Text>
-      )}
+        <Controller
+          name="oldPassword"
+          control={control}
+          rules={{
+            validate: (value, formValues) => {
+              if (formValues.newPassword || value) {
+                return value ? true : "Ancien mot de passe requis";
+              }
+              return true;
+            },
+          }}
+          render={({ field: { onChange, value, onBlur } }) => (
+            <>
+              <TextInput
+                label="Ancien mot de passe"
+                secureTextEntry
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={!!errors.oldPassword}
+                style={styles.input}
+              />
+              {errors.oldPassword && (
+                <Text style={styles.error}>{errors.oldPassword.message}</Text>
+              )}
+            </>
+          )}
+        />
 
-      <Controller
-        control={control}
-        name="newPassword"
-        rules={{ required: "Le nouveau mot de passe est requis" }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            label="Nouveau mot de passe"
-            value={value}
-            onChangeText={onChange}
-            secureTextEntry
-            error={!!errors.newPassword}
-            style={styles.input}
-          />
-        )}
-      />
-      {errors.newPassword && (
-        <Text style={styles.error}>{errors.newPassword.message}</Text>
-      )}
+        <Controller
+          name="newPassword"
+          control={control}
+          rules={{
+            validate: (value, formValues) => {
+              if (formValues.oldPassword || value) {
+                return value ? true : "Nouveau mot de passe requis";
+              }
+              return true;
+            },
+          }}
+          render={({ field: { onChange, value, onBlur } }) => (
+            <>
+              <TextInput
+                label="Nouveau mot de passe"
+                secureTextEntry
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={!!errors.newPassword}
+                style={styles.input}
+              />
+              {errors.newPassword && (
+                <Text style={styles.error}>{errors.newPassword.message}</Text>
+              )}
+            </>
+          )}
+        />
 
-      <Controller
-        control={control}
-        name="confirmPassword"
-        rules={{
-          required: "Confirmation du mot de passe requise",
-          validate: (val) =>
-            val === newPassword || "Les mots de passe ne correspondent pas",
-        }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            label="Confirmer le nouveau mot de passe"
-            value={value}
-            onChangeText={onChange}
-            secureTextEntry
-            error={!!errors.confirmPassword}
-            style={styles.input}
-          />
-        )}
-      />
-      {errors.confirmPassword && (
-        <Text style={styles.error}>{errors.confirmPassword.message}</Text>
-      )}
+        <Controller
+          name="confirmPassword"
+          control={control}
+          rules={{
+            validate: (value) => {
+              const newPassword = watch("newPassword");
+              if (newPassword || value) {
+                if (!value) return "Confirmation requise";
+                if (value !== newPassword)
+                  return "Les mots de passe ne correspondent pas";
+              }
+              return true;
+            },
+          }}
+          render={({ field: { onChange, value, onBlur } }) => (
+            <>
+              <TextInput
+                label="Confirmer le mot de passe"
+                secureTextEntry
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={!!errors.confirmPassword}
+                style={styles.input}
+              />
+              {errors.confirmPassword && (
+                <Text style={styles.error}>
+                  {errors.confirmPassword.message}
+                </Text>
+              )}
+            </>
+          )}
+        />
 
-      <Button
-        mode="contained"
-        style={styles.button}
-        onPress={handleSubmit(onSubmitPassword)}
-      >
-        Mettre à jour le mot de passe
-      </Button>
+        <Button
+          mode="contained"
+          style={styles.button}
+          onPress={handleSubmit(onSubmitPassword)}
+        >
+          Mettre à jour le mot de passe
+        </Button>
 
-      <Divider style={styles.divider} />
+        <Divider style={styles.divider} />
 
-      {/* Partie 3 - Danger Zone */}
-      <Text style={styles.title}>Compte</Text>
-      <Button
-        mode="outlined"
-        textColor={theme.colors.error}
-        style={styles.button}
-        onPress={() => console.log("Suspendre")}
-      >
-        Suspendre mon compte
-      </Button>
-      <Button
-        mode="text"
-        textColor={theme.colors.error}
-        style={styles.button}
-        onPress={() => console.log("Supprimer")}
-      >
-        Supprimer mon compte
-      </Button>
-    </ScrollView>
+        <Text style={styles.title}>Compte</Text>
+        <Button
+          mode="outlined"
+          textColor={theme.colors.error}
+          style={styles.button}
+          onPress={() => console.log("Suspendre")}
+        >
+          Suspendre mon compte
+        </Button>
+        <Button
+          mode="text"
+          textColor={theme.colors.error}
+          style={styles.button}
+          onPress={() => console.log("Supprimer")}
+        >
+          Supprimer mon compte
+        </Button>
+      </ScrollView>
+    </PaperProvider>
   );
 };
 
