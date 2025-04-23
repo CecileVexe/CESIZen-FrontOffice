@@ -28,7 +28,8 @@ interface UserRessource extends Omit<Ressource, "step"> {
 const OnGoingRessource = () => {
   const [userProgression, setUserProgression] = useState<Progression[]>();
   const [userRessource, setUserRessource] = useState<UserRessource>();
-  const [userRessourceStep, setUserRessourceStep] = useState<StepWithProgression[]>();
+  const [userRessourceStep, setUserRessourceStep] =
+    useState<StepWithProgression[]>();
 
   const { connectedUser } = useConntedUser();
   const theme = useTheme();
@@ -36,9 +37,13 @@ const OnGoingRessource = () => {
 
   const getProgressionDatas = useCallback(async () => {
     if (connectedUser) {
-      const progressionResponse = await getProgressionFromUser(connectedUser.id);
+      const progressionResponse = await getProgressionFromUser(
+        connectedUser.id,
+      );
       if (progressionResponse) {
-        const ressourceResponse = await getRessource(progressionResponse.data[0].ressourceId);
+        const ressourceResponse = await getRessource(
+          progressionResponse.data[0].ressourceId,
+        );
         if (ressourceResponse) {
           const formatedRessourceResponse = {
             ...ressourceResponse.data,
@@ -61,13 +66,19 @@ const OnGoingRessource = () => {
 
   useEffect(() => {
     if (userRessource?.step && userProgression) {
-      const merged = mergeStepsWithProgressions(userRessource.step, userProgression);
+      const merged = mergeStepsWithProgressions(
+        userRessource.step,
+        userProgression,
+      );
       merged.sort((a, b) => a.order - b.order);
       setUserRessourceStep(merged);
     }
   }, [userProgression, userRessource?.step]);
 
-  const handleCheckStepChange = async (progressionId: string, isCompleted: boolean) => {
+  const handleCheckStepChange = async (
+    progressionId: string,
+    isCompleted: boolean,
+  ) => {
     const date = isCompleted ? new Date() : null;
     try {
       await CompleteProgression(progressionId, {
@@ -97,7 +108,8 @@ const OnGoingRessource = () => {
             Date limite : {parseStringDate(userRessource.deadLine)}
           </Chip>
           <Chip icon="account-group" style={styles.badge}>
-            {userRessource.nbParticipant} / {userRessource.maxParticipant} participants
+            {userRessource.nbParticipant} / {userRessource.maxParticipant}{" "}
+            participants
           </Chip>
         </View>
 
@@ -106,12 +118,13 @@ const OnGoingRessource = () => {
         {userRessourceStep && (
           <View style={styles.progressionContainer}>
             <Text style={styles.progressionText}>
-              Progression : {completedStep(userRessourceStep)} / {userRessourceStep.length}
+              Progression : {completedStep(userRessourceStep)} /{" "}
+              {userRessourceStep.length}
             </Text>
             <ProgressBar
               progress={getProgress(
                 completedStep(userRessourceStep),
-                userRessourceStep.length
+                userRessourceStep.length,
               )}
               color={theme.colors.primary}
               style={styles.progressBar}
@@ -145,7 +158,9 @@ const OnGoingRessource = () => {
     )
   ) : (
     <View style={styles.signInContainer}>
-      <Text style={styles.signInText}>Connectez-vous pour participer à une activité</Text>
+      <Text style={styles.signInText}>
+        Connectez-vous pour participer à une activité
+      </Text>
       <SignInButton />
     </View>
   );

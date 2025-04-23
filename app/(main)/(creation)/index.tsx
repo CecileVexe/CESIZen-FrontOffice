@@ -17,6 +17,7 @@ import StepModal from "../../../components/StepModal";
 import { createRessource } from "../../../services/ressources.service";
 import { useRouter } from "expo-router";
 import { StepCreate } from "../../../utils/types/Step.types";
+import { customTheme } from "../../../utils/theme/theme";
 
 type FormData = {
   title: string;
@@ -102,7 +103,7 @@ const RessourceForm = () => {
   };
 
   return (
-    <PaperProvider>
+    <PaperProvider theme={customTheme}>
       <ScrollView contentContainerStyle={styles.container}>
         <StepModal
           visible={stepModalVisible}
