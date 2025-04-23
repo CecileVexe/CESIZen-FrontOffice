@@ -1,12 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { FlatList, RefreshControl, View, StyleSheet } from "react-native";
-import { Card, Text, ProgressBar, PaperProvider, useTheme } from "react-native-paper";
+import {
+  Card,
+  Text,
+  ProgressBar,
+  PaperProvider,
+  useTheme,
+} from "react-native-paper";
 import { Link } from "expo-router";
 
 import { Ressource } from "../../../utils/types/Ressources.types";
 import { getRessources } from "../../../services/ressources.service";
 import { SignOutButton } from "../../../components/SignOutButton";
-import { customTheme } from '../../../utils/theme/theme';
+import { customTheme } from "../../../utils/theme/theme";
 import { SignInButton } from "../../../components/SignInButton";
 
 const RenderItem = ({ item }: { item: Ressource }) => {
@@ -47,13 +53,18 @@ const RenderItem = ({ item }: { item: Ressource }) => {
             </View>
 
             <View style={styles.badgeContainer}>
-              <View style={[styles.categoryBadge, { backgroundColor: colors.primary }]}>
+              <View
+                style={[
+                  styles.categoryBadge,
+                  { backgroundColor: colors.primary },
+                ]}
+              >
                 <Text style={styles.badgeText}>{item.category.name}</Text>
               </View>
             </View>
 
             <Text variant="bodyMedium">
-              {new Date(item.deadLine).toLocaleDateString('fr-FR')}
+              {new Date(item.deadLine).toLocaleDateString("fr-FR")}
             </Text>
           </View>
         </View>
@@ -63,14 +74,18 @@ const RenderItem = ({ item }: { item: Ressource }) => {
 };
 
 export default function Page() {
-  const [ressources, setRessources] = useState<Ressource[] | undefined>(undefined);
+  const [ressources, setRessources] = useState<Ressource[] | undefined>(
+    undefined,
+  );
   const [loading, setLoading] = useState(false);
 
   const getDatas = useCallback(async () => {
     setLoading(true);
     const response = await getRessources();
     if (response) {
-      const validatedRessources = response.data.filter(ressource => ressource.isValidate);
+      const validatedRessources = response.data.filter(
+        (ressource) => ressource.isValidate,
+      );
       setRessources(validatedRessources);
     }
     setLoading(false);

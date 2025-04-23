@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import {
   Button,
   Chip,
@@ -7,7 +7,7 @@ import {
   Text,
   Card,
 } from "react-native-paper";
-import { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FlatList, View, StyleSheet } from "react-native";
 import { Ressource } from "../../../utils/types/Ressources.types";
 import { getRessource } from "../../../services/ressources.service";
@@ -63,16 +63,24 @@ const RessourceDetails = () => {
   const { id } = useLocalSearchParams<Record<string, string>>();
   const [ressource, setRessource] = useState<Ressource | undefined>(undefined);
 
-  const getDatas = useCallback(async () => {
+  const getDatas = async () => {
     const response = await getRessource(id);
     if (response) {
       setRessource(response.data);
     }
-  }, [id]);
+  };
 
-  useEffect(() => {
-    getDatas();
-  }, [getDatas]);
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true;
+
+      getDatas();
+
+      return () => {
+        isActive = false;
+      };
+    }, [id]),
+  );
 
   const onSubmit = async (data: { title: string; description: string }) => {
     if (connectedUser) {

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import {
   Text,
@@ -9,16 +9,17 @@ import {
 } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useEffect, useState } from "react";
 import { getCategory } from "../../../services/category.service";
 import { getTypeRessource } from "../../../services/typeRessource.service";
 import { Picker } from "@react-native-picker/picker";
 import StepModal from "../../../components/StepModal";
-import { createRessource } from "../../../services/ressources.service";
-import { useRouter } from "expo-router";
+import {
+  getRessource,
+  updateRessource,
+} from "../../../services/ressources.service";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { StepCreate } from "../../../utils/types/Step.types";
 import { customTheme } from "../../../utils/theme/theme";
-import { useConntedUser } from "../../../utils/ConnectedUserContext";
 
 type FormData = {
   title: string;
@@ -31,6 +32,11 @@ type FormData = {
 
 const RessourceForm = () => {
   const router = useRouter();
+  const { editId } = useLocalSearchParams();
+  const [steps, setSteps] = useState<StepCreate[]>([]);
+  const [stepModalVisible, setStepModalVisible] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   const {
     control,
     handleSubmit,
@@ -48,21 +54,19 @@ const RessourceForm = () => {
     },
   });
 
-  const { connectedUser } = useConntedUser();
-
-  const [showDatePicker, setShowDatePicker] = React.useState(false);
-
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: FormData) => {
     const payload = {
       ...data,
-      step: steps,
-      citizenId: connectedUser?.id,
+      maxParticipant: parseInt(data.maxParticipant, 10),
     };
-
-    const response = await createRessource(payload);
-    if (response && response.data) {
-      reset();
-      router.push(`/(ressource)/${response?.data.id}`);
+    let response;
+    if (editId && typeof editId === "string") {
+      response = await updateRessource(editId, payload);
+      if (response?.data) {
+        reset();
+        setSteps([]);
+        router.push(`/(ressource)/${response.data.id}`);
+      }
     }
   };
 
@@ -73,22 +77,49 @@ const RessourceForm = () => {
 
   const getCategoryOption = useCallback(async () => {
     const result = await getCategory();
-    if (result?.data) {
-      setCategories(result?.data);
-    }
+    if (result?.data) setCategories(result.data);
   }, []);
 
   const getTypeRessourceOption = useCallback(async () => {
     const result = await getTypeRessource();
-    if (result?.data) {
-      setTypes(result?.data);
-    }
+    if (result?.data) setTypes(result.data);
   }, []);
 
   useEffect(() => {
     getCategoryOption();
     getTypeRessourceOption();
   }, [getCategoryOption, getTypeRessourceOption]);
+
+  useEffect(() => {
+    const fetchRessource = async () => {
+      if (editId && typeof editId === "string") {
+        const result = await getRessource(editId);
+        if (result?.data) {
+          const {
+            title,
+            description,
+            maxParticipant,
+            deadLine,
+            category,
+            typeRessource,
+            step,
+          } = result.data;
+          setValue("title", title);
+          setValue("description", description);
+          setValue("maxParticipant", maxParticipant?.toString());
+          setValue("deadLine", deadLine);
+          setValue("categoryId", category.id);
+          setValue("typeRessourceId", typeRessource.id);
+          setSteps(step);
+        }
+      }
+    };
+    fetchRessource();
+  }, [editId, setValue]);
+
+  const handleStepsSave = (newSteps: StepCreate[]) => {
+    setSteps((prevSteps) => [...prevSteps, ...newSteps]);
+  };
 
   const categoryOptions = categories.map((cat) => ({
     label: cat.name,
@@ -99,27 +130,19 @@ const RessourceForm = () => {
     value: type.id,
   }));
 
-  const [stepModalVisible, setStepModalVisible] = useState(false);
-  const [steps, setSteps] = useState<StepCreate[]>([]);
-
-  const handleStepsSave = (newSteps: typeof steps) => {
-    setSteps((prevSteps) => [...prevSteps, ...newSteps]);
-  };
-
   return (
     <PaperProvider theme={customTheme}>
       <ScrollView contentContainerStyle={styles.container}>
         <StepModal
           visible={stepModalVisible}
-          onClose={() => {
-            setStepModalVisible(false);
-          }}
+          onClose={() => setStepModalVisible(false)}
           onSave={handleStepsSave}
           existingSteps={steps}
         />
+        {/* 
         <Text variant="titleLarge" style={styles.title}>
-          Créer une ressource
-        </Text>
+          Modifier une ressource
+        </Text> */}
 
         <Controller
           control={control}
@@ -167,18 +190,19 @@ const RessourceForm = () => {
             <TextInput
               label="Participants max"
               value={value?.toString()}
-              onChangeText={(v) => onChange(parseInt(v) || undefined)}
+              onChangeText={(v) => onChange(parseInt(v) || "")}
               mode="outlined"
               keyboardType="numeric"
               style={styles.input}
             />
           )}
         />
+
         <Text>Date limite</Text>
         <Controller
           control={control}
           name="deadLine"
-          rules={{ required: "Date requis" }}
+          rules={{ required: "Date requise" }}
           render={({ field: { value } }) => (
             <>
               <Button
@@ -197,9 +221,8 @@ const RessourceForm = () => {
                   display="default"
                   onChange={(event, selectedDate) => {
                     setShowDatePicker(false);
-                    if (selectedDate) {
+                    if (selectedDate)
                       setValue("deadLine", selectedDate.toISOString());
-                    }
                   }}
                 />
               )}
@@ -215,10 +238,7 @@ const RessourceForm = () => {
             <>
               <Text style={styles.label}>Catégorie</Text>
               <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={value}
-                  onValueChange={(itemValue) => onChange(itemValue)}
-                >
+                <Picker selectedValue={value} onValueChange={onChange}>
                   <Picker.Item label="Sélectionnez une catégorie..." value="" />
                   {categoryOptions.map((option) => (
                     <Picker.Item
@@ -244,10 +264,7 @@ const RessourceForm = () => {
             <>
               <Text style={styles.label}>Type de ressource</Text>
               <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={value}
-                  onValueChange={(itemValue) => onChange(itemValue)}
-                >
+                <Picker selectedValue={value} onValueChange={onChange}>
                   <Picker.Item label="Sélectionnez un type..." value="" />
                   {typeOptions.map((option) => (
                     <Picker.Item
@@ -264,18 +281,11 @@ const RessourceForm = () => {
             </>
           )}
         />
-        <Button
-          mode="outlined"
-          onPress={() => setStepModalVisible(true)}
-          style={styles.button}
-        >
-          Ajouter ou modifier des étapes
-        </Button>
 
         {steps.length > 0 && (
           <View style={styles.stepListContainer}>
             <Text variant="titleMedium" style={styles.stepListTitle}>
-              Étapes ajoutées :
+              Étapes non modifiable (Veuillez créer une nouvelle ressource)
             </Text>
             {steps
               .sort((a, b) => a.order - b.order)
@@ -288,22 +298,13 @@ const RessourceForm = () => {
                       {step.description}
                     </Text>
                   </View>
-                  <Button
-                    onPress={() => {
-                      setSteps((prev) => prev.filter((_, i) => i !== index));
-                    }}
-                    mode="text"
-                    textColor="red"
-                  >
-                    Supprimer
-                  </Button>
                 </View>
               ))}
           </View>
         )}
 
         <Button mode="contained" onPress={handleSubmit(onSubmit)}>
-          Créer
+          Modifier
         </Button>
       </ScrollView>
     </PaperProvider>
@@ -325,14 +326,6 @@ const styles = StyleSheet.create({
   },
   button: {
     marginVertical: 10,
-  },
-  divider: {
-    marginVertical: 25,
-  },
-  error: {
-    color: "red",
-    marginBottom: 10,
-    fontSize: 12,
   },
   pickerContainer: {
     borderWidth: 1,

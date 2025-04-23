@@ -39,7 +39,7 @@ const ChatScreen = () => {
   useEffect(() => {
     getMessages();
     const interval = setInterval(() => {
-      console.log("test");
+      console.log("Message refresh");
       getMessages();
     }, 30000);
 

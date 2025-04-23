@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   FlatList,
@@ -13,7 +13,7 @@ import {
   Text,
   PaperProvider,
 } from "react-native-paper";
-import { useRouter, Redirect } from "expo-router";
+import { useRouter, Redirect, useFocusEffect } from "expo-router";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
 import { getUserInvite } from "../../../services/invite.service";
 import { Invite } from "../../../utils/types/invite.types";
@@ -27,12 +27,19 @@ import {
 import { Favorite } from "../../../utils/types/Favorite.types";
 import FavoriteCard from "../../../components/FavoriteCard";
 import FavoriteDeleteModal from "../../../components/FavoriteDeleteModal";
+import RessourceCard from "../../../components/RessourceCard";
+import {
+  deleteRessource,
+  getUserRessource,
+  updateRessource,
+} from "../../../services/ressources.service";
+import { customTheme } from "../../../utils/theme/theme";
 
 const UserPage = () => {
   const { userChoseToUnconnect, connectedUser } = useConntedUser();
   const [sentInvites, setSentInvites] = useState<Invite[]>([]);
   const [receivedInvites, setReceivedInvites] = useState<Invite[]>([]);
-
+  const [userRessources, setUserRessources] = useState<any>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedInvite, setSelectedInvite] = useState<Invite | null>(null);
 
@@ -42,26 +49,21 @@ const UserPage = () => {
   const [isFavoriteDialogVisible, setIsFavoriteDialogVisible] = useState(false);
 
   const router = useRouter();
+  const fetchInvites = async () => {
+    if (!connectedUser) return;
 
-  useEffect(() => {
-    const fetchInvites = async () => {
-      if (!connectedUser) return;
+    const invites = await getUserInvite(connectedUser.id);
+    if (invites) {
+      const { data: invitesData } = invites;
 
-      const invites = await getUserInvite(connectedUser.id);
-      if (invites) {
-        const { data: invitesData } = invites;
-
-        setSentInvites(
-          invitesData.filter((i: Invite) => i.sender.id === connectedUser.id),
-        );
-        setReceivedInvites(
-          invitesData.filter((i: Invite) => i.recever.id === connectedUser.id),
-        );
-      }
-    };
-
-    fetchInvites();
-  }, [connectedUser]);
+      setSentInvites(
+        invitesData.filter((i: Invite) => i.sender.id === connectedUser.id),
+      );
+      setReceivedInvites(
+        invitesData.filter((i: Invite) => i.recever.id === connectedUser.id),
+      );
+    }
+  };
 
   const [favorites, setFavorites] = useState<Favorite[]>([]);
 
@@ -72,9 +74,39 @@ const UserPage = () => {
     }
   }, [connectedUser]);
 
-  useEffect(() => {
-    fetchFavorites();
-  }, [fetchFavorites]);
+  const fetchUserRessource = useCallback(async () => {
+    if (connectedUser) {
+      const res = await getUserRessource(connectedUser.id);
+      if (res?.data) setUserRessources(res.data);
+    }
+  }, [connectedUser]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true;
+
+      const getUserRessourceList = async () => {
+        if (connectedUser) {
+          const res = await getUserRessource(connectedUser.id);
+          if (res?.data) setUserRessources(res.data);
+        }
+      };
+
+      const getFavorites = async () => {
+        if (connectedUser) {
+          const res = await getUserFavorite(connectedUser.id);
+          if (res?.data) setFavorites(res.data);
+        }
+      };
+      fetchInvites();
+      getUserRessourceList();
+      getFavorites();
+
+      return () => {
+        isActive = false;
+      };
+    }, [connectedUser]),
+  );
 
   const handleDeleteFavorite = (favorite: Favorite) => {
     setFavoriteToDelete(favorite);
@@ -93,10 +125,6 @@ const UserPage = () => {
   const cancelDeleteFavorite = () => {
     setIsFavoriteDialogVisible(false);
     setFavoriteToDelete(null);
-  };
-
-  const handleGoToRessource = (ressourceId: string) => {
-    router.push(`/(ressource)/${ressourceId}`);
   };
 
   if (userChoseToUnconnect || !connectedUser) {
@@ -131,8 +159,30 @@ const UserPage = () => {
     </View>
   );
 
+  const handleGoToRessource = (ressourceId: string) => {
+    router.push(`/(ressource)/${ressourceId}`);
+  };
+
+  const handleEditRessource = (ressourceId: string) => {
+    router.push(`/updateRessource/?editId=${ressourceId}`);
+  };
+
+  const handleLaunchRessource = async (ressourceId: string) => {
+    const response = await updateRessource(ressourceId, { status: "En cours" });
+    if (response && response.data) {
+      router.push(`/(ressource)/${ressourceId}`);
+    }
+  };
+
+  const handleDeleteRessource = async (ressourceId: string) => {
+    const response = await deleteRessource(ressourceId);
+    if (response && response.data) {
+      fetchUserRessource();
+    }
+  };
+
   return (
-    <PaperProvider>
+    <PaperProvider theme={customTheme}>
       <ScrollView contentContainerStyle={styles.container}>
         <FavoriteDeleteModal
           visible={isFavoriteDialogVisible}
@@ -192,6 +242,29 @@ const UserPage = () => {
               }
             />
           </View>
+        </View>
+
+        <View style={styles.section}>
+          <Title style={styles.title}>📚 Mes ressources</Title>
+          <FlatList
+            data={userRessources}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <RessourceCard
+                ressource={item}
+                onPress={() => handleGoToRessource(item.id)}
+                onEdit={() => handleEditRessource(item.id)}
+                onLaunch={() => handleLaunchRessource(item.id)}
+                onDelete={() => handleDeleteRessource(item.id)}
+              />
+            )}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalList}
+            ListEmptyComponent={
+              <Text style={styles.empty}>Aucune ressource disponible</Text>
+            }
+          />
         </View>
 
         <SignOutButton />
