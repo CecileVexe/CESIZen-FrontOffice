@@ -42,6 +42,16 @@ export default function Layout() {
       />
 
       <Tabs.Screen
+        name="(creation)"
+        options={{
+          title: "Créer",
+          headerShown: false,
+          tabBarIcon: () => <Icon size={20} source="plus" />,
+          popToTopOnBlur: true,
+        }}
+      />
+
+      <Tabs.Screen
         name="(citizen)"
         options={{
           title: "Compte",

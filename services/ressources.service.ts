@@ -32,3 +32,20 @@ export const getRessource = async (
     console.error(e);
   }
 };
+
+export const createRessource = async (
+  data: any
+): Promise<ApiResponse<Ressource> | undefined> => {
+  try {
+    const response = await fetch(`${_URL}ressource`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      body: JSON.stringify(data),
+    });
+    return await response.json();
+  } catch (e) {
+    console.error(e);
+  }
+};

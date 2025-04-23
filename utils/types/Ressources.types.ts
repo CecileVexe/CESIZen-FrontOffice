@@ -13,8 +13,28 @@ export interface Ressource {
   category: {
     id: string;
     name: string;
-  };   
+  };
+  typeRessource: {
+    id: string;
+    name: string;
+  };
   title: string;
   comment: CommentType[];
-  step:Step[];
+  step: Step[];
+}
+
+export interface createRessource
+  extends Omit<
+    Ressource,
+    | "id"
+    | "file"
+    | "banner"
+    | "status"
+    | "nbParticipant"
+    | "comment"
+    | "isValidate"
+    | "category"
+    | "typeRessource"
+  > {
+  step: Omit<Step[], "id">;
 }

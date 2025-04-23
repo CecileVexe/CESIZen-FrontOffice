@@ -20,8 +20,7 @@ import { useConntedUser } from "../../../utils/ConnectedUserContext";
 import { leaveAComment } from "../../../services/comment.service";
 import SubscribeToRessource from "../../../components/SubscribeToRessource";
 import InviteForm from "../../../components/InviteForm";
-import { customTheme } from '../../../utils/theme/theme';
-
+import { customTheme } from "../../../utils/theme/theme";
 
 const RessourceDetails = () => {
   const { isSignedIn } = useAuth();
@@ -134,11 +133,18 @@ const RessourceDetails = () => {
               </Text>
 
               <Text variant="labelMedium" style={styles.label}>
-                Participants : {ressource.nbParticipant} / {ressource.maxParticipant}
+                Participants : {ressource.nbParticipant} /{" "}
+                {ressource.maxParticipant}
               </Text>
 
               <View style={styles.badgeContainer}>
-                <Chip icon="information" style={[styles.statusChip, getStatusChipStyle(ressource.status)]}>
+                <Chip
+                  icon="information"
+                  style={[
+                    styles.statusChip,
+                    getStatusChipStyle(ressource.status),
+                  ]}
+                >
                   {ressource.status}
                 </Chip>
 
@@ -168,7 +174,6 @@ const RessourceDetails = () => {
               <Text variant="bodyLarge" style={styles.description}>
                 {ressource.description}
               </Text>
-
             </Card.Content>
           </Card>
 

@@ -11,3 +11,5 @@ export type StepWithProgression = Step & {
   dateCompleted: string | null;
   progressionId: string;
 };
+
+export type StepCreate = Omit<Step, "id" | "ressourceId">;

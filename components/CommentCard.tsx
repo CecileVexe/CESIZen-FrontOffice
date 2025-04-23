@@ -25,7 +25,10 @@ const CommentCard = (props: CommentCardProps) => {
         title={comment.title}
         subtitle={`Ecrit le ${parseStringDate(comment.updatedAt)} par ${comment.citizen.name} ${comment.citizen.surname}`}
         titleStyle={[styles.title, isCurrentUser && styles.currentUserText]}
-        subtitleStyle={[styles.subtitle, isCurrentUser && styles.currentUserText]}
+        subtitleStyle={[
+          styles.subtitle,
+          isCurrentUser && styles.currentUserText,
+        ]}
       />
       <Card.Content>
         <Text

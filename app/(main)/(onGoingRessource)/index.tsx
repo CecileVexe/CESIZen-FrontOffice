@@ -29,7 +29,8 @@ interface UserRessource extends Omit<Ressource, "step"> {
 const OnGoingRessource = () => {
   const [userProgression, setUserProgression] = useState<Progression[]>();
   const [userRessource, setUserRessource] = useState<UserRessource>();
-  const [userRessourceStep, setUserRessourceStep] = useState<StepWithProgression[]>();
+  const [userRessourceStep, setUserRessourceStep] =
+    useState<StepWithProgression[]>();
 
   const { connectedUser } = useConntedUser();
   const theme = useTheme();
@@ -37,9 +38,13 @@ const OnGoingRessource = () => {
 
   const getProgressionDatas = useCallback(async () => {
     if (connectedUser) {
-      const progressionResponse = await getProgressionFromUser(connectedUser.id);
+      const progressionResponse = await getProgressionFromUser(
+        connectedUser.id,
+      );
       if (progressionResponse) {
-        const ressourceResponse = await getRessource(progressionResponse.data[0].ressourceId);
+        const ressourceResponse = await getRessource(
+          progressionResponse.data[0].ressourceId,
+        );
         if (ressourceResponse) {
           const formatedRessourceResponse = {
             ...ressourceResponse.data,
@@ -62,13 +67,19 @@ const OnGoingRessource = () => {
 
   useEffect(() => {
     if (userRessource?.step && userProgression) {
-      const merged = mergeStepsWithProgressions(userRessource.step, userProgression);
+      const merged = mergeStepsWithProgressions(
+        userRessource.step,
+        userProgression,
+      );
       merged.sort((a, b) => a.order - b.order);
       setUserRessourceStep(merged);
     }
   }, [userProgression, userRessource?.step]);
 
-  const handleCheckStepChange = async (progressionId: string, isCompleted: boolean) => {
+  const handleCheckStepChange = async (
+    progressionId: string,
+    isCompleted: boolean,
+  ) => {
     const date = isCompleted ? new Date() : null;
     try {
       await CompleteProgression(progressionId, {
