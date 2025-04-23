@@ -1,14 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { FlatList, RefreshControl, View, StyleSheet } from "react-native";
-import { Card, Text, ProgressBar } from "react-native-paper";
+import { Card, Text, ProgressBar, PaperProvider, useTheme } from "react-native-paper";
 import { Link } from "expo-router";
 
 import { Ressource } from "../../../utils/types/Ressources.types";
 import { getRessources } from "../../../services/ressources.service";
+import { SignOutButton } from "../../../components/SignOutButton";
+import { customTheme } from '../../../utils/theme/theme';
 import { SignInButton } from "../../../components/SignInButton";
 
-const renderItem = ({ item }: { item: Ressource }) => {
+const RenderItem = ({ item }: { item: Ressource }) => {
+  const { colors } = useTheme();
   const progress = item.nbParticipant / item.maxParticipant;
+
   return (
     <Link href={`/(ressource)/${item.id}`} asChild>
       <Card style={styles.card} mode="elevated">
@@ -35,17 +39,19 @@ const renderItem = ({ item }: { item: Ressource }) => {
               <Text variant="bodyMedium" style={styles.Participant}>
                 {item.nbParticipant} / {item.maxParticipant}
               </Text>
-              
               <ProgressBar
                 progress={progress}
-                color="#74a5dd"
+                color={colors.primary}
                 style={styles.progressBar}
-                />
+              />
             </View>
-            
-            <View style={[styles.badge]}>
-              <Text style={styles.badgeText}>{item.category.name}</Text>
+
+            <View style={styles.badgeContainer}>
+              <View style={[styles.categoryBadge, { backgroundColor: colors.primary }]}>
+                <Text style={styles.badgeText}>{item.category.name}</Text>
+              </View>
             </View>
+
             <Text variant="bodyMedium">
               {new Date(item.deadLine).toLocaleDateString('fr-FR')}
             </Text>
@@ -57,19 +63,14 @@ const renderItem = ({ item }: { item: Ressource }) => {
 };
 
 export default function Page() {
-  const [ressources, setRessources] = useState<Ressource[] | undefined>(
-    undefined
-  );
+  const [ressources, setRessources] = useState<Ressource[] | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
   const getDatas = useCallback(async () => {
     setLoading(true);
-
     const response = await getRessources();
     if (response) {
-      const validatedRessources = response.data.filter(
-        (ressource) => ressource.isValidate
-      );
+      const validatedRessources = response.data.filter(ressource => ressource.isValidate);
       setRessources(validatedRessources);
     }
     setLoading(false);
@@ -84,22 +85,24 @@ export default function Page() {
   }, [getDatas]);
 
   return (
-    <View>
-      {/* <SignOutButton /> */}
-      {ressources ? (
-        <FlatList
-          data={ressources}
-          keyExtractor={(item) => `${item.title}_card`}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl refreshing={loading} onRefresh={onRefresh} />
-          }
-        />
-      ) : (
-        <Text style={styles.emptyText}>Aucune ressource disponible !</Text>
-      )}
-    </View>
+    <PaperProvider theme={customTheme}>
+      <View>
+        <SignOutButton />
+        {ressources ? (
+          <FlatList
+            data={ressources}
+            keyExtractor={(item) => `${item.title}_card`}
+            renderItem={({ item }) => <RenderItem item={item} />}
+            contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl refreshing={loading} onRefresh={onRefresh} />
+            }
+          />
+        ) : (
+          <Text style={styles.emptyText}>Aucune ressource disponible !</Text>
+        )}
+      </View>
+    </PaperProvider>
   );
 }
 
@@ -155,10 +158,9 @@ const styles = StyleSheet.create({
   },
   Participant: {
     color: "#555",
-    marginRight: 8, 
+    marginRight: 8,
   },
   Participant_progress: {
-    display: "flex",
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 8,
@@ -174,13 +176,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#777",
   },
-  badge: {
-    alignSelf: "flex-start",
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: 12,
-    marginTop: 8,
-    backgroundColor: "#00949f",
+  badgeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  categoryBadge: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
   },
   badgeText: {
     color: "#fff",
