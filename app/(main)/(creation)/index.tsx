@@ -54,8 +54,6 @@ const RessourceForm = () => {
       step: steps,
     };
 
-    console.log(payload);
-
     const response = await createRessource(payload);
     if (response && response.data) {
       reset();
@@ -108,7 +106,9 @@ const RessourceForm = () => {
       <ScrollView contentContainerStyle={styles.container}>
         <StepModal
           visible={stepModalVisible}
-          onClose={() => setStepModalVisible(false)}
+          onClose={() => {
+            setStepModalVisible(false);
+          }}
           onSave={handleStepsSave}
           existingSteps={steps}
         />
@@ -264,7 +264,7 @@ const RessourceForm = () => {
           onPress={() => setStepModalVisible(true)}
           style={styles.button}
         >
-          Ajouter des étapes
+          Ajouter ou modifier des étapes
         </Button>
 
         {steps.length > 0 && (

@@ -27,13 +27,24 @@ const StepModal: React.FC<Props> = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [order, setOrder] = useState("");
+  const [editingStep, setEditingStep] = useState<StepCreate | null>(null);
 
   const addStep = () => {
     if (!title || !description || !order) return;
     const parsedOrder = parseInt(order);
     if (isNaN(parsedOrder)) return;
 
-    setSteps((prev) => [...prev, { title, description, order: parsedOrder }]);
+    const newStep = { title, description, order: parsedOrder };
+    if (editingStep) {
+      // Modifier l'étape existante
+      setSteps((prev) =>
+        prev.map((step) => (step.order === editingStep.order ? newStep : step)),
+      );
+      setEditingStep(null); // Réinitialiser l'édition
+    } else {
+      // Ajouter une nouvelle étape
+      setSteps((prev) => [...prev, newStep]);
+    }
     setTitle("");
     setDescription("");
     setOrder("");
@@ -49,20 +60,15 @@ const StepModal: React.FC<Props> = ({
     setTitle("");
     setDescription("");
     setOrder("");
+    setEditingStep(null); // Réinitialiser l'édition
     onClose();
   };
 
-  const handleDeleteStep = (stepToDelete: StepCreate) => {
-    setSteps((prev) =>
-      prev.filter(
-        (s) =>
-          !(
-            s.title === stepToDelete.title &&
-            s.description === stepToDelete.description &&
-            s.order === stepToDelete.order
-          ),
-      ),
-    );
+  const handleEditStep = (stepToEdit: StepCreate) => {
+    setEditingStep(stepToEdit);
+    setTitle(stepToEdit.title);
+    setDescription(stepToEdit.description);
+    setOrder(stepToEdit.order.toString());
   };
 
   const combinedSteps = [...existingSteps, ...steps].sort(
@@ -105,7 +111,7 @@ const StepModal: React.FC<Props> = ({
         />
 
         <Button onPress={addStep} mode="outlined" style={styles.input}>
-          Ajouter l'étape
+          {editingStep ? "Modifier l'étape" : "Ajouter l'étape"}
         </Button>
 
         <Text variant="titleSmall" style={{ marginBottom: 8 }}>
@@ -123,17 +129,13 @@ const StepModal: React.FC<Props> = ({
                 </Text>
                 <Text>{item.description}</Text>
               </View>
-              {steps.some(
-                (s) =>
-                  s.title === item.title &&
-                  s.description === item.description &&
-                  s.order === item.order,
-              ) && (
+
+              <View style={{ flexDirection: "row", gap: 8 }}>
                 <IconButton
-                  icon="delete"
-                  onPress={() => handleDeleteStep(item)}
+                  icon="pencil"
+                  onPress={() => handleEditStep(item)}
                 />
-              )}
+              </View>
             </View>
           )}
         />
