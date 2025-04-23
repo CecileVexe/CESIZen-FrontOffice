@@ -265,8 +265,6 @@ const UserPage = () => {
           />
         </View>
 
-        <SignOutButton />
-
         {selectedInvite && connectedUser && (
           <InviteModal
             visible={modalVisible}

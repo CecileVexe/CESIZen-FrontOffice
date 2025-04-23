@@ -19,6 +19,7 @@ import { useRouter } from "expo-router";
 import { StepCreate } from "../../../utils/types/Step.types";
 import { customTheme } from "../../../utils/theme/theme";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
+import { SignInButton } from "../../../components/SignInButton";
 
 type FormData = {
   title: string;
@@ -106,7 +107,7 @@ const RessourceForm = () => {
     setSteps((prevSteps) => [...prevSteps, ...newSteps]);
   };
 
-  return (
+  return connectedUser !== undefined ? (
     <PaperProvider theme={customTheme}>
       <ScrollView contentContainerStyle={styles.container}>
         <StepModal
@@ -307,6 +308,13 @@ const RessourceForm = () => {
         </Button>
       </ScrollView>
     </PaperProvider>
+  ) : (
+    <View style={styles.signInContainer}>
+      <Text variant="titleLarge" style={styles.signInText}>
+        Connectez-vous pour créer à une ressource
+      </Text>
+      <SignInButton />
+    </View>
   );
 };
 
@@ -374,6 +382,16 @@ const styles = StyleSheet.create({
   stepDescription: {
     fontSize: 14,
     color: "#555",
+  },
+  signInContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  signInText: {
+    marginBottom: 10,
+    fontWeight: "bold",
   },
 });
 

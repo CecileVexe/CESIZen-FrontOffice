@@ -17,6 +17,7 @@ import {
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
 import { useRouter } from "expo-router";
 import { useUser } from "@clerk/clerk-expo";
+import { SignOutButton } from "../../../components/SignOutButton";
 
 type FormData = {
   name: string;
@@ -245,14 +246,7 @@ const AccountSettings = () => {
         <Divider style={styles.divider} />
 
         <Text style={styles.title}>Compte</Text>
-        <Button
-          mode="outlined"
-          textColor={theme.colors.error}
-          style={styles.button}
-          onPress={() => console.log("Suspendre")}
-        >
-          Suspendre mon compte
-        </Button>
+        <SignOutButton />
         <Button
           mode="text"
           textColor={theme.colors.error}

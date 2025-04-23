@@ -4,7 +4,14 @@ import {
   getProgressionFromUser,
 } from "../../../services/progression.service";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
-import { ProgressBar, Text, useTheme, FAB, Chip, PaperProvider } from "react-native-paper";
+import {
+  ProgressBar,
+  Text,
+  useTheme,
+  FAB,
+  Chip,
+  PaperProvider,
+} from "react-native-paper";
 import { SignInButton } from "../../../components/SignInButton";
 import { FlatList, StyleSheet, View } from "react-native";
 import { getRessource } from "../../../services/ressources.service";
@@ -16,7 +23,7 @@ import { Ressource } from "../../../utils/types/Ressources.types";
 import { Progression } from "../../../utils/types/Progression.types";
 import { completedStep } from "../../../utils/functions/completedSteps";
 import { useRouter } from "expo-router";
-import { customTheme } from '../../../utils/theme/theme';
+import { customTheme } from "../../../utils/theme/theme";
 
 interface StepWithRessourceId extends Step {
   ressourceId: string;
@@ -111,7 +118,8 @@ const OnGoingRessource = () => {
                 Date limite : {parseStringDate(userRessource.deadLine)}
               </Chip>
               <Chip icon="account-group" style={styles.badge}>
-                {userRessource.nbParticipant} / {userRessource.maxParticipant} participants
+                {userRessource.nbParticipant} / {userRessource.maxParticipant}{" "}
+                participants
               </Chip>
             </View>
 
@@ -120,12 +128,13 @@ const OnGoingRessource = () => {
             {userRessourceStep && (
               <View style={styles.progressionContainer}>
                 <Text style={styles.progressionText}>
-                  Progression : {completedStep(userRessourceStep)} / {userRessourceStep.length}
+                  Progression : {completedStep(userRessourceStep)} /{" "}
+                  {userRessourceStep.length}
                 </Text>
                 <ProgressBar
                   progress={getProgress(
                     completedStep(userRessourceStep),
-                    userRessourceStep.length
+                    userRessourceStep.length,
                   )}
                   style={styles.progressBar}
                 />
@@ -158,7 +167,9 @@ const OnGoingRessource = () => {
         )
       ) : (
         <View style={styles.signInContainer}>
-          <Text style={styles.signInText}>Connectez-vous pour participer à une activité</Text>
+          <Text variant="titleLarge" style={styles.signInText}>
+            Connectez-vous pour participer à une activité
+          </Text>
           <SignInButton />
         </View>
       )}
@@ -223,8 +234,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   signInText: {
-    marginBottom: 16,
-    fontSize: 16,
+    marginBottom: 10,
+    fontWeight: "bold",
   },
 });
 

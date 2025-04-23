@@ -61,6 +61,7 @@ const RessourceDetails = () => {
   };
 
   const { id } = useLocalSearchParams<Record<string, string>>();
+
   const [ressource, setRessource] = useState<Ressource | undefined>(undefined);
 
   const getDatas = async () => {
@@ -170,7 +171,8 @@ const RessourceDetails = () => {
                   ressource.nbParticipant === ressource.maxParticipant ||
                   !ressource.isValidate ||
                   ressource.status === "En cours" ||
-                  !SignedIn
+                  ressource.status === "Expiré" ||
+                  connectedUser === undefined
                 }
                 style={styles.button}
               >
