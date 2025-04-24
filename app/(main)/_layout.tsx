@@ -12,7 +12,12 @@ export default function Layout() {
   }
 
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: "blue" }}>
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: "blue",
+        tabBarHideOnKeyboard: true,
+      }}
+    >
       <Tabs.Screen
         name="(home)"
         options={{

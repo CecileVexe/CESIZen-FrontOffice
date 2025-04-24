@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import {
   Text,
   TextInput,
@@ -131,183 +137,188 @@ const RessourceForm = () => {
   }));
 
   return (
-    <PaperProvider theme={customTheme}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <StepModal
-          visible={stepModalVisible}
-          onClose={() => setStepModalVisible(false)}
-          onSave={handleStepsSave}
-          existingSteps={steps}
-        />
-        {/* 
-        <Text variant="titleLarge" style={styles.title}>
-          Modifier une ressource
-        </Text> */}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+      style={{ flex: 1 }}
+    >
+      <PaperProvider theme={customTheme}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <StepModal
+            visible={stepModalVisible}
+            onClose={() => setStepModalVisible(false)}
+            onSave={handleStepsSave}
+            existingSteps={steps}
+          />
 
-        <Controller
-          control={control}
-          name="title"
-          rules={{ required: "Titre requis" }}
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              label="Titre"
-              value={value}
-              onChangeText={onChange}
-              mode="outlined"
-              error={!!errors.title}
-              style={styles.input}
-            />
-          )}
-        />
-        <HelperText type="error" visible={!!errors.title}>
-          {errors.title?.message}
-        </HelperText>
-
-        <Controller
-          control={control}
-          name="description"
-          rules={{ required: "Description requise" }}
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              label="Description"
-              value={value}
-              onChangeText={onChange}
-              mode="outlined"
-              multiline
-              error={!!errors.description}
-              style={styles.input}
-            />
-          )}
-        />
-        <HelperText type="error" visible={!!errors.description}>
-          {errors.description?.message}
-        </HelperText>
-
-        <Controller
-          control={control}
-          name="maxParticipant"
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              label="Participants max"
-              value={value?.toString()}
-              onChangeText={(v) => onChange(parseInt(v) || "")}
-              mode="outlined"
-              keyboardType="numeric"
-              style={styles.input}
-            />
-          )}
-        />
-
-        <Text>Date limite</Text>
-        <Controller
-          control={control}
-          name="deadLine"
-          rules={{ required: "Date requise" }}
-          render={({ field: { value } }) => (
-            <>
-              <Button
+          <Controller
+            control={control}
+            name="title"
+            rules={{ required: "Titre requis" }}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label="Titre"
+                value={value}
+                onChangeText={onChange}
                 mode="outlined"
-                onPress={() => setShowDatePicker(true)}
+                error={!!errors.title}
                 style={styles.input}
-              >
-                {value
-                  ? new Date(value).toLocaleDateString()
-                  : "Choisir une date limite"}
-              </Button>
-              {showDatePicker && (
-                <DateTimePicker
-                  value={value ? new Date(value) : new Date()}
-                  mode="date"
-                  display="default"
-                  onChange={(event, selectedDate) => {
-                    setShowDatePicker(false);
-                    if (selectedDate)
-                      setValue("deadLine", selectedDate.toISOString());
-                  }}
-                />
-              )}
-            </>
-          )}
-        />
+              />
+            )}
+          />
+          <HelperText type="error" visible={!!errors.title}>
+            {errors.title?.message}
+          </HelperText>
 
-        <Controller
-          control={control}
-          name="categoryId"
-          rules={{ required: "Catégorie requise" }}
-          render={({ field: { onChange, value } }) => (
-            <>
-              <Text style={styles.label}>Catégorie</Text>
-              <View style={styles.pickerContainer}>
-                <Picker selectedValue={value} onValueChange={onChange}>
-                  <Picker.Item label="Sélectionnez une catégorie..." value="" />
-                  {categoryOptions.map((option) => (
+          <Controller
+            control={control}
+            name="description"
+            rules={{ required: "Description requise" }}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label="Description"
+                value={value}
+                onChangeText={onChange}
+                mode="outlined"
+                multiline
+                error={!!errors.description}
+                style={styles.input}
+              />
+            )}
+          />
+          <HelperText type="error" visible={!!errors.description}>
+            {errors.description?.message}
+          </HelperText>
+
+          <Controller
+            control={control}
+            name="maxParticipant"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label="Participants max"
+                value={value?.toString()}
+                onChangeText={(v) => onChange(parseInt(v) || "")}
+                mode="outlined"
+                keyboardType="numeric"
+                style={styles.input}
+              />
+            )}
+          />
+
+          <Text>Date limite</Text>
+          <Controller
+            control={control}
+            name="deadLine"
+            rules={{ required: "Date requise" }}
+            render={({ field: { value } }) => (
+              <>
+                <Button
+                  mode="outlined"
+                  onPress={() => setShowDatePicker(true)}
+                  style={styles.input}
+                >
+                  {value
+                    ? new Date(value).toLocaleDateString()
+                    : "Choisir une date limite"}
+                </Button>
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={value ? new Date(value) : new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      setShowDatePicker(false);
+                      if (selectedDate)
+                        setValue("deadLine", selectedDate.toISOString());
+                    }}
+                  />
+                )}
+              </>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="categoryId"
+            rules={{ required: "Catégorie requise" }}
+            render={({ field: { onChange, value } }) => (
+              <>
+                <Text style={styles.label}>Catégorie</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker selectedValue={value} onValueChange={onChange}>
                     <Picker.Item
-                      key={option.value}
-                      label={option.label}
-                      value={option.value}
+                      label="Sélectionnez une catégorie..."
+                      value=""
                     />
-                  ))}
-                </Picker>
-              </View>
-              <HelperText type="error" visible={!!errors.categoryId}>
-                {errors.categoryId?.message}
-              </HelperText>
-            </>
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="typeRessourceId"
-          rules={{ required: "Type requis" }}
-          render={({ field: { onChange, value } }) => (
-            <>
-              <Text style={styles.label}>Type de ressource</Text>
-              <View style={styles.pickerContainer}>
-                <Picker selectedValue={value} onValueChange={onChange}>
-                  <Picker.Item label="Sélectionnez un type..." value="" />
-                  {typeOptions.map((option) => (
-                    <Picker.Item
-                      key={option.value}
-                      label={option.label}
-                      value={option.value}
-                    />
-                  ))}
-                </Picker>
-              </View>
-              <HelperText type="error" visible={!!errors.typeRessourceId}>
-                {errors.typeRessourceId?.message}
-              </HelperText>
-            </>
-          )}
-        />
-
-        {steps.length > 0 && (
-          <View style={styles.stepListContainer}>
-            <Text variant="titleMedium" style={styles.stepListTitle}>
-              Étapes non modifiable (Veuillez créer une nouvelle ressource)
-            </Text>
-            {steps
-              .sort((a, b) => a.order - b.order)
-              .map((step, index) => (
-                <View key={index} style={styles.stepItem}>
-                  <Text style={styles.stepOrder}>{step.order}.</Text>
-                  <View style={styles.stepContent}>
-                    <Text style={styles.stepTitle}>{step.title}</Text>
-                    <Text style={styles.stepDescription}>
-                      {step.description}
-                    </Text>
-                  </View>
+                    {categoryOptions.map((option) => (
+                      <Picker.Item
+                        key={option.value}
+                        label={option.label}
+                        value={option.value}
+                      />
+                    ))}
+                  </Picker>
                 </View>
-              ))}
-          </View>
-        )}
+                <HelperText type="error" visible={!!errors.categoryId}>
+                  {errors.categoryId?.message}
+                </HelperText>
+              </>
+            )}
+          />
 
-        <Button mode="contained" onPress={handleSubmit(onSubmit)}>
-          Modifier
-        </Button>
-      </ScrollView>
-    </PaperProvider>
+          <Controller
+            control={control}
+            name="typeRessourceId"
+            rules={{ required: "Type requis" }}
+            render={({ field: { onChange, value } }) => (
+              <>
+                <Text style={styles.label}>Type de ressource</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker selectedValue={value} onValueChange={onChange}>
+                    <Picker.Item label="Sélectionnez un type..." value="" />
+                    {typeOptions.map((option) => (
+                      <Picker.Item
+                        key={option.value}
+                        label={option.label}
+                        value={option.value}
+                      />
+                    ))}
+                  </Picker>
+                </View>
+                <HelperText type="error" visible={!!errors.typeRessourceId}>
+                  {errors.typeRessourceId?.message}
+                </HelperText>
+              </>
+            )}
+          />
+
+          {steps.length > 0 && (
+            <View style={styles.stepListContainer}>
+              <Text variant="titleMedium" style={styles.stepListTitle}>
+                Étapes non modifiable (Veuillez créer une nouvelle ressource)
+              </Text>
+              {steps
+                .sort((a, b) => a.order - b.order)
+                .map((step, index) => (
+                  <View key={index} style={styles.stepItem}>
+                    <Text style={styles.stepOrder}>{step.order}.</Text>
+                    <View style={styles.stepContent}>
+                      <Text style={styles.stepTitle}>{step.title}</Text>
+                      <Text style={styles.stepDescription}>
+                        {step.description}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+            </View>
+          )}
+
+          <Button mode="contained" onPress={handleSubmit(onSubmit)}>
+            Modifier
+          </Button>
+        </ScrollView>
+      </PaperProvider>
+    </KeyboardAvoidingView>
   );
 };
 

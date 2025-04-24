@@ -1,7 +1,6 @@
 import { ClerkLoaded, ClerkProvider } from "@clerk/clerk-expo";
 import { Slot, SplashScreen } from "expo-router";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
-import { KeyboardAvoidingView, Platform } from "react-native";
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import { ConnectedUserProvider } from "../utils/ConnectedUserContext";
@@ -53,14 +52,8 @@ function RootLayoutNav() {
       <ClerkLoaded>
         <ConnectedUserProvider>
           <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-              keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
-              style={{ flex: 1 }}
-            >
-              <StatusBar />
-              <Slot />
-            </KeyboardAvoidingView>
+            <StatusBar />
+            <Slot />
           </SafeAreaView>
         </ConnectedUserProvider>
       </ClerkLoaded>

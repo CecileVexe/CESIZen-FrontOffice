@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import { useSignUp } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
 import { createCitizen } from "../../services/citizen.service";
@@ -95,70 +95,76 @@ export default function SignUpScreen() {
   }
 
   return (
-    <PaperProvider theme={customTheme}>
-      <View style={styles.container}>
-        <Card style={styles.card}>
-          <Card.Content>
-            <Title style={styles.title}>Créer un compte</Title>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+      style={{ flex: 1 }}
+    >
+      <PaperProvider theme={customTheme}>
+        <View style={styles.container}>
+          <Card style={styles.card}>
+            <Card.Content>
+              <Title style={styles.title}>Créer un compte</Title>
 
-            <TextInput
-              label="Prénom"
-              mode="outlined"
-              value={name}
-              onChangeText={setName}
-              style={styles.input}
-            />
+              <TextInput
+                label="Prénom"
+                mode="outlined"
+                value={name}
+                onChangeText={setName}
+                style={styles.input}
+              />
 
-            <TextInput
-              label="Nom"
-              mode="outlined"
-              value={surname}
-              onChangeText={setSurname}
-              style={styles.input}
-            />
+              <TextInput
+                label="Nom"
+                mode="outlined"
+                value={surname}
+                onChangeText={setSurname}
+                style={styles.input}
+              />
 
-            <TextInput
-              label="Email"
-              mode="outlined"
-              value={emailAddress}
-              onChangeText={setEmailAddress}
-              autoCapitalize="none"
-              style={styles.input}
-            />
+              <TextInput
+                label="Email"
+                mode="outlined"
+                value={emailAddress}
+                onChangeText={setEmailAddress}
+                autoCapitalize="none"
+                style={styles.input}
+              />
 
-            <TextInput
-              label="Mot de passe"
-              mode="outlined"
-              value={password}
-              secureTextEntry={!showPassword}
-              onChangeText={setPassword}
-              style={styles.input}
-              right={
-                <TextInput.Icon
-                  icon={showPassword ? "eye-off" : "eye"}
-                  onPress={() => setShowPassword((prev) => !prev)}
-                />
-              }
-            />
+              <TextInput
+                label="Mot de passe"
+                mode="outlined"
+                value={password}
+                secureTextEntry={!showPassword}
+                onChangeText={setPassword}
+                style={styles.input}
+                right={
+                  <TextInput.Icon
+                    icon={showPassword ? "eye-off" : "eye"}
+                    onPress={() => setShowPassword((prev) => !prev)}
+                  />
+                }
+              />
 
-            <Button
-              mode="contained"
-              onPress={onSignUpPress}
-              style={styles.button}
-            >
-              Continuer
-            </Button>
+              <Button
+                mode="contained"
+                onPress={onSignUpPress}
+                style={styles.button}
+              >
+                Continuer
+              </Button>
 
-            <View style={styles.signinContainer}>
-              <Text>Déjà un compte ?</Text>
-              <Link href="/sign-in">
-                <Text style={styles.signinLink}>Se connecter</Text>
-              </Link>
-            </View>
-          </Card.Content>
-        </Card>
-      </View>
-    </PaperProvider>
+              <View style={styles.signinContainer}>
+                <Text>Déjà un compte ?</Text>
+                <Link href="/sign-in">
+                  <Text style={styles.signinLink}>Se connecter</Text>
+                </Link>
+              </View>
+            </Card.Content>
+          </Card>
+        </View>
+      </PaperProvider>
+    </KeyboardAvoidingView>
   );
 }
 

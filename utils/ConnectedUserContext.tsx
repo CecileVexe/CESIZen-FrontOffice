@@ -51,6 +51,7 @@ export const ConnectedUserProvider = ({ children }: UserProviderProps) => {
 
   const handleNonConnectedUser = (boolean: boolean) => {
     setUserChoseToUnconnect(boolean);
+    setConnectedUser(undefined);
   };
 
   return (

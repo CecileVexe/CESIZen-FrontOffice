@@ -2,6 +2,7 @@ import { StyleSheet, View } from "react-native";
 import { PaperProvider, Text } from "react-native-paper";
 import { SignInButton } from "../../../components/SignInButton";
 import { customTheme } from "../../../utils/theme/theme";
+import { SignOutButton } from "../../../components/SignOutButton";
 
 const unConnectedUserPage = () => {
   return (
@@ -11,6 +12,10 @@ const unConnectedUserPage = () => {
           Veuillez vous connecter pour accéder à la page de votre compte
         </Text>
         <SignInButton />
+        <Text variant="titleLarge" style={styles.title}>
+          En cas de problème de session :
+        </Text>
+        <SignOutButton />
       </View>
     </PaperProvider>
   );

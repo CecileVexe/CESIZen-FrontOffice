@@ -1,5 +1,10 @@
 import React from "react";
-import { StyleSheet, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import {
   Text,
   TextInput,
@@ -89,174 +94,180 @@ const AccountSettings = () => {
   };
 
   return (
-    <PaperProvider theme={customTheme}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Modifier mes informations</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+      style={{ flex: 1 }}
+    >
+      <PaperProvider theme={customTheme}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <Text style={styles.title}>Modifier mes informations</Text>
 
-        <Controller
-          control={control}
-          name="name"
-          render={({ field: { onChange, value } }) => (
-            <>
-              <TextInput
-                label="Prénom"
-                value={value}
-                onChangeText={onChange}
-                error={!!errors.name}
-                style={styles.input}
-              />
-              {errors.name && (
-                <Text style={styles.error}>{errors.name.message}</Text>
-              )}
-            </>
-          )}
-        />
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, value } }) => (
+              <>
+                <TextInput
+                  label="Prénom"
+                  value={value}
+                  onChangeText={onChange}
+                  error={!!errors.name}
+                  style={styles.input}
+                />
+                {errors.name && (
+                  <Text style={styles.error}>{errors.name.message}</Text>
+                )}
+              </>
+            )}
+          />
 
-        <Controller
-          control={control}
-          name="surname"
-          render={({ field: { onChange, value } }) => (
-            <>
-              <TextInput
-                label="Nom"
-                value={value}
-                onChangeText={onChange}
-                error={!!errors.surname}
-                style={styles.input}
-              />
-              {errors.surname && (
-                <Text style={styles.error}>{errors.surname.message}</Text>
-              )}
-            </>
-          )}
-        />
+          <Controller
+            control={control}
+            name="surname"
+            render={({ field: { onChange, value } }) => (
+              <>
+                <TextInput
+                  label="Nom"
+                  value={value}
+                  onChangeText={onChange}
+                  error={!!errors.surname}
+                  style={styles.input}
+                />
+                {errors.surname && (
+                  <Text style={styles.error}>{errors.surname.message}</Text>
+                )}
+              </>
+            )}
+          />
 
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={handleSubmit(onSubmitInfo)}
-        >
-          Enregistrer les modifications
-        </Button>
+          <Button
+            mode="contained"
+            style={styles.button}
+            onPress={handleSubmit(onSubmitInfo)}
+          >
+            Enregistrer les modifications
+          </Button>
 
-        <Divider style={styles.divider} />
+          <Divider style={styles.divider} />
 
-        <Text style={styles.title}>Changer mon mot de passe</Text>
+          <Text style={styles.title}>Changer mon mot de passe</Text>
 
-        <Controller
-          name="oldPassword"
-          control={control}
-          rules={{
-            validate: (value, formValues) => {
-              if (formValues.newPassword || value) {
-                return value ? true : "Ancien mot de passe requis";
-              }
-              return true;
-            },
-          }}
-          render={({ field: { onChange, value, onBlur } }) => (
-            <>
-              <TextInput
-                label="Ancien mot de passe"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={!!errors.oldPassword}
-                style={styles.input}
-              />
-              {errors.oldPassword && (
-                <Text style={styles.error}>{errors.oldPassword.message}</Text>
-              )}
-            </>
-          )}
-        />
+          <Controller
+            name="oldPassword"
+            control={control}
+            rules={{
+              validate: (value, formValues) => {
+                if (formValues.newPassword || value) {
+                  return value ? true : "Ancien mot de passe requis";
+                }
+                return true;
+              },
+            }}
+            render={({ field: { onChange, value, onBlur } }) => (
+              <>
+                <TextInput
+                  label="Ancien mot de passe"
+                  secureTextEntry
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={!!errors.oldPassword}
+                  style={styles.input}
+                />
+                {errors.oldPassword && (
+                  <Text style={styles.error}>{errors.oldPassword.message}</Text>
+                )}
+              </>
+            )}
+          />
 
-        <Controller
-          name="newPassword"
-          control={control}
-          rules={{
-            validate: (value, formValues) => {
-              if (formValues.oldPassword || value) {
-                return value ? true : "Nouveau mot de passe requis";
-              }
-              return true;
-            },
-          }}
-          render={({ field: { onChange, value, onBlur } }) => (
-            <>
-              <TextInput
-                label="Nouveau mot de passe"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={!!errors.newPassword}
-                style={styles.input}
-              />
-              {errors.newPassword && (
-                <Text style={styles.error}>{errors.newPassword.message}</Text>
-              )}
-            </>
-          )}
-        />
+          <Controller
+            name="newPassword"
+            control={control}
+            rules={{
+              validate: (value, formValues) => {
+                if (formValues.oldPassword || value) {
+                  return value ? true : "Nouveau mot de passe requis";
+                }
+                return true;
+              },
+            }}
+            render={({ field: { onChange, value, onBlur } }) => (
+              <>
+                <TextInput
+                  label="Nouveau mot de passe"
+                  secureTextEntry
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={!!errors.newPassword}
+                  style={styles.input}
+                />
+                {errors.newPassword && (
+                  <Text style={styles.error}>{errors.newPassword.message}</Text>
+                )}
+              </>
+            )}
+          />
 
-        <Controller
-          name="confirmPassword"
-          control={control}
-          rules={{
-            validate: (value) => {
-              const newPassword = watch("newPassword");
-              if (newPassword || value) {
-                if (!value) return "Confirmation requise";
-                if (value !== newPassword)
-                  return "Les mots de passe ne correspondent pas";
-              }
-              return true;
-            },
-          }}
-          render={({ field: { onChange, value, onBlur } }) => (
-            <>
-              <TextInput
-                label="Confirmer le mot de passe"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={!!errors.confirmPassword}
-                style={styles.input}
-              />
-              {errors.confirmPassword && (
-                <Text style={styles.error}>
-                  {errors.confirmPassword.message}
-                </Text>
-              )}
-            </>
-          )}
-        />
+          <Controller
+            name="confirmPassword"
+            control={control}
+            rules={{
+              validate: (value) => {
+                const newPassword = watch("newPassword");
+                if (newPassword || value) {
+                  if (!value) return "Confirmation requise";
+                  if (value !== newPassword)
+                    return "Les mots de passe ne correspondent pas";
+                }
+                return true;
+              },
+            }}
+            render={({ field: { onChange, value, onBlur } }) => (
+              <>
+                <TextInput
+                  label="Confirmer le mot de passe"
+                  secureTextEntry
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={!!errors.confirmPassword}
+                  style={styles.input}
+                />
+                {errors.confirmPassword && (
+                  <Text style={styles.error}>
+                    {errors.confirmPassword.message}
+                  </Text>
+                )}
+              </>
+            )}
+          />
 
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={handleSubmit(onSubmitPassword)}
-        >
-          Mettre à jour le mot de passe
-        </Button>
+          <Button
+            mode="contained"
+            style={styles.button}
+            onPress={handleSubmit(onSubmitPassword)}
+          >
+            Mettre à jour le mot de passe
+          </Button>
 
-        <Divider style={styles.divider} />
+          <Divider style={styles.divider} />
 
-        <Text style={styles.title}>Compte</Text>
-        <SignOutButton />
-        <Button
-          mode="text"
-          textColor={theme.colors.error}
-          style={styles.button}
-          onPress={() => console.log("Supprimer")}
-        >
-          Supprimer mon compte
-        </Button>
-      </ScrollView>
-    </PaperProvider>
+          <Text style={styles.title}>Compte</Text>
+          <SignOutButton />
+          <Button
+            mode="text"
+            textColor={theme.colors.error}
+            style={styles.button}
+            onPress={() => console.log("Supprimer")}
+          >
+            Supprimer mon compte
+          </Button>
+        </ScrollView>
+      </PaperProvider>
+    </KeyboardAvoidingView>
   );
 };
 

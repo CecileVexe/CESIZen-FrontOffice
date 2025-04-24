@@ -12,7 +12,7 @@ const CommentCard = (props: CommentCardProps) => {
   const { connectedUser } = useConntedUser();
   const { comment } = props;
   const isCurrentUser = connectedUser?.id === comment.citizen.id;
-
+  console.log(connectedUser);
   return (
     <Card
       key={comment.id}
