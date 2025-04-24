@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import {
   FlatList,
   RefreshControl,
@@ -13,6 +13,7 @@ import {
   useTheme,
   Chip,
   Title,
+  Button,
 } from "react-native-paper";
 import { Link } from "expo-router";
 import { Ressource } from "../../../utils/types/Ressources.types";
@@ -62,7 +63,7 @@ const RenderItem = ({ item }: { item: Ressource }) => {
               </View>
             </View>
 
-            <Text variant="bodySmall">
+            <Text variant="bodyMedium">
               Deadline : {new Date(item.deadLine).toLocaleDateString("fr-FR")}
             </Text>
           </View>
@@ -79,20 +80,29 @@ export default function Page() {
   );
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1); // Page actuelle
+  const [totalPages, setTotalPages] = useState(1); // Nombre total de pages
+  const [pageSize] = useState(10); // Taille de la page (50 éléments par page)
+
+  // Référence à la FlatList
+  const flatListRef = useRef<FlatList>(null);
 
   const getDatas = useCallback(async () => {
     setLoading(true);
     const [resRessources, resCategories] = await Promise.all([
-      getRessources(),
+      getRessources(page, pageSize), // Passe les paramètres page et pageSize
       getCategory(),
     ]);
     if (resRessources && resCategories) {
       const validated = resRessources.data.filter((r) => r.isValidate);
       setRessources(validated);
       setCategories(resCategories.data);
+      if (resRessources.total) {
+        setTotalPages(Math.ceil(resRessources.total / pageSize));
+      } // Calcul du nombre de pages
     }
     setLoading(false);
-  }, []);
+  }, [page, pageSize]);
 
   const filteredRessources = selectedCategory
     ? ressources.filter((r) => r.category.id === selectedCategory)
@@ -100,7 +110,28 @@ export default function Page() {
 
   useEffect(() => {
     getDatas();
-  }, [getDatas]);
+  }, [getDatas, page]); // Mise à jour des données quand la page change
+
+  // Fonctions de pagination
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      setPage(page + 1); // Passe à la page suivante
+      flatListRef.current?.scrollToOffset({ animated: true, offset: 0 }); // Revenir en haut
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      setPage(page - 1); // Passe à la page précédente
+      flatListRef.current?.scrollToOffset({ animated: true, offset: 0 }); // Revenir en haut
+    }
+  };
+
+  // Fonction pour changer de catégorie et revenir en haut
+  const handleCategoryChange = (categoryId: string | null) => {
+    setSelectedCategory(categoryId);
+    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 }); // Revenir en haut
+  };
 
   return (
     <PaperProvider theme={customTheme}>
@@ -114,7 +145,7 @@ export default function Page() {
           <Chip
             style={styles.chip}
             selected={!selectedCategory}
-            onPress={() => setSelectedCategory(null)}
+            onPress={() => handleCategoryChange(null)}
           >
             <Text style={styles.badgeText}>Toutes</Text>
           </Chip>
@@ -123,7 +154,7 @@ export default function Page() {
               key={cat.id}
               style={styles.chip}
               selected={selectedCategory === cat.id}
-              onPress={() => setSelectedCategory(cat.id)}
+              onPress={() => handleCategoryChange(cat.id)}
             >
               <Text style={styles.badgeText}>{cat.name}</Text>
             </Chip>
@@ -131,6 +162,7 @@ export default function Page() {
         </ScrollView>
         {filteredRessources.length > 0 ? (
           <FlatList
+            ref={flatListRef} // Ajoute la référence ici
             data={filteredRessources}
             keyExtractor={(item) => `${item.title}_card`}
             renderItem={({ item }) => <RenderItem item={item} />}
@@ -142,6 +174,16 @@ export default function Page() {
         ) : (
           <Text style={styles.emptyText}>Aucune ressource disponible !</Text>
         )}
+
+        <View style={styles.paginationContainer}>
+          <Button onPress={handlePrevPage} disabled={page === 1}>
+            Précédent
+          </Button>
+          <Text>{`Page ${page} sur ${totalPages}`}</Text>
+          <Button onPress={handleNextPage} disabled={page === totalPages}>
+            Suivant
+          </Button>
+        </View>
       </View>
     </PaperProvider>
   );
@@ -167,7 +209,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
     height: 30,
   },
-
   listContent: {
     paddingBottom: 16,
   },
@@ -250,5 +291,11 @@ const styles = StyleSheet.create({
     marginRight: 8,
     marginBottom: 8,
     backgroundColor: "#e3f2fd",
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 16,
   },
 });
