@@ -6,6 +6,7 @@ import {
   PaperProvider,
   Text,
   Card,
+  IconButton,
 } from "react-native-paper";
 import React, { useState } from "react";
 import { FlatList, View, StyleSheet } from "react-native";
@@ -21,6 +22,7 @@ import { leaveAComment } from "../../../services/comment.service";
 import SubscribeToRessource from "../../../components/SubscribeToRessource";
 import InviteForm from "../../../components/InviteForm";
 import { customTheme } from "../../../utils/theme/theme";
+import { addFavorite } from "../../../services/favorite.service";
 
 const RessourceDetails = () => {
   const { isSignedIn } = useAuth();
@@ -116,15 +118,36 @@ const RessourceDetails = () => {
     }
   };
 
+  const handleAddFavorite = async () => {
+    if (connectedUser && ressource) {
+      try {
+        await addFavorite({
+          citizenId: connectedUser.id,
+          ressourceId: ressource.id,
+        });
+      } catch (e) {
+        console.error("Erreur lors de l'ajout aux favoris :", e);
+      }
+    }
+  };
+
   return (
     <PaperProvider theme={customTheme}>
       {ressource && (
         <View style={styles.container}>
           <Card style={styles.card}>
             <Card.Content>
-              <Text variant="titleLarge" style={styles.title}>
-                {ressource.title}
-              </Text>
+              <View style={styles.titleContainer}>
+                <Text variant="titleLarge" style={styles.title}>
+                  {ressource.title}
+                </Text>
+                <IconButton
+                  icon="star-plus"
+                  size={24}
+                  onPress={handleAddFavorite}
+                  style={styles.favoriteButton}
+                />
+              </View>
 
               {isSignedIn && (
                 <Button
@@ -254,6 +277,7 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 8,
+    maxWidth: 250,
   },
   label: {
     marginBottom: 4,
@@ -303,5 +327,17 @@ const styles = StyleSheet.create({
   categoryChip: {
     backgroundColor: "#e3f2fd",
     alignSelf: "flex-start",
+  },
+
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  favoriteButton: {
+    margin: 0,
+    padding: 0,
+    alignSelf: "center",
   },
 });

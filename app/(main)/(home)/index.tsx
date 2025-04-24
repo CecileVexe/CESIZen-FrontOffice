@@ -1,16 +1,23 @@
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, RefreshControl, View, StyleSheet } from "react-native";
+import {
+  FlatList,
+  RefreshControl,
+  View,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 import {
   Card,
   Text,
-  ProgressBar,
   PaperProvider,
   useTheme,
+  Chip,
+  Title,
 } from "react-native-paper";
 import { Link } from "expo-router";
-
 import { Ressource } from "../../../utils/types/Ressources.types";
 import { getRessources } from "../../../services/ressources.service";
+import { getCategory } from "../../../services/category.service";
 import { customTheme } from "../../../utils/theme/theme";
 
 const RenderItem = ({ item }: { item: Ressource }) => {
@@ -39,9 +46,9 @@ const RenderItem = ({ item }: { item: Ressource }) => {
             </Text>
 
             <View style={styles.Participant_progress}>
-              <Text variant="bodyMedium" style={styles.Participant}>
-                {item.nbParticipant} / {item.maxParticipant} Participants
-              </Text>
+              <Chip icon="account-group" style={styles.badge}>
+                {item.nbParticipant} / {item.maxParticipant} participants
+              </Chip>
             </View>
 
             <View style={styles.badgeContainer}>
@@ -55,8 +62,8 @@ const RenderItem = ({ item }: { item: Ressource }) => {
               </View>
             </View>
 
-            <Text variant="bodyMedium">
-              {new Date(item.deadLine).toLocaleDateString("fr-FR")}
+            <Text variant="bodySmall">
+              Deadline : {new Date(item.deadLine).toLocaleDateString("fr-FR")}
             </Text>
           </View>
         </View>
@@ -66,26 +73,30 @@ const RenderItem = ({ item }: { item: Ressource }) => {
 };
 
 export default function Page() {
-  const [ressources, setRessources] = useState<Ressource[] | undefined>(
-    undefined,
+  const [ressources, setRessources] = useState<Ressource[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    [],
   );
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const getDatas = useCallback(async () => {
     setLoading(true);
-    const response = await getRessources();
-    if (response) {
-      const validatedRessources = response.data.filter(
-        (ressource) => ressource.isValidate,
-      );
-      setRessources(validatedRessources);
+    const [resRessources, resCategories] = await Promise.all([
+      getRessources(),
+      getCategory(),
+    ]);
+    if (resRessources && resCategories) {
+      const validated = resRessources.data.filter((r) => r.isValidate);
+      setRessources(validated);
+      setCategories(resCategories.data);
     }
     setLoading(false);
   }, []);
 
-  const onRefresh = useCallback(() => {
-    getDatas();
-  }, [getDatas]);
+  const filteredRessources = selectedCategory
+    ? ressources.filter((r) => r.category.id === selectedCategory)
+    : ressources;
 
   useEffect(() => {
     getDatas();
@@ -93,15 +104,39 @@ export default function Page() {
 
   return (
     <PaperProvider theme={customTheme}>
-      <View>
-        {ressources ? (
+      <View style={styles.container}>
+        <Title style={styles.greeting}>Bienvenue dans VivActive !</Title>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.filterScroll}
+        >
+          <Chip
+            style={styles.chip}
+            selected={!selectedCategory}
+            onPress={() => setSelectedCategory(null)}
+          >
+            <Text style={styles.badgeText}>Toutes</Text>
+          </Chip>
+          {categories.map((cat) => (
+            <Chip
+              key={cat.id}
+              style={styles.chip}
+              selected={selectedCategory === cat.id}
+              onPress={() => setSelectedCategory(cat.id)}
+            >
+              <Text style={styles.badgeText}>{cat.name}</Text>
+            </Chip>
+          ))}
+        </ScrollView>
+        {filteredRessources.length > 0 ? (
           <FlatList
-            data={ressources}
+            data={filteredRessources}
             keyExtractor={(item) => `${item.title}_card`}
             renderItem={({ item }) => <RenderItem item={item} />}
             contentContainerStyle={styles.listContent}
             refreshControl={
-              <RefreshControl refreshing={loading} onRefresh={onRefresh} />
+              <RefreshControl refreshing={loading} onRefresh={getDatas} />
             }
           />
         ) : (
@@ -118,6 +153,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#f4f6f8",
     padding: 12,
   },
+  titleContainer: {
+    flex: 0,
+    marginBottom: 16,
+  },
+  filterScroll: {
+    marginBottom: 12,
+    height: 50,
+  },
+  chip: {
+    color: "#f4f6f8",
+    backgroundColor: "#4BA8B4",
+    marginRight: 8,
+    height: 30,
+  },
+
   listContent: {
     paddingBottom: 16,
   },
@@ -132,8 +182,8 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   imageContainer: {
-    width: 150,
-    height: 150,
+    width: 115,
+    height: 115,
     marginRight: 12,
   },
   cover: {
@@ -171,11 +221,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginVertical: 8,
   },
-  progressBar: {
-    height: 15,
-    borderRadius: 3,
-    flex: 1,
-  },
   emptyText: {
     marginTop: 40,
     textAlign: "center",
@@ -195,5 +240,15 @@ const styles = StyleSheet.create({
   badgeText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  greeting: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  badge: {
+    marginRight: 8,
+    marginBottom: 8,
+    backgroundColor: "#e3f2fd",
   },
 });
