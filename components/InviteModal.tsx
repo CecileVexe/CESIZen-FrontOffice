@@ -18,7 +18,9 @@ const InviteModal = (props: InviteModalProps) => {
   const { selectedInvite, connectedUser, visible, hideDialog } = props;
   const router = useRouter();
 
-  const handleDecline = () => {};
+  const handleDecline = () => {
+    hideDialog();
+  };
 
   const handleAccept = async () => {
     const response = await acceptInvite({

@@ -43,10 +43,6 @@ export const ConnectedUserProvider = ({ children }: UserProviderProps) => {
     setLoading(true);
     if (user) {
       try {
-        const delay = (ms: number) =>
-          new Promise((resolve) => setTimeout(resolve, ms));
-
-        await delay(3000);
         const bddUser = await getCitizen(user.id);
         if (bddUser?.data) {
           setConnectedUser(bddUser.data);

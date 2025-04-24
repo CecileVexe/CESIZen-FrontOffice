@@ -1,6 +1,6 @@
 import * as React from "react";
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
-import { useSignUp } from "@clerk/clerk-expo";
+import { useClerk, useSignUp } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
 import { createCitizen } from "../../services/citizen.service";
 import {
@@ -15,6 +15,8 @@ import { customTheme } from "../../utils/theme/theme";
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
+  const { signOut } = useClerk();
+
   const router = useRouter();
 
   const [name, setName] = React.useState("");
@@ -51,15 +53,19 @@ export default function SignUpScreen() {
       });
 
       if (signUpAttempt.status === "complete") {
-        await setActive({ session: signUpAttempt.createdSessionId });
         const clerkUserID = signUpAttempt.createdUserId;
+        await createCitizen(clerkUserID);
+        await signOut();
+        router.replace("/sign-in");
+        // await setActive({ session: signUpAttempt.createdSessionId });
+        // const clerkUserID = signUpAttempt.createdUserId;
 
-        try {
-          await createCitizen(clerkUserID);
-          router.replace("/");
-        } catch (error) {
-          console.log(error);
-        }
+        // try {
+        //   await createCitizen(clerkUserID);
+        //   router.replace("/");
+        // } catch (error) {
+        //   console.log(error);
+        // }
       } else {
         console.error(JSON.stringify(signUpAttempt, null, 2));
       }
