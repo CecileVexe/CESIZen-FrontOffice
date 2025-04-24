@@ -24,6 +24,7 @@ import { Progression } from "../../../utils/types/Progression.types";
 import { completedStep } from "../../../utils/functions/completedSteps";
 import { useRouter } from "expo-router";
 import { customTheme } from "../../../utils/theme/theme";
+import { ActivityIndicator } from "react-native-paper";
 
 interface StepWithRessourceId extends Step {
   ressourceId: string;
@@ -38,6 +39,7 @@ const OnGoingRessource = () => {
   const [userRessource, setUserRessource] = useState<UserRessource>();
   const [userRessourceStep, setUserRessourceStep] =
     useState<StepWithProgression[]>();
+  const [loading, setLoading] = useState<boolean>(true);
 
   const { connectedUser } = useConntedUser();
   const theme = useTheme();
@@ -45,25 +47,32 @@ const OnGoingRessource = () => {
 
   const getProgressionDatas = useCallback(async () => {
     if (connectedUser) {
-      const progressionResponse = await getProgressionFromUser(
-        connectedUser.id,
-      );
-      if (progressionResponse) {
-        const ressourceResponse = await getRessource(
-          progressionResponse.data[0].ressourceId,
+      setLoading(true);
+      try {
+        const progressionResponse = await getProgressionFromUser(
+          connectedUser.id,
         );
-        if (ressourceResponse) {
-          const formatedRessourceResponse = {
-            ...ressourceResponse.data,
-            step: ressourceResponse.data.step.map((s) => ({
-              ...s,
-              ressourceId: ressourceResponse?.data.id,
-            })),
-          };
+        if (progressionResponse) {
+          const ressourceResponse = await getRessource(
+            progressionResponse.data[0].ressourceId,
+          );
+          if (ressourceResponse) {
+            const formatedRessourceResponse = {
+              ...ressourceResponse.data,
+              step: ressourceResponse.data.step.map((s) => ({
+                ...s,
+                ressourceId: ressourceResponse?.data.id,
+              })),
+            };
 
-          setUserProgression(progressionResponse.data);
-          setUserRessource(formatedRessourceResponse);
+            setUserProgression(progressionResponse.data);
+            setUserRessource(formatedRessourceResponse);
+          }
         }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
       }
     }
   }, [connectedUser]);
@@ -107,7 +116,11 @@ const OnGoingRessource = () => {
   return (
     <PaperProvider theme={customTheme}>
       {connectedUser !== undefined ? (
-        userRessource !== undefined ? (
+        loading ? (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator animating={true} size="large" />
+          </View>
+        ) : userRessource !== undefined ? (
           <View style={styles.container}>
             <Text variant="titleLarge" style={styles.title}>
               {userRessource.title}
@@ -236,6 +249,11 @@ const styles = StyleSheet.create({
   signInText: {
     marginBottom: 10,
     fontWeight: "bold",
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

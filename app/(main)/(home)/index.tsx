@@ -21,6 +21,7 @@ import { getRessources } from "../../../services/ressources.service";
 import { getCategory } from "../../../services/category.service";
 import { customTheme } from "../../../utils/theme/theme";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
+import { ActivityIndicator } from "react-native-paper";
 
 const RenderItem = ({ item }: { item: Ressource }) => {
   const { colors } = useTheme();
@@ -87,8 +88,6 @@ export default function Page() {
   const [pageSize] = useState(10);
 
   const flatListRef = useRef<FlatList>(null);
-
-  console.log(connectedUser);
 
   const getDatas = useCallback(async () => {
     setLoading(true);
@@ -163,9 +162,13 @@ export default function Page() {
             </Chip>
           ))}
         </ScrollView>
-        {filteredRessources.length > 0 ? (
+        {loading ? (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator animating={true} size="large" />
+          </View>
+        ) : filteredRessources.length > 0 ? (
           <FlatList
-            ref={flatListRef} // Ajoute la référence ici
+            ref={flatListRef}
             data={filteredRessources}
             keyExtractor={(item) => `${item.title}_card`}
             renderItem={({ item }) => <RenderItem item={item} />}
@@ -300,5 +303,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 16,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

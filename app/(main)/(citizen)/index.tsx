@@ -12,6 +12,7 @@ import {
   IconButton,
   Text,
   PaperProvider,
+  ActivityIndicator,
 } from "react-native-paper";
 import { useRouter, Redirect, useFocusEffect } from "expo-router";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
@@ -38,6 +39,7 @@ import { customTheme } from "../../../utils/theme/theme";
 const UserPage = () => {
   const { userChoseToUnconnect, connectedUser, refreshConnectedUser } =
     useConntedUser();
+  const [isLoading, setIsLoading] = useState(true);
   const [sentInvites, setSentInvites] = useState<Invite[]>([]);
   const [receivedInvites, setReceivedInvites] = useState<Invite[]>([]);
   const [userRessources, setUserRessources] = useState<any>([]);
@@ -87,22 +89,26 @@ const UserPage = () => {
       let isActive = true;
 
       const fetchAll = async () => {
-        await refreshConnectedUser(); // <--- ICI
+        setIsLoading(true);
+        await refreshConnectedUser();
         if (connectedUser) {
           const invites = await getUserInvite(connectedUser.id);
           const favorites = await getUserFavorite(connectedUser.id);
           const ressources = await getUserRessource(connectedUser.id);
 
-          if (invites?.data) {
-            setSentInvites(
-              invites.data.filter((i) => i.sender.id === connectedUser.id),
-            );
-            setReceivedInvites(
-              invites.data.filter((i) => i.recever.id === connectedUser.id),
-            );
+          if (isActive) {
+            if (invites?.data) {
+              setSentInvites(
+                invites.data.filter((i) => i.sender.id === connectedUser.id),
+              );
+              setReceivedInvites(
+                invites.data.filter((i) => i.recever.id === connectedUser.id),
+              );
+            }
+            if (favorites?.data) setFavorites(favorites.data);
+            if (ressources?.data) setUserRessources(ressources.data);
+            setIsLoading(false);
           }
-          if (favorites?.data) setFavorites(favorites.data);
-          if (ressources?.data) setUserRessources(ressources.data);
         }
       };
 
@@ -186,6 +192,19 @@ const UserPage = () => {
       fetchUserRessource();
     }
   };
+
+  if (isLoading) {
+    return (
+      <PaperProvider theme={customTheme}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <ActivityIndicator animating size="large" />
+          <Text style={{ marginTop: 10 }}>Chargement en cours...</Text>
+        </View>
+      </PaperProvider>
+    );
+  }
 
   return (
     <PaperProvider theme={customTheme}>
