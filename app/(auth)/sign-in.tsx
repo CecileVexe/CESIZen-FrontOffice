@@ -2,8 +2,17 @@ import { useSignIn } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { TextInput, Button, Title, Text, Card, IconButton } from "react-native-paper";
+import {
+  TextInput,
+  Button,
+  Title,
+  Text,
+  Card,
+  IconButton,
+  PaperProvider,
+} from "react-native-paper";
 import { useConntedUser } from "../../utils/ConnectedUserContext";
+import { customTheme } from "../../utils/theme/theme";
 
 export default function Page() {
   const { signIn, setActive, isLoaded } = useSignIn();
@@ -39,56 +48,58 @@ export default function Page() {
   };
 
   return (
-    <View style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Content>
-          <Title style={styles.title}>Connexion</Title>
+    <PaperProvider theme={customTheme}>
+      <View style={styles.container}>
+        <Card style={styles.card}>
+          <Card.Content>
+            <Title style={styles.title}>Connexion</Title>
 
-          <TextInput
-            label="Adresse email"
-            mode="outlined"
-            value={emailAddress}
-            autoCapitalize="none"
-            onChangeText={setEmailAddress}
-            style={styles.input}
-          />
+            <TextInput
+              label="Adresse email"
+              mode="outlined"
+              value={emailAddress}
+              autoCapitalize="none"
+              onChangeText={setEmailAddress}
+              style={styles.input}
+            />
 
-          <TextInput
-            label="Mot de passe"
-            mode="outlined"
-            value={password}
-            secureTextEntry={!showPassword}
-            onChangeText={setPassword}
-            style={styles.input}
-            right={
-              <TextInput.Icon
-                icon={showPassword ? "eye-off" : "eye"}
-                onPress={() => setShowPassword((prev) => !prev)}
-              />
-            }
-          />
+            <TextInput
+              label="Mot de passe"
+              mode="outlined"
+              value={password}
+              secureTextEntry={!showPassword}
+              onChangeText={setPassword}
+              style={styles.input}
+              right={
+                <TextInput.Icon
+                  icon={showPassword ? "eye-off" : "eye"}
+                  onPress={() => setShowPassword((prev) => !prev)}
+                />
+              }
+            />
 
-          <Button
-            mode="contained"
-            onPress={onSignInPress}
-            style={styles.button}
-          >
-            Se connecter
-          </Button>
+            <Button
+              mode="contained"
+              onPress={onSignInPress}
+              style={styles.button}
+            >
+              Se connecter
+            </Button>
 
-          <View style={styles.signupContainer}>
-            <Text>Pas encore de compte ?</Text>
-            <Link href="/sign-up">
-              <Text style={styles.signupLink}>Créer un compte</Text>
-            </Link>
-          </View>
+            <View style={styles.signupContainer}>
+              <Text>Pas encore de compte ?</Text>
+              <Link href="/sign-up">
+                <Text style={styles.signupLink}>Créer un compte</Text>
+              </Link>
+            </View>
 
-          <Button mode="text" onPress={handleNonSignIn}>
-            Continuer sans compte
-          </Button>
-        </Card.Content>
-      </Card>
-    </View>
+            <Button mode="text" onPress={handleNonSignIn}>
+              Continuer sans compte
+            </Button>
+          </Card.Content>
+        </Card>
+      </View>
+    </PaperProvider>
   );
 }
 

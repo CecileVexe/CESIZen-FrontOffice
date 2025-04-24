@@ -3,7 +3,15 @@ import { View, StyleSheet } from "react-native";
 import { useSignUp } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
 import { createCitizen } from "../../services/citizen.service";
-import { TextInput, Button, Title, Text, Card } from "react-native-paper";
+import {
+  TextInput,
+  Button,
+  Title,
+  Text,
+  Card,
+  PaperProvider,
+} from "react-native-paper";
+import { customTheme } from "../../utils/theme/theme";
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -38,7 +46,9 @@ export default function SignUpScreen() {
     if (!isLoaded) return;
 
     try {
-      const signUpAttempt = await signUp.attemptEmailAddressVerification({ code });
+      const signUpAttempt = await signUp.attemptEmailAddressVerification({
+        code,
+      });
 
       if (signUpAttempt.status === "complete") {
         await setActive({ session: signUpAttempt.createdSessionId });
@@ -71,7 +81,11 @@ export default function SignUpScreen() {
               onChangeText={setCode}
               style={styles.input}
             />
-            <Button mode="contained" onPress={onVerifyPress} style={styles.button}>
+            <Button
+              mode="contained"
+              onPress={onVerifyPress}
+              style={styles.button}
+            >
               Vérifier
             </Button>
           </Card.Content>
@@ -81,64 +95,70 @@ export default function SignUpScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Content>
-          <Title style={styles.title}>Créer un compte</Title>
+    <PaperProvider theme={customTheme}>
+      <View style={styles.container}>
+        <Card style={styles.card}>
+          <Card.Content>
+            <Title style={styles.title}>Créer un compte</Title>
 
-          <TextInput
-            label="Prénom"
-            mode="outlined"
-            value={name}
-            onChangeText={setName}
-            style={styles.input}
-          />
+            <TextInput
+              label="Prénom"
+              mode="outlined"
+              value={name}
+              onChangeText={setName}
+              style={styles.input}
+            />
 
-          <TextInput
-            label="Nom"
-            mode="outlined"
-            value={surname}
-            onChangeText={setSurname}
-            style={styles.input}
-          />
+            <TextInput
+              label="Nom"
+              mode="outlined"
+              value={surname}
+              onChangeText={setSurname}
+              style={styles.input}
+            />
 
-          <TextInput
-            label="Email"
-            mode="outlined"
-            value={emailAddress}
-            onChangeText={setEmailAddress}
-            autoCapitalize="none"
-            style={styles.input}
-          />
+            <TextInput
+              label="Email"
+              mode="outlined"
+              value={emailAddress}
+              onChangeText={setEmailAddress}
+              autoCapitalize="none"
+              style={styles.input}
+            />
 
-          <TextInput
-            label="Mot de passe"
-            mode="outlined"
-            value={password}
-            secureTextEntry={!showPassword}
-            onChangeText={setPassword}
-            style={styles.input}
-            right={
-              <TextInput.Icon
-                icon={showPassword ? "eye-off" : "eye"}
-                onPress={() => setShowPassword((prev) => !prev)}
-              />
-            }
-          />
+            <TextInput
+              label="Mot de passe"
+              mode="outlined"
+              value={password}
+              secureTextEntry={!showPassword}
+              onChangeText={setPassword}
+              style={styles.input}
+              right={
+                <TextInput.Icon
+                  icon={showPassword ? "eye-off" : "eye"}
+                  onPress={() => setShowPassword((prev) => !prev)}
+                />
+              }
+            />
 
-          <Button mode="contained" onPress={onSignUpPress} style={styles.button}>
-            Continuer
-          </Button>
+            <Button
+              mode="contained"
+              onPress={onSignUpPress}
+              style={styles.button}
+            >
+              Continuer
+            </Button>
 
-          <View style={styles.signinContainer}>
-            <Text>Déjà un compte ?</Text>
-            <Link href="/sign-in">
-              <Text style={styles.signinLink}>Se connecter</Text>
-            </Link>
-          </View>
-        </Card.Content>
-      </Card>
-    </View>
+            <View style={styles.signinContainer}>
+              <Text>Déjà un compte ?</Text>
+              <Link href="/sign-in">
+                <Text style={styles.signinLink}>Se connecter</Text>
+              </Link>
+            </View>
+          </Card.Content>
+        </Card>
+      </View>
+    </PaperProvider>
   );
 }
 
@@ -174,4 +194,3 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
 });
-

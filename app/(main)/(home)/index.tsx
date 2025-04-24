@@ -94,7 +94,6 @@ export default function Page() {
   return (
     <PaperProvider theme={customTheme}>
       <View>
-        <SignOutButton />
         {ressources ? (
           <FlatList
             data={ressources}

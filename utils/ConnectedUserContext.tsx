@@ -14,6 +14,7 @@ interface UserContextType {
   connectedUser: CitizenType | undefined;
   userChoseToUnconnect: boolean;
   handleNonConnectedUser: (_: boolean) => void;
+  refreshConnectedUser: () => Promise<void>;
 }
 
 const ConnectedUserContext = createContext<UserContextType | undefined>(
@@ -54,7 +55,12 @@ export const ConnectedUserProvider = ({ children }: UserProviderProps) => {
 
   return (
     <ConnectedUserContext.Provider
-      value={{ connectedUser, userChoseToUnconnect, handleNonConnectedUser }}
+      value={{
+        connectedUser,
+        userChoseToUnconnect,
+        handleNonConnectedUser,
+        refreshConnectedUser: getUser,
+      }}
     >
       {children}
     </ConnectedUserContext.Provider>

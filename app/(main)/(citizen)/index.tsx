@@ -36,7 +36,8 @@ import {
 import { customTheme } from "../../../utils/theme/theme";
 
 const UserPage = () => {
-  const { userChoseToUnconnect, connectedUser } = useConntedUser();
+  const { userChoseToUnconnect, connectedUser, refreshConnectedUser } =
+    useConntedUser();
   const [sentInvites, setSentInvites] = useState<Invite[]>([]);
   const [receivedInvites, setReceivedInvites] = useState<Invite[]>([]);
   const [userRessources, setUserRessources] = useState<any>([]);
@@ -82,30 +83,35 @@ const UserPage = () => {
   }, [connectedUser]);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       let isActive = true;
 
-      const getUserRessourceList = async () => {
+      const fetchAll = async () => {
+        await refreshConnectedUser(); // <--- ICI
         if (connectedUser) {
-          const res = await getUserRessource(connectedUser.id);
-          if (res?.data) setUserRessources(res.data);
+          const invites = await getUserInvite(connectedUser.id);
+          const favorites = await getUserFavorite(connectedUser.id);
+          const ressources = await getUserRessource(connectedUser.id);
+
+          if (invites?.data) {
+            setSentInvites(
+              invites.data.filter((i) => i.sender.id === connectedUser.id),
+            );
+            setReceivedInvites(
+              invites.data.filter((i) => i.recever.id === connectedUser.id),
+            );
+          }
+          if (favorites?.data) setFavorites(favorites.data);
+          if (ressources?.data) setUserRessources(ressources.data);
         }
       };
 
-      const getFavorites = async () => {
-        if (connectedUser) {
-          const res = await getUserFavorite(connectedUser.id);
-          if (res?.data) setFavorites(res.data);
-        }
-      };
-      fetchInvites();
-      getUserRessourceList();
-      getFavorites();
+      fetchAll();
 
       return () => {
         isActive = false;
       };
-    }, [connectedUser]),
+    }, [refreshConnectedUser]),
   );
 
   const handleDeleteFavorite = (favorite: Favorite) => {
@@ -214,14 +220,6 @@ const UserPage = () => {
         )}
 
         <View style={styles.section}>
-          {/* <Button
-          mode="contained"
-          icon="star-outline"
-          style={styles.button}
-          onPress={() => router.push("/favoris")}
-        >
-          Voir mes favoris
-        </Button> */}
           <View style={styles.section}>
             <Title style={styles.title}>⭐ Favoris</Title>
             <FlatList
@@ -266,8 +264,6 @@ const UserPage = () => {
             }
           />
         </View>
-
-        <SignOutButton />
 
         {selectedInvite && connectedUser && (
           <InviteModal
