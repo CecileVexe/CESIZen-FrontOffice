@@ -1,10 +1,12 @@
 import { ClerkLoaded, ClerkProvider } from "@clerk/clerk-expo";
 import { Slot, SplashScreen } from "expo-router";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
-import { KeyboardAvoidingView, Platform, SafeAreaView } from "react-native";
+import { KeyboardAvoidingView, Platform } from "react-native";
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import { ConnectedUserProvider } from "../utils/ConnectedUserContext";
+import { StatusBar } from "expo-status-bar";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -46,25 +48,22 @@ if (!publishableKey) {
 }
 
 function RootLayoutNav() {
-  // const colorScheme = useColorScheme();
-
   return (
-    // <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <ClerkLoaded>
         <ConnectedUserProvider>
-          <SafeAreaView style={{ flex: 1 }}>
+          <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
               keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
               style={{ flex: 1 }}
             >
+              <StatusBar />
               <Slot />
             </KeyboardAvoidingView>
           </SafeAreaView>
         </ConnectedUserProvider>
       </ClerkLoaded>
     </ClerkProvider>
-    // </ThemeProvider>
   );
 }

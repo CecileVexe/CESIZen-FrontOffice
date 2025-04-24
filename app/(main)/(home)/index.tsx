@@ -11,13 +11,10 @@ import { Link } from "expo-router";
 
 import { Ressource } from "../../../utils/types/Ressources.types";
 import { getRessources } from "../../../services/ressources.service";
-import { SignOutButton } from "../../../components/SignOutButton";
 import { customTheme } from "../../../utils/theme/theme";
-import { SignInButton } from "../../../components/SignInButton";
 
 const RenderItem = ({ item }: { item: Ressource }) => {
   const { colors } = useTheme();
-  const progress = item.nbParticipant / item.maxParticipant;
 
   return (
     <Link href={`/(ressource)/${item.id}`} asChild>
@@ -43,13 +40,8 @@ const RenderItem = ({ item }: { item: Ressource }) => {
 
             <View style={styles.Participant_progress}>
               <Text variant="bodyMedium" style={styles.Participant}>
-                {item.nbParticipant} / {item.maxParticipant}
+                {item.nbParticipant} / {item.maxParticipant} Participants
               </Text>
-              <ProgressBar
-                progress={progress}
-                color={colors.primary}
-                style={styles.progressBar}
-              />
             </View>
 
             <View style={styles.badgeContainer}>
@@ -199,6 +191,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 16,
+    marginBottom: 10,
   },
   badgeText: {
     color: "#fff",

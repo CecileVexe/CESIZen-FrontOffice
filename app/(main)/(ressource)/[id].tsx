@@ -207,7 +207,7 @@ const RessourceDetails = () => {
           />
 
           <View style={styles.commentHeader}>
-            <Text variant="headlineMedium" style={styles.commentSectionTitle}>
+            <Text variant="titleMedium" style={styles.commentSectionTitle}>
               Espace commentaire
             </Text>
             {isSignedIn && (
@@ -273,7 +273,6 @@ const styles = StyleSheet.create({
   },
   commentSectionTitle: {
     fontWeight: "bold",
-    fontSize: 20,
     color: "#333",
   },
   commentHeader: {

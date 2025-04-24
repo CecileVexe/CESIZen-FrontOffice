@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   Portal,
@@ -9,12 +9,19 @@ import {
 } from "react-native-paper";
 import { View, StyleSheet, FlatList } from "react-native";
 import { StepCreate } from "../utils/types/Step.types";
+import { useForm, Controller } from "react-hook-form";
 
 type Props = {
   visible: boolean;
   onClose: () => void;
   onSave: (steps: StepCreate[]) => void;
   existingSteps: StepCreate[];
+};
+
+type StepForm = {
+  title: string;
+  description: string;
+  order: string;
 };
 
 const StepModal: React.FC<Props> = ({
@@ -24,30 +31,45 @@ const StepModal: React.FC<Props> = ({
   existingSteps,
 }) => {
   const [steps, setSteps] = useState<StepCreate[]>([]);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [order, setOrder] = useState("");
   const [editingStep, setEditingStep] = useState<StepCreate | null>(null);
 
-  const addStep = () => {
-    if (!title || !description || !order) return;
-    const parsedOrder = parseInt(order);
+  const { control, handleSubmit, reset, setValue } = useForm<StepForm>({
+    defaultValues: {
+      title: "",
+      description: "",
+      order: "",
+    },
+  });
+
+  useEffect(() => {
+    if (editingStep) {
+      setValue("title", editingStep.title);
+      setValue("description", editingStep.description);
+      setValue("order", editingStep.order.toString());
+    }
+  }, [editingStep, setValue]);
+
+  const onAddStep = (data: StepForm) => {
+    if (!data.title || !data.description || !data.order) return;
+    const parsedOrder = parseInt(data.order);
     if (isNaN(parsedOrder)) return;
 
-    const newStep = { title, description, order: parsedOrder };
+    const newStep = {
+      title: data.title,
+      description: data.description,
+      order: parsedOrder,
+    };
+
     if (editingStep) {
-      // Modifier l'étape existante
       setSteps((prev) =>
         prev.map((step) => (step.order === editingStep.order ? newStep : step)),
       );
-      setEditingStep(null); // Réinitialiser l'édition
+      setEditingStep(null);
     } else {
-      // Ajouter une nouvelle étape
       setSteps((prev) => [...prev, newStep]);
     }
-    setTitle("");
-    setDescription("");
-    setOrder("");
+
+    reset();
   };
 
   const handleSave = () => {
@@ -56,19 +78,14 @@ const StepModal: React.FC<Props> = ({
   };
 
   const resetAndClose = () => {
+    reset();
     setSteps([]);
-    setTitle("");
-    setDescription("");
-    setOrder("");
-    setEditingStep(null); // Réinitialiser l'édition
+    setEditingStep(null);
     onClose();
   };
 
   const handleEditStep = (stepToEdit: StepCreate) => {
     setEditingStep(stepToEdit);
-    setTitle(stepToEdit.title);
-    setDescription(stepToEdit.description);
-    setOrder(stepToEdit.order.toString());
   };
 
   const combinedSteps = [...existingSteps, ...steps].sort(
@@ -86,31 +103,58 @@ const StepModal: React.FC<Props> = ({
           Ajouter des étapes
         </Text>
 
-        <TextInput
-          label="Titre"
-          value={title}
-          onChangeText={setTitle}
-          mode="outlined"
-          style={styles.input}
-        />
-        <TextInput
-          label="Description"
-          value={description}
-          onChangeText={setDescription}
-          mode="outlined"
-          multiline
-          style={styles.input}
-        />
-        <TextInput
-          label="Ordre"
-          value={order}
-          onChangeText={setOrder}
-          mode="outlined"
-          keyboardType="numeric"
-          style={styles.input}
+        <Controller
+          control={control}
+          name="title"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              label="Titre"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              mode="outlined"
+              style={styles.input}
+            />
+          )}
         />
 
-        <Button onPress={addStep} mode="outlined" style={styles.input}>
+        <Controller
+          control={control}
+          name="description"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              label="Description"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              mode="outlined"
+              multiline
+              style={styles.input}
+            />
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="order"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              label="Ordre"
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              mode="outlined"
+              keyboardType="numeric"
+              style={styles.input}
+            />
+          )}
+        />
+
+        <Button
+          onPress={handleSubmit(onAddStep)}
+          mode="outlined"
+          style={styles.input}
+        >
           {editingStep ? "Modifier l'étape" : "Ajouter l'étape"}
         </Button>
 
