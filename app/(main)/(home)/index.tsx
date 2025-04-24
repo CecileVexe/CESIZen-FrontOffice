@@ -20,6 +20,7 @@ import { Ressource } from "../../../utils/types/Ressources.types";
 import { getRessources } from "../../../services/ressources.service";
 import { getCategory } from "../../../services/category.service";
 import { customTheme } from "../../../utils/theme/theme";
+import { useConntedUser } from "../../../utils/ConnectedUserContext";
 
 const RenderItem = ({ item }: { item: Ressource }) => {
   const { colors } = useTheme();
@@ -74,18 +75,20 @@ const RenderItem = ({ item }: { item: Ressource }) => {
 };
 
 export default function Page() {
+  const { connectedUser } = useConntedUser();
   const [ressources, setRessources] = useState<Ressource[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>(
     [],
   );
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1); // Page actuelle
-  const [totalPages, setTotalPages] = useState(1); // Nombre total de pages
-  const [pageSize] = useState(10); // Taille de la page (50 éléments par page)
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize] = useState(10);
 
-  // Référence à la FlatList
   const flatListRef = useRef<FlatList>(null);
+
+  console.log(connectedUser);
 
   const getDatas = useCallback(async () => {
     setLoading(true);

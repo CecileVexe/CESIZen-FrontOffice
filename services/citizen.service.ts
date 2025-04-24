@@ -61,3 +61,17 @@ export const updateCitizenCredtials = async (data: {
     console.error(e);
   }
 };
+
+export const deleteCitizen = async (id: string) => {
+  try {
+    const response = await fetch(`${_URL}citizen/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await response.json();
+  } catch (e) {
+    console.error(e);
+  }
+};

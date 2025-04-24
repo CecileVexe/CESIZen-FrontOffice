@@ -4,7 +4,7 @@ import { SignInButton } from "../../../components/SignInButton";
 import { customTheme } from "../../../utils/theme/theme";
 import { SignOutButton } from "../../../components/SignOutButton";
 
-const unConnectedUserPage = () => {
+const UnConnectedUserPage = () => {
   return (
     <PaperProvider theme={customTheme}>
       <View style={styles.container}>
@@ -32,4 +32,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default unConnectedUserPage;
+export default UnConnectedUserPage;
