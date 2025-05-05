@@ -39,12 +39,12 @@ import { customTheme } from "../../../utils/theme/theme";
 const UserPage = () => {
   const { userChoseToUnconnect, connectedUser, refreshConnectedUser } =
     useConntedUser();
-  const [isLoading, setIsLoading] = useState(true);
-  const [sentInvites, setSentInvites] = useState<Invite[]>([]);
-  const [receivedInvites, setReceivedInvites] = useState<Invite[]>([]);
-  const [userRessources, setUserRessources] = useState<any>([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedInvite, setSelectedInvite] = useState<Invite | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  // const [sentInvites, setSentInvites] = useState<Invite[]>([]);
+  // const [receivedInvites, setReceivedInvites] = useState<Invite[]>([]);
+  // const [userRessources, setUserRessources] = useState<any>([]);
+  // const [modalVisible, setModalVisible] = useState(false);
+  // const [selectedInvite, setSelectedInvite] = useState<Invite | null>(null);
 
   const [favoriteToDelete, setFavoriteToDelete] = useState<Favorite | null>(
     null,
@@ -52,146 +52,146 @@ const UserPage = () => {
   const [isFavoriteDialogVisible, setIsFavoriteDialogVisible] = useState(false);
 
   const router = useRouter();
-  const fetchInvites = async () => {
-    if (!connectedUser) return;
+  // const fetchInvites = async () => {
+  //   if (!connectedUser) return;
 
-    const invites = await getUserInvite(connectedUser.id);
-    if (invites) {
-      const { data: invitesData } = invites;
+  //   const invites = await getUserInvite(connectedUser.id);
+  //   if (invites) {
+  //     const { data: invitesData } = invites;
 
-      setSentInvites(
-        invitesData.filter((i: Invite) => i.sender.id === connectedUser.id),
-      );
-      setReceivedInvites(
-        invitesData.filter((i: Invite) => i.recever.id === connectedUser.id),
-      );
-    }
-  };
+  //     setSentInvites(
+  //       invitesData.filter((i: Invite) => i.sender.id === connectedUser.id),
+  //     );
+  //     setReceivedInvites(
+  //       invitesData.filter((i: Invite) => i.recever.id === connectedUser.id),
+  //     );
+  //   }
+  // };
 
-  const [favorites, setFavorites] = useState<Favorite[]>([]);
+  // const [favorites, setFavorites] = useState<Favorite[]>([]);
 
-  const fetchFavorites = useCallback(async () => {
-    if (connectedUser) {
-      const res = await getUserFavorite(connectedUser.id);
-      if (res?.data) setFavorites(res.data);
-    }
-  }, [connectedUser]);
+  // const fetchFavorites = useCallback(async () => {
+  //   if (connectedUser) {
+  //     const res = await getUserFavorite(connectedUser.id);
+  //     if (res?.data) setFavorites(res.data);
+  //   }
+  // }, [connectedUser]);
 
-  const fetchUserRessource = useCallback(async () => {
-    if (connectedUser) {
-      const res = await getUserRessource(connectedUser.id);
-      if (res?.data) setUserRessources(res.data);
-    }
-  }, [connectedUser]);
+  // const fetchUserRessource = useCallback(async () => {
+  //   if (connectedUser) {
+  //     const res = await getUserRessource(connectedUser.id);
+  //     if (res?.data) setUserRessources(res.data);
+  //   }
+  // }, [connectedUser]);
 
-  useFocusEffect(
-    useCallback(() => {
-      let isActive = true;
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     let isActive = true;
 
-      const fetchAll = async () => {
-        setIsLoading(true);
-        await refreshConnectedUser();
-        if (connectedUser) {
-          const invites = await getUserInvite(connectedUser.id);
-          const favorites = await getUserFavorite(connectedUser.id);
-          const ressources = await getUserRessource(connectedUser.id);
+  //     const fetchAll = async () => {
+  //       setIsLoading(true);
+  //       await refreshConnectedUser();
+  //       if (connectedUser) {
+  //         const invites = await getUserInvite(connectedUser.id);
+  //         const favorites = await getUserFavorite(connectedUser.id);
+  //         const ressources = await getUserRessource(connectedUser.id);
 
-          if (isActive) {
-            if (invites?.data) {
-              setSentInvites(
-                invites.data.filter((i) => i.sender.id === connectedUser.id),
-              );
-              setReceivedInvites(
-                invites.data.filter((i) => i.recever.id === connectedUser.id),
-              );
-            }
-            if (favorites?.data) setFavorites(favorites.data);
-            if (ressources?.data) setUserRessources(ressources.data);
-            setIsLoading(false);
-          }
-        }
-      };
+  //         if (isActive) {
+  //           if (invites?.data) {
+  //             setSentInvites(
+  //               invites.data.filter((i) => i.sender.id === connectedUser.id),
+  //             );
+  //             setReceivedInvites(
+  //               invites.data.filter((i) => i.recever.id === connectedUser.id),
+  //             );
+  //           }
+  //           if (favorites?.data) setFavorites(favorites.data);
+  //           if (ressources?.data) setUserRessources(ressources.data);
+  //           setIsLoading(false);
+  //         }
+  //       }
+  //     };
 
-      fetchAll();
+  //     fetchAll();
 
-      return () => {
-        isActive = false;
-      };
-    }, [refreshConnectedUser]),
-  );
+  //     return () => {
+  //       isActive = false;
+  //     };
+  //   }, [refreshConnectedUser]),
+  // );
 
-  const handleDeleteFavorite = (favorite: Favorite) => {
-    setFavoriteToDelete(favorite);
-    setIsFavoriteDialogVisible(true);
-  };
+  // const handleDeleteFavorite = (favorite: Favorite) => {
+  //   setFavoriteToDelete(favorite);
+  //   setIsFavoriteDialogVisible(true);
+  // };
 
-  const confirmDeleteFavorite = async () => {
-    if (favoriteToDelete) {
-      await deleteFavorite(favoriteToDelete.id);
-      await fetchFavorites();
-      setFavoriteToDelete(null);
-      setIsFavoriteDialogVisible(false);
-    }
-  };
+  // const confirmDeleteFavorite = async () => {
+  //   if (favoriteToDelete) {
+  //     await deleteFavorite(favoriteToDelete.id);
+  //     await fetchFavorites();
+  //     setFavoriteToDelete(null);
+  //     setIsFavoriteDialogVisible(false);
+  //   }
+  // };
 
-  const cancelDeleteFavorite = () => {
-    setIsFavoriteDialogVisible(false);
-    setFavoriteToDelete(null);
-  };
+  // const cancelDeleteFavorite = () => {
+  //   setIsFavoriteDialogVisible(false);
+  //   setFavoriteToDelete(null);
+  // };
 
   if (userChoseToUnconnect || !connectedUser) {
     return <Redirect href="/unConnectedUserPage" />;
   }
 
-  const onPressInvite = (invite: Invite) => {
-    if (invite.recever.id === connectedUser.id) {
-      setSelectedInvite(invite);
-      setModalVisible(true);
-    } else if (invite.sender.id === connectedUser.id) {
-      router.replace(`/(ressource)/${invite.ressource.id}`);
-    }
-  };
+  // const onPressInvite = (invite: Invite) => {
+  //   if (invite.recever.id === connectedUser.id) {
+  //     setSelectedInvite(invite);
+  //     setModalVisible(true);
+  //   } else if (invite.sender.id === connectedUser.id) {
+  //     router.replace(`/(ressource)/${invite.ressource.id}`);
+  //   }
+  // };
 
-  const renderList = (title: string, data: Invite[], emptyMessage: string) => (
-    <View style={styles.lists}>
-      <Title style={styles.title}>{title}</Title>
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <InviteCard invite={item} onPress={onPressInvite} />
-        )}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        ListEmptyComponent={
-          <RNText style={styles.empty}>{emptyMessage}</RNText>
-        }
-        contentContainerStyle={styles.horizontalList}
-      />
-    </View>
-  );
+  // const renderList = (title: string, data: Invite[], emptyMessage: string) => (
+  //   <View style={styles.lists}>
+  //     <Title style={styles.title}>{title}</Title>
+  //     <FlatList
+  //       data={data}
+  //       keyExtractor={(item) => item.id}
+  //       renderItem={({ item }) => (
+  //         <InviteCard invite={item} onPress={onPressInvite} />
+  //       )}
+  //       horizontal
+  //       showsHorizontalScrollIndicator={false}
+  //       ListEmptyComponent={
+  //         <RNText style={styles.empty}>{emptyMessage}</RNText>
+  //       }
+  //       contentContainerStyle={styles.horizontalList}
+  //     />
+  //   </View>
+  // );
 
-  const handleGoToRessource = (ressourceId: string) => {
-    router.push(`/(ressource)/${ressourceId}`);
-  };
+  // const handleGoToRessource = (ressourceId: string) => {
+  //   router.push(`/(ressource)/${ressourceId}`);
+  // };
 
-  const handleEditRessource = (ressourceId: string) => {
-    router.push(`/updateRessource/?editId=${ressourceId}`);
-  };
+  // const handleEditRessource = (ressourceId: string) => {
+  //   router.push(`/updateRessource/?editId=${ressourceId}`);
+  // };
 
-  const handleLaunchRessource = async (ressourceId: string) => {
-    const response = await updateRessource(ressourceId, { status: "En cours" });
-    if (response && response.data) {
-      router.push(`/(ressource)/${ressourceId}`);
-    }
-  };
+  // const handleLaunchRessource = async (ressourceId: string) => {
+  //   const response = await updateRessource(ressourceId, { status: "En cours" });
+  //   if (response && response.data) {
+  //     router.push(`/(ressource)/${ressourceId}`);
+  //   }
+  // };
 
-  const handleDeleteRessource = async (ressourceId: string) => {
-    const response = await deleteRessource(ressourceId);
-    if (response && response.data) {
-      fetchUserRessource();
-    }
-  };
+  // const handleDeleteRessource = async (ressourceId: string) => {
+  //   const response = await deleteRessource(ressourceId);
+  //   if (response && response.data) {
+  //     fetchUserRessource();
+  //   }
+  // };
 
   if (isLoading) {
     return (
@@ -209,12 +209,12 @@ const UserPage = () => {
   return (
     <PaperProvider theme={customTheme}>
       <ScrollView contentContainerStyle={styles.container}>
-        <FavoriteDeleteModal
+        {/* <FavoriteDeleteModal
           visible={isFavoriteDialogVisible}
           favorite={favoriteToDelete}
           onConfirm={confirmDeleteFavorite}
           onCancel={cancelDeleteFavorite}
-        />
+        /> */}
         <View style={styles.headerRow}>
           <Title style={styles.greeting}>Bonjour {connectedUser.name} 👋</Title>
           <IconButton
@@ -223,9 +223,9 @@ const UserPage = () => {
             onPress={() => router.push("/accountSettings")}
           />
         </View>
-
+        <SignOutButton />
         <Divider />
-
+        {/* 
         {renderList(
           "📥 Invitations reçues",
           receivedInvites,
@@ -291,7 +291,7 @@ const UserPage = () => {
             selectedInvite={selectedInvite}
             connectedUser={connectedUser}
           />
-        )}
+        )}*/}
       </ScrollView>
     </PaperProvider>
   );

@@ -8,7 +8,7 @@ import {
 } from "react";
 import { CitizenType } from "./types/citizen.types";
 import { useUser } from "@clerk/clerk-expo";
-import { getCitizen } from "../services/citizen.service"; // Service pour récupérer l'utilisateur
+import { getUser } from "../services/user.service";
 
 interface UserContextType {
   connectedUser: CitizenType | undefined;
@@ -39,11 +39,11 @@ export const ConnectedUserProvider = ({ children }: UserProviderProps) => {
   const { user } = useUser(); // Utilisation de Clerk pour obtenir l'ID de l'utilisateur
 
   // Fonction pour récupérer l'utilisateur avec une logique de temporisation
-  const getUser = useCallback(async () => {
+  const getBddUser = useCallback(async () => {
     setLoading(true);
     if (user) {
       try {
-        const bddUser = await getCitizen(user.id);
+        const bddUser = await getUser(user.id);
         if (bddUser?.data) {
           setConnectedUser(bddUser.data);
           setUserChoseToUnconnect(false);
@@ -61,7 +61,7 @@ export const ConnectedUserProvider = ({ children }: UserProviderProps) => {
           console.log(`Réessai #${retryCount + 1}`);
           setTimeout(() => {
             setRetryCount(retryCount + 1);
-            getUser();
+            getBddUser();
           }, 3000);
         } else {
           setConnectedUser(undefined);
@@ -71,12 +71,12 @@ export const ConnectedUserProvider = ({ children }: UserProviderProps) => {
     setLoading(false);
   }, [user, retryCount]);
 
-  // Lorsque l'utilisateur se connecte ou se déconnecte, appeler getUser pour actualiser les informations
+  // Lorsque l'utilisateur se connecte ou se déconnecte, appeler getBddUser pour actualiser les informations
   useEffect(() => {
     if (user) {
-      getUser();
+      getBddUser();
     }
-  }, [user, getUser]);
+  }, [user, getBddUser]);
 
   const handleNonConnectedUser = (boolean: boolean) => {
     setUserChoseToUnconnect(boolean);
@@ -89,7 +89,7 @@ export const ConnectedUserProvider = ({ children }: UserProviderProps) => {
         connectedUser,
         userChoseToUnconnect,
         handleNonConnectedUser,
-        refreshConnectedUser: getUser,
+        refreshConnectedUser: getBddUser,
         loading,
         retryCount,
       }}

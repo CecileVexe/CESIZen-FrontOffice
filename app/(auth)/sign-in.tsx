@@ -1,15 +1,15 @@
 import { useSignIn } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
 import React from "react";
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import {
-  TextInput,
-  Button,
-  Title,
-  Text,
-  Card,
-  PaperProvider,
-} from "react-native-paper";
+  View,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  Image,
+  ScrollView,
+} from "react-native";
+import { TextInput, Button, Text, PaperProvider } from "react-native-paper";
 import { useConntedUser } from "../../utils/ConnectedUserContext";
 import { customTheme } from "../../utils/theme/theme";
 
@@ -23,7 +23,6 @@ export default function Page() {
 
   const onSignInPress = async () => {
     if (!isLoaded) return;
-
     try {
       const signInAttempt = await signIn.create({
         identifier: emailAddress,
@@ -53,55 +52,103 @@ export default function Page() {
       style={{ flex: 1 }}
     >
       <PaperProvider theme={customTheme}>
-        <View style={styles.container}>
-          <Card style={styles.card}>
-            <Card.Content>
-              <Title style={styles.title}>Connexion</Title>
+        <View
+          style={[
+            styles.container,
+            { backgroundColor: customTheme.colors.primary },
+          ]}
+        >
+          <View
+            style={{
+              justifyContent: "flex-start",
+              alignItems: "center",
+            }}
+          >
+            <Image
+              source={require("../../assets/logo-bg-vert.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
 
+            <Text style={styles.welcome} variant="headlineLarge">
+              Ravis de vous revoir !
+            </Text>
+          </View>
+          <Text style={styles.label}>Connexion</Text>
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.form}>
               <TextInput
-                label="Adresse email"
-                mode="outlined"
+                label="Email"
+                mode="flat"
                 value={emailAddress}
                 autoCapitalize="none"
                 onChangeText={setEmailAddress}
                 style={styles.input}
+                underlineColor="transparent"
+                activeUnderlineColor="transparent"
+                textColor="#000"
+                theme={{ roundness: 15 }}
               />
-
               <TextInput
                 label="Mot de passe"
-                mode="outlined"
+                mode="flat"
                 value={password}
                 secureTextEntry={!showPassword}
                 onChangeText={setPassword}
                 style={styles.input}
+                underlineColor="transparent"
+                activeUnderlineColor="transparent"
+                textColor="#000"
                 right={
                   <TextInput.Icon
                     icon={showPassword ? "eye-off" : "eye"}
                     onPress={() => setShowPassword((prev) => !prev)}
                   />
                 }
+                theme={{ roundness: 15 }}
               />
-
-              <Button
-                mode="contained"
-                onPress={onSignInPress}
-                style={styles.button}
-              >
-                Se connecter
-              </Button>
-
-              <View style={styles.signupContainer}>
-                <Text>Pas encore de compte ?</Text>
-                <Link href="/sign-up">
-                  <Text style={styles.signupLink}>Créer un compte</Text>
-                </Link>
+              <View style={{ width: "100%", alignItems: "flex-end" }}>
+                <Button
+                  mode="contained"
+                  onPress={onSignInPress}
+                  style={styles.loginButton}
+                  labelStyle={{
+                    color: customTheme.colors.primary,
+                    fontWeight: "bold",
+                  }}
+                  buttonColor="#fff"
+                >
+                  Valider
+                </Button>
               </View>
-
-              <Button mode="text" onPress={handleNonSignIn}>
-                Continuer sans compte
+              <Text style={styles.signupText}>Vous n’avez pas de compte ?</Text>
+              <Link href="/sign-up" asChild>
+                <Button
+                  mode="contained"
+                  style={styles.signupButton}
+                  labelStyle={{
+                    color: customTheme.colors.primary,
+                    fontWeight: "bold",
+                  }}
+                  buttonColor="#fff"
+                >
+                  S’inscrire
+                </Button>
+              </Link>
+            </View>
+            <View style={styles.later}>
+              <Button
+                mode="text"
+                onPress={handleNonSignIn}
+                labelStyle={styles.skipText}
+              >
+                Je veux m’inscrire plus tard
               </Button>
-            </Card.Content>
-          </Card>
+            </View>
+          </ScrollView>
         </View>
       </PaperProvider>
     </KeyboardAvoidingView>
@@ -111,33 +158,71 @@ export default function Page() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    padding: 20,
-    backgroundColor: "#f4f4f4",
+    justifyContent: "flex-start",
+    paddingHorizontal: 30,
   },
-  card: {
-    padding: 20,
-    borderRadius: 10,
+  scrollContainer: {
+    alignItems: "center",
+    paddingBottom: 50,
   },
-  title: {
+
+  logo: {
+    width: 200,
+    height: 80,
+  },
+  appName: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
     marginBottom: 20,
+  },
+  welcome: {
     textAlign: "center",
+    color: "#fff",
+    fontWeight: "bold",
+    marginBottom: 30,
+  },
+  form: {
+    width: "100%",
+    alignItems: "center",
+  },
+  label: {
+    alignSelf: "flex-start",
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 20,
+    marginBottom: 10,
   },
   input: {
+    width: "100%",
+    backgroundColor: "#fff",
+    marginBottom: 15,
+    borderRadius: 15,
+  },
+  loginButton: {
+    width: "50%",
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  signupText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 18,
+    marginTop: 25,
     marginBottom: 15,
   },
-  button: {
-    marginTop: 10,
+  signupButton: {
+    width: "60%",
+    borderRadius: 10,
     marginBottom: 20,
   },
-  signupContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-    gap: 5,
+  skipText: {
+    color: "#fff",
+    fontStyle: "italic",
+    fontSize: 18,
+    marginTop: 10,
   },
-  signupLink: {
-    color: "#1976d2",
-    marginLeft: 5,
+  later: {
+    marginBottom: 30,
   },
 });

@@ -21,7 +21,7 @@ import {
   deleteCitizen,
   updateCitizen,
   updateCitizenCredtials,
-} from "../../../services/citizen.service";
+} from "../../../services/user.service";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
 import { useRouter } from "expo-router";
 import { useClerk, useUser } from "@clerk/clerk-expo";

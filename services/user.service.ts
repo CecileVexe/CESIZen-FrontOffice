@@ -1,8 +1,8 @@
 const _URL = process.env.EXPO_PUBLIC_API_URL;
 
-export const createCitizen = async (citizen: any) => {
+export const createUser = async (citizen: any) => {
   try {
-    const response = await fetch(`${_URL}citizen/clerk`, {
+    const response = await fetch(`${_URL}user/clerk`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -15,9 +15,9 @@ export const createCitizen = async (citizen: any) => {
   }
 };
 
-export const getCitizen = async (clerkId: string) => {
+export const getUser = async (clerkId: string) => {
   try {
-    const response = await fetch(`${_URL}citizen/clerk/${clerkId}`, {
+    const response = await fetch(`${_URL}user/clerk/${clerkId}`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -28,9 +28,22 @@ export const getCitizen = async (clerkId: string) => {
   }
 };
 
-export const updateCitizen = async (citizenId: string, data: any) => {
+export const getUsers = async () => {
   try {
-    const response = await fetch(`${_URL}citizen/${citizenId}`, {
+    const response = await fetch(`${_URL}user`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return await response.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const updateUser = async (citizenId: string, data: any) => {
+  try {
+    const response = await fetch(`${_URL}user/${citizenId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -43,13 +56,13 @@ export const updateCitizen = async (citizenId: string, data: any) => {
   }
 };
 
-export const updateCitizenCredtials = async (data: {
+export const updateUserCredtials = async (data: {
   oldPassword: string;
   password: string;
   clerkId: string;
 }) => {
   try {
-    const response = await fetch(`${_URL}citizen/credentials`, {
+    const response = await fetch(`${_URL}user/credentials`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -62,9 +75,9 @@ export const updateCitizenCredtials = async (data: {
   }
 };
 
-export const deleteCitizen = async (id: string) => {
+export const deleteUser = async (id: string) => {
   try {
-    const response = await fetch(`${_URL}citizen/${id}`, {
+    const response = await fetch(`${_URL}user/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

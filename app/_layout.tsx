@@ -6,6 +6,7 @@ import { useFonts } from "expo-font";
 import { ConnectedUserProvider } from "../utils/ConnectedUserContext";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { customTheme } from "../utils/theme/theme";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -51,7 +52,10 @@ function RootLayoutNav() {
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <ClerkLoaded>
         <ConnectedUserProvider>
-          <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
+          <SafeAreaView
+            style={{ flex: 1, backgroundColor: customTheme.colors.primary }}
+            edges={["top"]}
+          >
             <StatusBar />
             <Slot />
           </SafeAreaView>
