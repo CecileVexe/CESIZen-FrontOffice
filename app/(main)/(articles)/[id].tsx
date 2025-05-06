@@ -6,7 +6,7 @@ import { getArticle } from "../../../services/article.service";
 import RenderHtml from "react-native-render-html";
 import { useWindowDimensions } from "react-native";
 import { addFavorite } from "../../../services/favorite.service";
-import { useConntedUser } from "../../../utils/ConnectedUserContext";
+import { useConnectedUser } from "../../../utils/ConnectedUserContext";
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -14,7 +14,7 @@ export default function ArticleScreen() {
   const { id } = useLocalSearchParams<Record<string, string>>();
   const { width } = useWindowDimensions();
   const { colors } = useTheme();
-  const { connectedUser } = useConntedUser();
+  const { connectedUser } = useConnectedUser();
 
   const [article, setArticle] = useState<any>(null);
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { Button, Text, Portal, Dialog } from "react-native-paper";
-import { useConntedUser } from "../utils/ConnectedUserContext";
+import { useConnectedUser } from "../utils/ConnectedUserContext";
 import { Ressource } from "../utils/types/Article.types";
 import { initializeProgression } from "../services/progression.service";
 
@@ -14,7 +14,7 @@ interface SubscribeToRessourceProps {
 const SubscribeToRessource = (props: SubscribeToRessourceProps) => {
   const { ressource, visible, hideDialog } = props;
 
-  const { connectedUser } = useConntedUser();
+  const { connectedUser } = useConnectedUser();
 
   const handleSubscription = async () => {
     if (connectedUser) {

@@ -10,13 +10,13 @@ import {
   ScrollView,
 } from "react-native";
 import { TextInput, Button, Text, PaperProvider } from "react-native-paper";
-import { useConntedUser } from "../../utils/ConnectedUserContext";
+import { useConnectedUser } from "../../utils/ConnectedUserContext";
 import { customTheme } from "../../utils/theme/theme";
 
 export default function Page() {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
-  const { handleNonConnectedUser } = useConntedUser();
+  const { handleNonConnectedUser } = useConnectedUser();
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);

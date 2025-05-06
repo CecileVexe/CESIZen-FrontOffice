@@ -13,7 +13,7 @@ import { TextInput, Button, Text, PaperProvider } from "react-native-paper";
 import { customTheme } from "../../utils/theme/theme";
 import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
-import { useConntedUser } from "../../utils/ConnectedUserContext";
+import { useConnectedUser } from "../../utils/ConnectedUserContext";
 
 type FormData = {
   name: string;
@@ -30,7 +30,7 @@ const SignUpScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [pendingVerification, setPendingVerification] = useState(false);
   const [code, setCode] = useState("");
-  const { handleNonConnectedUser } = useConntedUser();
+  const { handleNonConnectedUser } = useConnectedUser();
 
   const {
     control,

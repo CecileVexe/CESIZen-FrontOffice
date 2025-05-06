@@ -99,11 +99,11 @@ export const ConnectedUserProvider = ({ children }: UserProviderProps) => {
   );
 };
 
-export const useConntedUser = () => {
+export const useConnectedUser = () => {
   const context = useContext(ConnectedUserContext);
   if (!context) {
     throw new Error(
-      "useConntedUser must be used within a ConnectedUserProvider",
+      "useConnectedUser must be used within a ConnectedUserProvider",
     );
   }
   return context;

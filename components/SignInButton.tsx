@@ -1,11 +1,11 @@
 import { StyleSheet } from "react-native";
-import { useConntedUser } from "../utils/ConnectedUserContext";
+import { useConnectedUser } from "../utils/ConnectedUserContext";
 import { useRouter } from "expo-router";
 import { Button, PaperProvider } from "react-native-paper";
 import { customTheme } from "../utils/theme/theme";
 
 export const SignInButton = () => {
-  const { handleNonConnectedUser } = useConntedUser();
+  const { handleNonConnectedUser } = useConnectedUser();
   const router = useRouter();
 
   const handleSignIn = async () => {

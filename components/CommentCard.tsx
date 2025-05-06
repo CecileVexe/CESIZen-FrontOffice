@@ -2,14 +2,14 @@ import { Card, Text } from "react-native-paper";
 import { CommentType } from "../utils/types/Comment.types";
 import { parseStringDate } from "../utils/functions/datesFunction";
 import { StyleSheet } from "react-native";
-import { useConntedUser } from "../utils/ConnectedUserContext";
+import { useConnectedUser } from "../utils/ConnectedUserContext";
 
 interface CommentCardProps {
   comment: CommentType;
 }
 
 const CommentCard = (props: CommentCardProps) => {
-  const { connectedUser } = useConntedUser();
+  const { connectedUser } = useConnectedUser();
   const { comment } = props;
   const isCurrentUser = connectedUser?.id === comment.citizen.id;
   return (

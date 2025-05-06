@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Message } from "../utils/types/Message.types";
-import { useConntedUser } from "../utils/ConnectedUserContext";
+import { useConnectedUser } from "../utils/ConnectedUserContext";
 import {
   parseStringDate,
   parseStringHour,
@@ -11,9 +11,9 @@ interface MessageCardProps {
 }
 
 const MessageCard = ({ message }: MessageCardProps) => {
-  const { connectedUser } = useConntedUser();
+  const { connectedUser } = useConnectedUser();
   const isCurrentUser = connectedUser?.id === message.citizen.id;
-  
+
   return (
     <View
       style={[

@@ -1,7 +1,7 @@
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 import { Button, Dialog, Portal, Text, TextInput } from "react-native-paper";
-import { useConntedUser } from "../utils/ConnectedUserContext";
+import { useConnectedUser } from "../utils/ConnectedUserContext";
 import { sendInvite } from "../services/invite.service";
 
 interface InviteFormProps {
@@ -12,7 +12,7 @@ interface InviteFormProps {
 
 const InviteForm = (props: InviteFormProps) => {
   const { ressourceId, visible, hideDialog } = props;
-  const { connectedUser } = useConntedUser();
+  const { connectedUser } = useConnectedUser();
 
   const {
     control,

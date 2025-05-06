@@ -20,7 +20,7 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { customTheme } from "../../../utils/theme/theme";
 
-import { useConntedUser } from "../../../utils/ConnectedUserContext";
+import { useConnectedUser } from "../../../utils/ConnectedUserContext";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useClerk, useUser } from "@clerk/clerk-expo";
 import { SignOutButton } from "../../../components/SignOutButton";
@@ -44,7 +44,7 @@ const AccountSettings = () => {
   const router = useRouter();
   const { user } = useUser();
   const { connectedUser, handleNonConnectedUser, refreshConnectedUser } =
-    useConntedUser();
+    useConnectedUser();
 
   const {
     control,

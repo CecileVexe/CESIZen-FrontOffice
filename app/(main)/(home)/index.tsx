@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { View, StyleSheet, ScrollView, FlatList } from "react-native";
 import { Text, Card, Chip, ActivityIndicator } from "react-native-paper";
-import { useConntedUser } from "../../../utils/ConnectedUserContext";
+import { useConnectedUser } from "../../../utils/ConnectedUserContext";
 import { getArticles } from "../../../services/article.service";
 import { getUserFavorite } from "../../../services/favorite.service";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -10,7 +10,7 @@ import { SignInButton } from "../../../components/SignInButton";
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const HomeScreen = () => {
-  const { connectedUser } = useConntedUser();
+  const { connectedUser } = useConnectedUser();
 
   const router = useRouter();
 

@@ -1,7 +1,7 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { Redirect } from "expo-router";
 import { Stack } from "expo-router/stack";
-import { useConntedUser } from "../../../utils/ConnectedUserContext";
+import { useConnectedUser } from "../../../utils/ConnectedUserContext";
 import { getHeaderTitle } from "@react-navigation/elements";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Icon } from "react-native-paper";
@@ -9,7 +9,7 @@ import { CustomHeader } from "../../../components/customHeader";
 
 export default function Layout() {
   const { isSignedIn } = useAuth();
-  const { userChoseToUnconnect } = useConntedUser();
+  const { userChoseToUnconnect } = useConnectedUser();
 
   if (!userChoseToUnconnect && !isSignedIn) {
     return <Redirect href={"/sign-in"} />;

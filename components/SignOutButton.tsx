@@ -1,12 +1,12 @@
 import { useClerk } from "@clerk/clerk-expo";
 import * as Linking from "expo-linking";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
-import { useConntedUser } from "../utils/ConnectedUserContext";
+import { useConnectedUser } from "../utils/ConnectedUserContext";
 import { Button, useTheme } from "react-native-paper";
 
 export const SignOutButton = () => {
   const { signOut } = useClerk();
-  const { handleNonConnectedUser } = useConntedUser();
+  const { handleNonConnectedUser } = useConnectedUser();
   const theme = useTheme();
 
   const handleSignOut = async () => {
