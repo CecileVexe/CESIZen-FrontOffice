@@ -4,8 +4,8 @@ import { Favorite } from "../utils/types/Favorite.types";
 const _URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const addFavorite = async (data: {
-  ressourceId: string;
-  citizenId: string;
+  articleId: string;
+  userId: string;
 }) => {
   try {
     const response = await fetch(`${_URL}favorites`, {
@@ -36,7 +36,7 @@ export const deleteFavorite = async (favoriteId: string) => {
 };
 
 export const getUserFavorite = async (
-  userId: string
+  userId: string,
 ): Promise<ApiResponse<Favorite[]> | undefined> => {
   try {
     const response = await fetch(`${_URL}favorites/citizen/${userId}`, {

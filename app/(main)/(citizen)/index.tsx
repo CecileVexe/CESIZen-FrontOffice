@@ -33,7 +33,7 @@ import {
   deleteRessource,
   getUserRessource,
   updateRessource,
-} from "../../../services/ressources.service";
+} from "../../../services/article.service";
 import { customTheme } from "../../../utils/theme/theme";
 
 const UserPage = () => {

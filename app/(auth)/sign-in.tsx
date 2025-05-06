@@ -25,7 +25,7 @@ export default function Page() {
     if (!isLoaded) return;
     try {
       const signInAttempt = await signIn.create({
-        identifier: emailAddress,
+        identifier: emailAddress.trim(),
         password,
       });
 

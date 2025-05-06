@@ -1,4 +1,4 @@
-import { Ressource } from "./Ressources.types";
+import { Ressource } from "./Article.types";
 
 export interface Favorite {
   id: string;

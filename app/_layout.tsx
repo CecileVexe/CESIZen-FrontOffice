@@ -7,6 +7,7 @@ import { ConnectedUserProvider } from "../utils/ConnectedUserContext";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { customTheme } from "../utils/theme/theme";
+import { PaperProvider } from "react-native-paper";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -56,8 +57,10 @@ function RootLayoutNav() {
             style={{ flex: 1, backgroundColor: customTheme.colors.primary }}
             edges={["top"]}
           >
-            <StatusBar />
-            <Slot />
+            <PaperProvider theme={customTheme}>
+              <StatusBar />
+              <Slot />
+            </PaperProvider>
           </SafeAreaView>
         </ConnectedUserProvider>
       </ClerkLoaded>

@@ -2,7 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import { Button, Text, Portal, Dialog } from "react-native-paper";
 import { useConntedUser } from "../utils/ConnectedUserContext";
-import { Ressource } from "../utils/types/Ressources.types";
+import { Ressource } from "../utils/types/Article.types";
 import { initializeProgression } from "../services/progression.service";
 
 interface SubscribeToRessourceProps {

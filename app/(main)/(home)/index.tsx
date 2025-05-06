@@ -5,6 +5,7 @@ import {
   View,
   StyleSheet,
   ScrollView,
+  Image,
 } from "react-native";
 import {
   Card,
@@ -16,130 +17,137 @@ import {
   Button,
 } from "react-native-paper";
 import { Link } from "expo-router";
-import { Ressource } from "../../../utils/types/Ressources.types";
-import { getRessources } from "../../../services/ressources.service";
-import { getCategory } from "../../../services/category.service";
+// import { Ressource } from "../../../utils/types/Article.types";
+// import { getRessources } from "../../../services/article.service";
+// import { getCategory } from "../../../services/category.service";
 import { customTheme } from "../../../utils/theme/theme";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
 import { ActivityIndicator } from "react-native-paper";
 
-const RenderItem = ({ item }: { item: Ressource }) => {
-  const { colors } = useTheme();
+// const RenderItem = ({ item }: { item: Ressource }) => {
+//   const { colors } = useTheme();
 
-  return (
-    <Link href={`/(ressource)/${item.id}`} asChild>
-      <Card style={styles.card} mode="elevated">
-        <View style={styles.cardContent}>
-          <View style={styles.imageContainer}>
-            {item.file ? (
-              <Card.Cover
-                source={{ uri: `${item.file}` }}
-                style={styles.cover}
-              />
-            ) : (
-              <View style={styles.placeholder}>
-                <Text style={styles.placeholderText}>Image</Text>
-              </View>
-            )}
-          </View>
+//   return (
+//     <Link href={`/(ressource)/${item.id}`} asChild>
+//       <Card style={styles.card} mode="elevated">
+//         <View style={styles.cardContent}>
+//           <View style={styles.imageContainer}>
+//             {item.file ? (
+//               <Card.Cover
+//                 source={{ uri: `${item.file}` }}
+//                 style={styles.cover}
+//               />
+//             ) : (
+//               <View style={styles.placeholder}>
+//                 <Text style={styles.placeholderText}>Image</Text>
+//               </View>
+//             )}
+//           </View>
 
-          <View style={styles.infoContainer}>
-            <Text variant="titleLarge" style={styles.title}>
-              {item.title}
-            </Text>
+//           <View style={styles.infoContainer}>
+//             <Text variant="titleLarge" style={styles.title}>
+//               {item.title}
+//             </Text>
 
-            <View style={styles.Participant_progress}>
-              <Chip icon="account-group" style={styles.badge}>
-                {item.nbParticipant} / {item.maxParticipant} participants
-              </Chip>
-            </View>
+//             <View style={styles.Participant_progress}>
+//               <Chip icon="account-group" style={styles.badge}>
+//                 {item.nbParticipant} / {item.maxParticipant} participants
+//               </Chip>
+//             </View>
 
-            <View style={styles.badgeContainer}>
-              <View
-                style={[
-                  styles.categoryBadge,
-                  { backgroundColor: colors.primary },
-                ]}
-              >
-                <Text style={styles.badgeText}>{item.category.name}</Text>
-              </View>
-            </View>
+//             <View style={styles.badgeContainer}>
+//               <View
+//                 style={[
+//                   styles.categoryBadge,
+//                   { backgroundColor: colors.primary },
+//                 ]}
+//               >
+//                 <Text style={styles.badgeText}>{item.category.name}</Text>
+//               </View>
+//             </View>
 
-            <Text variant="bodyMedium">
-              Deadline : {new Date(item.deadLine).toLocaleDateString("fr-FR")}
-            </Text>
-          </View>
-        </View>
-      </Card>
-    </Link>
-  );
-};
+//             <Text variant="bodyMedium">
+//               Deadline : {new Date(item.deadLine).toLocaleDateString("fr-FR")}
+//             </Text>
+//           </View>
+//         </View>
+//       </Card>
+//     </Link>
+//   );
+// };
 
 export default function Page() {
-  const { connectedUser } = useConntedUser();
-  const [ressources, setRessources] = useState<Ressource[]>([]);
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
-    [],
-  );
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [pageSize] = useState(10);
+  // const { connectedUser } = useConntedUser();
+  // const [ressources, setRessources] = useState<Ressource[]>([]);
+  // const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+  //   [],
+  // );
+  // const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  // const [loading, setLoading] = useState(false);
+  // const [page, setPage] = useState(1);
+  // const [totalPages, setTotalPages] = useState(1);
+  // const [pageSize] = useState(10);
 
-  const flatListRef = useRef<FlatList>(null);
+  // const flatListRef = useRef<FlatList>(null);
 
-  const getDatas = useCallback(async () => {
-    setLoading(true);
-    const [resRessources, resCategories] = await Promise.all([
-      getRessources(page, pageSize), // Passe les paramètres page et pageSize
-      getCategory(),
-    ]);
-    if (resRessources && resCategories) {
-      const validated = resRessources.data.filter((r) => r.isValidate);
-      setRessources(validated);
-      setCategories(resCategories.data);
-      if (resRessources.total) {
-        setTotalPages(Math.ceil(resRessources.total / pageSize));
-      } // Calcul du nombre de pages
-    }
-    setLoading(false);
-  }, [page, pageSize]);
+  // const getDatas = useCallback(async () => {
+  //   setLoading(true);
+  //   const [resRessources, resCategories] = await Promise.all([
+  //     getRessources(page, pageSize), // Passe les paramètres page et pageSize
+  //     getCategory(),
+  //   ]);
+  //   if (resRessources && resCategories) {
+  //     const validated = resRessources.data.filter((r) => r.isValidate);
+  //     setRessources(validated);
+  //     setCategories(resCategories.data);
+  //     if (resRessources.total) {
+  //       setTotalPages(Math.ceil(resRessources.total / pageSize));
+  //     } // Calcul du nombre de pages
+  //   }
+  //   setLoading(false);
+  // }, [page, pageSize]);
 
-  const filteredRessources = selectedCategory
-    ? ressources.filter((r) => r.category.id === selectedCategory)
-    : ressources;
+  // const filteredRessources = selectedCategory
+  //   ? ressources.filter((r) => r.category.id === selectedCategory)
+  //   : ressources;
 
-  useEffect(() => {
-    getDatas();
-  }, [getDatas, page]); // Mise à jour des données quand la page change
+  // useEffect(() => {
+  //   getDatas();
+  // }, [getDatas, page]); // Mise à jour des données quand la page change
 
-  // Fonctions de pagination
-  const handleNextPage = () => {
-    if (page < totalPages) {
-      setPage(page + 1); // Passe à la page suivante
-      flatListRef.current?.scrollToOffset({ animated: true, offset: 0 }); // Revenir en haut
-    }
-  };
+  // // Fonctions de pagination
+  // const handleNextPage = () => {
+  //   if (page < totalPages) {
+  //     setPage(page + 1); // Passe à la page suivante
+  //     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 }); // Revenir en haut
+  //   }
+  // };
 
-  const handlePrevPage = () => {
-    if (page > 1) {
-      setPage(page - 1); // Passe à la page précédente
-      flatListRef.current?.scrollToOffset({ animated: true, offset: 0 }); // Revenir en haut
-    }
-  };
+  // const handlePrevPage = () => {
+  //   if (page > 1) {
+  //     setPage(page - 1); // Passe à la page précédente
+  //     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 }); // Revenir en haut
+  //   }
+  // };
 
-  // Fonction pour changer de catégorie et revenir en haut
-  const handleCategoryChange = (categoryId: string | null) => {
-    setSelectedCategory(categoryId);
-    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 }); // Revenir en haut
-  };
+  // // Fonction pour changer de catégorie et revenir en haut
+  // const handleCategoryChange = (categoryId: string | null) => {
+  //   setSelectedCategory(categoryId);
+  //   flatListRef.current?.scrollToOffset({ animated: true, offset: 0 }); // Revenir en haut
+  // };
 
   return (
     <PaperProvider theme={customTheme}>
       <View style={styles.container}>
         <Title style={styles.greeting}>Bienvenue dans VivActive !</Title>
-        <ScrollView
+        <Image
+          source={{
+            uri: "http://192.168.1.119:3000/image/8f70d0a4-14c4-4632-a19d-41cbdcefec20",
+          }}
+          style={{ width: "100%", height: 150 }}
+          resizeMode="cover"
+        />
+        {/* <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.filterScroll}
@@ -189,7 +197,7 @@ export default function Page() {
           <Button onPress={handleNextPage} disabled={page === totalPages}>
             Suivant
           </Button>
-        </View>
+        </View> */}
       </View>
     </PaperProvider>
   );

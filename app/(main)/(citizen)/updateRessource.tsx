@@ -22,7 +22,7 @@ import StepModal from "../../../components/StepModal";
 import {
   getRessource,
   updateRessource,
-} from "../../../services/ressources.service";
+} from "../../../services/article.service";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { StepCreate } from "../../../utils/types/Step.types";
 import { customTheme } from "../../../utils/theme/theme";

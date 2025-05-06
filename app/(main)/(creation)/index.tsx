@@ -20,7 +20,7 @@ import { getCategory } from "../../../services/category.service";
 import { getTypeRessource } from "../../../services/typeRessource.service";
 import { Picker } from "@react-native-picker/picker";
 import StepModal from "../../../components/StepModal";
-import { createRessource } from "../../../services/ressources.service";
+import { createRessource } from "../../../services/article.service";
 import { useRouter } from "expo-router";
 import { StepCreate } from "../../../utils/types/Step.types";
 import { customTheme } from "../../../utils/theme/theme";

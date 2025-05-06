@@ -8,11 +8,11 @@ import {
 } from "react-native";
 import { useClerk, useSignUp } from "@clerk/clerk-expo";
 import { Link, useRouter } from "expo-router";
-import { createUser, getUsers } from "../../services/user.service";
+import { createUser } from "../../services/user.service";
 import { TextInput, Button, Text, PaperProvider } from "react-native-paper";
 import { customTheme } from "../../utils/theme/theme";
 import { useForm, Controller } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useConntedUser } from "../../utils/ConnectedUserContext";
 
 type FormData = {
@@ -24,7 +24,7 @@ type FormData = {
 };
 
 const SignUpScreen = () => {
-  const { isLoaded, signUp, setActive } = useSignUp();
+  const { isLoaded, signUp } = useSignUp();
   const { signOut } = useClerk();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -56,7 +56,7 @@ const SignUpScreen = () => {
       await signUp.create({
         firstName: data.name,
         lastName: data.surname,
-        emailAddress: data.email,
+        emailAddress: data.email.trim(),
         password: data.password,
       });
 

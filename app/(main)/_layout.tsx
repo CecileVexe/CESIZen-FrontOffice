@@ -28,12 +28,11 @@ export default function Layout() {
         }}
       />
       <Tabs.Screen
-        name="(ressource)"
+        name="(articles)"
         options={{
-          href: null,
-          title: "",
+          title: "Infos",
           headerShown: false,
-          tabBarIcon: () => <Icon size={20} source="plus-box" />,
+          tabBarIcon: () => <Icon size={20} source="book" />,
         }}
       />
       <Tabs.Screen

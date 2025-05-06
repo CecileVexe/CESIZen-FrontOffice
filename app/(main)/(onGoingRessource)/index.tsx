@@ -14,12 +14,12 @@ import {
 } from "react-native-paper";
 import { SignInButton } from "../../../components/SignInButton";
 import { FlatList, StyleSheet, View } from "react-native";
-import { getRessource } from "../../../services/ressources.service";
+import { getRessource } from "../../../services/article.service";
 import { parseStringDate } from "../../../utils/functions/datesFunction";
 import StepCheckerList from "../../../components/StepCheker";
 import { Step, StepWithProgression } from "../../../utils/types/Step.types";
 import { mergeStepsWithProgressions } from "../../../utils/functions/mergeStepWithProgression";
-import { Ressource } from "../../../utils/types/Ressources.types";
+import { Ressource } from "../../../utils/types/Article.types";
 import { Progression } from "../../../utils/types/Progression.types";
 import { completedStep } from "../../../utils/functions/completedSteps";
 import { useRouter } from "expo-router";
