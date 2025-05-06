@@ -4,7 +4,7 @@ export const customTheme = {
   myOwnProperty: true,
   colors: {
     primary: "#52B788",
-    onPrimary: "rgb(255, 255, 255)",
+    onPrimary: "#ffffff",
     primaryContainer: "rgb(141, 247, 194)",
     onPrimaryContainer: "rgb(0, 33, 19)",
     secondary: "rgb(0, 108, 83)",
@@ -19,8 +19,8 @@ export const customTheme = {
     onError: "rgb(255, 255, 255)",
     errorContainer: "rgb(255, 218, 214)",
     onErrorContainer: "rgb(65, 0, 2)",
-    background: "rgb(0, 104, 116)",
-    onBackground: "rgb(255, 255, 255)",
+    background: "rgb(247, 240, 233)",
+    onBackground: "rgb(0, 104, 116)",
     surface: "rgb(251, 253, 248)",
     onSurface: "rgb(25, 28, 26)", //Icon navigation
     surfaceVariant: "rgb(220, 229, 221)",
@@ -34,7 +34,7 @@ export const customTheme = {
     inversePrimary: "rgb(112, 219, 167)",
     elevation: {
       level0: "transparent",
-      level1: "rgb(238, 246, 239)",
+      level1: "white",
       level2: "rgb(231, 241, 234)",
       level3: "rgb(223, 237, 229)",
       level4: "rgb(221, 236, 227)",

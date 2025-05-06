@@ -1,6 +1,12 @@
 import React, { useCallback, useState } from "react";
 import { View, StyleSheet, ScrollView, FlatList } from "react-native";
-import { Text, Card, Chip, ActivityIndicator } from "react-native-paper";
+import {
+  Text,
+  Card,
+  Chip,
+  ActivityIndicator,
+  useTheme,
+} from "react-native-paper";
 import { useConnectedUser } from "../../../utils/ConnectedUserContext";
 import { getArticles } from "../../../services/article.service";
 import { getUserFavorite } from "../../../services/favorite.service";
@@ -10,6 +16,7 @@ import { SignInButton } from "../../../components/SignInButton";
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const HomeScreen = () => {
+  const { colors } = useTheme();
   const { connectedUser } = useConnectedUser();
 
   const router = useRouter();
@@ -55,7 +62,10 @@ const HomeScreen = () => {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={{ ...styles.container, backgroundColor: colors.background }}
+      showsVerticalScrollIndicator={false}
+    >
       <Text style={styles.title}>Bonjour {connectedUser?.name ?? ""} !</Text>
 
       <View style={styles.emotionsBox}>
@@ -133,7 +143,6 @@ const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#f5f5f5",
     padding: 20,
   },
   dateText: {

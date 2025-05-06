@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { SegmentedButtons, Text, Card, useTheme } from "react-native-paper";
 import { Calendar } from "react-native-calendars";
@@ -22,6 +22,7 @@ import {
 } from "date-fns";
 import { fr } from "date-fns/locale";
 import { checkCanGoNext } from "../../../utils/functions/datesFunction";
+import { formatDateKey } from "../../../utils/functions/calendarFunctions";
 
 const JournalScreen = () => {
   const theme = useTheme();
@@ -32,6 +33,9 @@ const JournalScreen = () => {
   const [categories, setCategories] = useState<EmotionCategory[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [canGoNext, setCanGoNext] = useState(true);
+  const [calendarDate, setCalendarDate] = useState(new Date());
+
+  console.log("calendarMarks", calendarMarks);
 
   const updateCanGoNext = useCallback(() => {
     const result = checkCanGoNext(selectedDate, period);
@@ -45,6 +49,13 @@ const JournalScreen = () => {
     fetchData();
     updateCanGoNext();
   }, [connectedUser, period, selectedDate, updateCanGoNext]);
+
+  useEffect(() => {
+    // Quand on passe à la période "month", synchronise aussi le mois affiché
+    if (period === "month") {
+      setCalendarDate(selectedDate);
+    }
+  }, [period, selectedDate]);
 
   const fetchData = async () => {
     if (connectedUser) {
@@ -64,7 +75,15 @@ const JournalScreen = () => {
 
         const grouped = groupByCategory(entries);
         setEmotionData(grouped.chartData);
-        setCalendarMarks(grouped.markedDates);
+
+        const formattedMarks = Object.fromEntries(
+          Object.entries(grouped.markedDates).map(([dateKey, value]) => [
+            formatDateKey(dateKey),
+            value,
+          ]),
+        );
+
+        setCalendarMarks(formattedMarks);
         setTitle(getPeriodTitle(period, selectedDate));
       } catch (err) {
         console.error(err);
@@ -91,15 +110,14 @@ const JournalScreen = () => {
         };
       }
 
-      // coloration du calendrier
+      // marquage calendrier
       marked[date] = {
         marked: true,
         dotColor: categoryColor,
-        selectedColor: categoryColor,
       };
     });
 
-    const chartData = Object.entries(categoryCounts).map(
+    let chartData = Object.entries(categoryCounts).map(
       ([categoryName, value]) => ({
         x: categoryName,
         y: value.count,
@@ -107,10 +125,26 @@ const JournalScreen = () => {
       }),
     );
 
+    // fallback si aucune donnée
+    if (chartData.length === 0) {
+      chartData = [
+        {
+          x: "Aucune donnée",
+          y: 1,
+          color: "#b4b4b4",
+        },
+      ];
+    }
+
     return {
       chartData,
       markedDates: marked,
     };
+  };
+
+  const getCategoryCount = (categoryName: string) => {
+    const found = emotionData.find((item) => item.x === categoryName);
+    return found ? found.y : 0;
   };
 
   const handleNext = () => {
@@ -159,7 +193,14 @@ const JournalScreen = () => {
     }
   };
 
-  const totalEntries = emotionData.reduce((sum, item) => sum + item.y, 0);
+  const isFallbackData =
+    emotionData.length === 1 && emotionData[0].x === "Aucune donnée";
+
+  const totalEntries = isFallbackData
+    ? 0
+    : emotionData.reduce((sum, item) => sum + item.y, 0);
+
+  console.log(formatDateKey(calendarDate));
 
   return (
     <ScrollView style={styles.container}>
@@ -169,7 +210,12 @@ const JournalScreen = () => {
 
       <SegmentedButtons
         value={period}
-        onValueChange={(v) => setPeriod(v)}
+        onValueChange={(v) => {
+          setPeriod(v);
+          if (v === "month") {
+            setCalendarDate(selectedDate);
+          }
+        }}
         buttons={[
           { value: "week", label: "Semaine" },
           { value: "month", label: "Mois" },
@@ -194,7 +240,13 @@ const JournalScreen = () => {
           data={emotionData}
           colorScale={emotionData.map((item) => item.color)}
           innerRadius={100}
-          labels={() => null}
+          labels={({ datum }) => {
+            return isFallbackData ? null : `${datum.y}`;
+          }}
+          labelRadius={81}
+          style={{
+            labels: { fill: "white", fontSize: 14, fontWeight: "bold" },
+          }}
           width={250}
           height={250}
         />
@@ -208,13 +260,22 @@ const JournalScreen = () => {
         </View>
       </View>
 
-      <View style={styles.legend}>
-        {emotionData.map((item) => (
-          <View key={item.x} style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: item.color }]} />
-            <Text>{item.x}</Text>
-          </View>
-        ))}
+      <View style={styles.emotionsBox}>
+        <View style={styles.emotionRow}>
+          {categories.map((cat) => (
+            <View key={cat.id} style={styles.emotionItem}>
+              <IconButton
+                icon={cat.smiley}
+                size={28}
+                iconColor={cat.color}
+                style={{ margin: 0 }}
+              />
+              <Text style={[styles.emotionLabel, { color: cat.color }]}>
+                {cat.name}
+              </Text>
+            </View>
+          ))}
+        </View>
       </View>
 
       <Card style={styles.calendarCard}>
@@ -224,8 +285,37 @@ const JournalScreen = () => {
             markedDates={calendarMarks}
             markingType={"dot"}
             theme={{
+              arrowColor: theme.colors.primary,
               selectedDayBackgroundColor: "#E0E0E0",
               todayTextColor: "#4CAF50",
+              dotStyle: {
+                marginTop: -30,
+                height: 40,
+                width: 40,
+                borderRadius: 20,
+                zIndex: 0,
+              },
+              textDayStyle: { zIndex: 3 },
+
+              textDayFontWeight: "800",
+              //     Day of week text (mon tue...)
+              textSectionTitleColor: "#000000",
+              textDayHeaderFontWeight: "700",
+              textDayHeaderFontSize: 14,
+
+              //     Today
+              todayBackgroundColor: "white",
+
+              //     textSectionTitleDisabledColor: 'black',
+              selectedDayTextColor: "#ffffff",
+            }}
+            onMonthChange={(month) => {
+              const newDate = new Date(month.year, month.month - 1, 1);
+              setCalendarDate(newDate);
+              if (period !== "month") {
+                setPeriod("month");
+              }
+              setSelectedDate(newDate);
             }}
           />
         </Card.Content>
@@ -259,6 +349,7 @@ const styles = StyleSheet.create({
   },
   calendarCard: {
     marginTop: 12,
+    marginBottom: 50,
   },
   navigationContainer: {
     flexDirection: "row",
@@ -270,12 +361,36 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
-    marginVertical: 16,
   },
   pieCenterText: {
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
+  },
+  emotionsBox: {
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 20,
+  },
+  emotionRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+  },
+  emotionItem: {
+    alignItems: "center",
+
+    marginVertical: 6,
+  },
+  emotionLabel: {
+    fontSize: 12,
+    marginTop: 4,
+    textAlign: "center",
+  },
+  sectionTitle: {
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 
