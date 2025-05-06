@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { SegmentedButtons, Text, Card } from "react-native-paper";
 import { Calendar } from "react-native-calendars";
@@ -17,7 +17,11 @@ import {
   addYears,
   subYears,
   format,
+  startOfWeek,
+  endOfWeek,
 } from "date-fns";
+import { fr } from "date-fns/locale";
+import { checkCanGoNext } from "../../../utils/functions/datesFunction";
 
 const JournalScreen = () => {
   const [period, setPeriod] = useState<string>("week");
@@ -26,13 +30,20 @@ const JournalScreen = () => {
   const [title, setTitle] = useState("");
   const [categories, setCategories] = useState<EmotionCategory[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [canGoNext, setCanGoNext] = useState(true);
+
+  const updateCanGoNext = useCallback(() => {
+    const result = checkCanGoNext(selectedDate, period);
+    setCanGoNext(result);
+  }, [period, selectedDate]);
 
   const { connectedUser } = useConnectedUser();
   console.log(emotionData);
   useEffect(() => {
     if (!connectedUser) return;
     fetchData();
-  }, [connectedUser, period, selectedDate]);
+    updateCanGoNext();
+  }, [connectedUser, period, selectedDate, updateCanGoNext]);
 
   const fetchData = async () => {
     if (connectedUser) {
@@ -101,40 +112,45 @@ const JournalScreen = () => {
     };
   };
 
-  const handlePrev = () => {
-    switch (period) {
-      case "month":
-        setSelectedDate(subMonths(selectedDate, 1));
-        break;
-      case "week":
-        setSelectedDate(subWeeks(selectedDate, 1));
-        break;
-      case "year":
-        setSelectedDate(subYears(selectedDate, 1));
-        break;
+  const handleNext = () => {
+    let newDate;
+
+    if (period === "week") {
+      newDate = addWeeks(selectedDate, 1);
+    } else if (period === "month") {
+      newDate = addMonths(selectedDate, 1);
+    } else {
+      newDate = addYears(selectedDate, 1);
     }
+
+    setSelectedDate(newDate);
+    setCanGoNext(checkCanGoNext(newDate, period));
   };
 
-  const handleNext = () => {
-    switch (period) {
-      case "month":
-        setSelectedDate(addMonths(selectedDate, 1));
-        break;
-      case "week":
-        setSelectedDate(addWeeks(selectedDate, 1));
-        break;
-      case "year":
-        setSelectedDate(addYears(selectedDate, 1));
-        break;
+  const handlePrev = () => {
+    let newDate;
+
+    if (period === "week") {
+      newDate = addWeeks(selectedDate, -1);
+    } else if (period === "month") {
+      newDate = addMonths(selectedDate, -1);
+    } else {
+      newDate = addYears(selectedDate, -1);
     }
+
+    setSelectedDate(newDate);
+    setCanGoNext(checkCanGoNext(newDate, period));
   };
 
   const getPeriodTitle = (period: string, date: Date) => {
     switch (period) {
-      case "week":
-        return `Semaine du ${format(date, "dd MMM")} au ${format(addWeeks(date, 1), "dd MMM yyyy")}`;
+      case "week": {
+        const start = startOfWeek(date, { weekStartsOn: 1 }); // lundi
+        const end = endOfWeek(date, { weekStartsOn: 1 }); // dimanche
+        return `Semaine du ${format(start, "dd MMM", { locale: fr })} au ${format(end, "dd MMM yyyy", { locale: fr })}`;
+      }
       case "month":
-        return format(date, "MMMM yyyy");
+        return format(date, "MMMM yyyy", { locale: fr });
       case "year":
         return `Année ${format(date, "yyyy")}`;
       default:
@@ -160,9 +176,14 @@ const JournalScreen = () => {
       />
 
       <View style={styles.navigationContainer}>
-        <IconButton icon="chevron-left" size={20} onPress={handlePrev} />
+        <IconButton icon="chevron-left" onPress={handlePrev} />
         <Text style={styles.periodLabel}>{title}</Text>
-        <IconButton icon="chevron-right" size={20} onPress={handleNext} />
+        <IconButton
+          icon="chevron-right"
+          onPress={handleNext}
+          disabled={!canGoNext}
+          style={{ opacity: canGoNext ? 1 : 0.3 }}
+        />
       </View>
 
       <VictoryPie
@@ -205,7 +226,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   title: { fontWeight: "bold", marginBottom: 8 },
   segment: { marginBottom: 8 },
-  periodLabel: { textAlign: "center", marginBottom: 12 },
+  periodLabel: { textAlign: "center" },
   legend: {
     flexDirection: "row",
     flexWrap: "wrap",
