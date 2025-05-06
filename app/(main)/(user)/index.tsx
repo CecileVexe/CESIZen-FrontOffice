@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   StyleSheet,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  View,
 } from "react-native";
 import {
   Text,
@@ -14,19 +15,21 @@ import {
   PaperProvider,
   Dialog,
   Portal,
+  IconButton,
 } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import { customTheme } from "../../../utils/theme/theme";
-import {
-  deleteCitizen,
-  updateCitizen,
-  updateCitizenCredtials,
-} from "../../../services/user.service";
+
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useClerk, useUser } from "@clerk/clerk-expo";
 import { SignOutButton } from "../../../components/SignOutButton";
 import * as Linking from "expo-linking";
+import {
+  deleteUser,
+  updateUser,
+  updateUserCredtials,
+} from "../../../services/user.service";
 
 type FormData = {
   name: string;
@@ -39,24 +42,54 @@ type FormData = {
 const AccountSettings = () => {
   const theme = useTheme();
   const router = useRouter();
+  const { user } = useUser();
+  const { connectedUser, handleNonConnectedUser, refreshConnectedUser } =
+    useConntedUser();
+
   const {
     control,
     handleSubmit,
     formState: { errors },
     watch,
     setError,
+    reset,
   } = useForm<FormData>({
     defaultValues: {
-      name: "",
-      surname: "",
+      name: connectedUser?.name || "",
+      surname: connectedUser?.surname || "",
       oldPassword: "",
       newPassword: "",
       confirmPassword: "",
     },
   });
 
-  const { user } = useUser();
-  const { connectedUser, handleNonConnectedUser } = useConntedUser();
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      const refresh = async () => {
+        await refreshConnectedUser();
+      };
+
+      refresh();
+
+      return () => {
+        isActive = false;
+      };
+    }, [refreshConnectedUser]),
+  );
+
+  useEffect(() => {
+    if (connectedUser) {
+      reset({
+        name: connectedUser.name || "",
+        surname: connectedUser.surname || "",
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    }
+  }, [connectedUser, reset]);
 
   const [isDeleteDialogVisible, setDeleteDialogVisible] = useState(false); // état pour gérer la visibilité de la modale
 
@@ -67,27 +100,25 @@ const AccountSettings = () => {
       clerkId: user?.id,
     };
     if (connectedUser) {
-      const response = await updateCitizen(connectedUser.id, dataToSend);
+      const response = await updateUser(connectedUser.id, dataToSend);
       if (response.data) {
+        reset();
         router.back();
       }
     }
   };
 
   const onSubmitPassword = async (data: FormData) => {
-    console.log(
-      "Mot de passe mis à jour :",
-      data.oldPassword,
-      data.newPassword,
-    );
     if (user) {
       const dataToSend = {
         clerkId: user.id,
         oldPassword: data.oldPassword,
         password: data.newPassword,
       };
-      const response = await updateCitizenCredtials(dataToSend);
-      if (response.data) {
+      const response = await updateUserCredtials(dataToSend);
+      console.log(response);
+      if (response.status === 200) {
+        reset();
         router.back();
       } else if (response.error) {
         return setError("oldPassword", {
@@ -102,7 +133,7 @@ const AccountSettings = () => {
 
   const handleDeleteUser = async () => {
     if (connectedUser) {
-      const response = await deleteCitizen(connectedUser.id);
+      const response = await deleteUser(connectedUser.id);
       console.log(response);
       if (!response.error) {
         try {
@@ -124,9 +155,12 @@ const AccountSettings = () => {
     >
       <PaperProvider theme={customTheme}>
         <ScrollView contentContainerStyle={styles.container}>
-          <Text style={styles.title}>Modifier mes informations</Text>
+          <Text style={styles.title}>
+            {`${connectedUser?.name ?? "Utilisateur"} ${connectedUser?.surname ?? "Inconnu"}`}
+          </Text>
 
-          {/* Formulaire pour le nom et prénom */}
+          <Text style={styles.title}>Informations personnelles</Text>
+
           <Controller
             control={control}
             name="name"
@@ -138,6 +172,10 @@ const AccountSettings = () => {
                   onChangeText={onChange}
                   error={!!errors.name}
                   style={styles.input}
+                  underlineColor="transparent"
+                  activeUnderlineColor="transparent"
+                  textColor="#000"
+                  theme={{ roundness: 15 }}
                 />
                 {errors.name && (
                   <Text style={styles.error}>{errors.name.message}</Text>
@@ -146,7 +184,6 @@ const AccountSettings = () => {
             )}
           />
 
-          {/* Formulaire pour le nom */}
           <Controller
             control={control}
             name="surname"
@@ -158,6 +195,10 @@ const AccountSettings = () => {
                   onChangeText={onChange}
                   error={!!errors.surname}
                   style={styles.input}
+                  underlineColor="transparent"
+                  activeUnderlineColor="transparent"
+                  textColor="#000"
+                  theme={{ roundness: 15 }}
                 />
                 {errors.surname && (
                   <Text style={styles.error}>{errors.surname.message}</Text>
@@ -166,7 +207,6 @@ const AccountSettings = () => {
             )}
           />
 
-          {/* Bouton pour enregistrer les modifications */}
           <Button
             mode="contained"
             style={styles.button}
@@ -177,8 +217,7 @@ const AccountSettings = () => {
 
           <Divider style={styles.divider} />
 
-          {/* Formulaire pour changer le mot de passe */}
-          <Text style={styles.title}>Changer mon mot de passe</Text>
+          <Text style={styles.title}>Modifier le mot de passe</Text>
 
           <Controller
             name="oldPassword"
@@ -201,6 +240,10 @@ const AccountSettings = () => {
                   onBlur={onBlur}
                   error={!!errors.oldPassword}
                   style={styles.input}
+                  underlineColor="transparent"
+                  activeUnderlineColor="transparent"
+                  textColor="#000"
+                  theme={{ roundness: 15 }}
                 />
                 {errors.oldPassword && (
                   <Text style={styles.error}>{errors.oldPassword.message}</Text>
@@ -230,6 +273,10 @@ const AccountSettings = () => {
                   onBlur={onBlur}
                   error={!!errors.newPassword}
                   style={styles.input}
+                  underlineColor="transparent"
+                  activeUnderlineColor="transparent"
+                  textColor="#000"
+                  theme={{ roundness: 15 }}
                 />
                 {errors.newPassword && (
                   <Text style={styles.error}>{errors.newPassword.message}</Text>
@@ -262,6 +309,10 @@ const AccountSettings = () => {
                   onBlur={onBlur}
                   error={!!errors.confirmPassword}
                   style={styles.input}
+                  underlineColor="transparent"
+                  activeUnderlineColor="transparent"
+                  textColor="#000"
+                  theme={{ roundness: 15 }}
                 />
                 {errors.confirmPassword && (
                   <Text style={styles.error}>
@@ -285,7 +336,6 @@ const AccountSettings = () => {
           <Text style={styles.title}>Compte</Text>
           <SignOutButton />
 
-          {/* Bouton pour ouvrir la modale de suppression de compte */}
           <Button
             mode="text"
             textColor={theme.colors.error}
@@ -295,7 +345,6 @@ const AccountSettings = () => {
             Supprimer mon compte
           </Button>
 
-          {/* Modale de confirmation de suppression */}
           <Portal>
             <Dialog
               visible={isDeleteDialogVisible}
@@ -316,6 +365,31 @@ const AccountSettings = () => {
               </Dialog.Actions>
             </Dialog>
           </Portal>
+          <Divider style={styles.divider} />
+
+          <View style={styles.linkRow}>
+            <Button
+              onPress={() => router.push("/(legal)/cgu")}
+              icon="open-in-new"
+              contentStyle={styles.linkButton}
+            >
+              <Text style={styles.textButton}>
+                Conditions Générales d’Utilisation
+              </Text>
+            </Button>
+          </View>
+
+          <View style={styles.linkRow}>
+            <Button
+              onPress={() => router.push("/(legal)/rgpd")}
+              icon="open-in-new"
+              contentStyle={styles.linkButton}
+            >
+              <Text style={styles.textButton}>
+                Règlement général sur la protection des données
+              </Text>
+            </Button>
+          </View>
         </ScrollView>
       </PaperProvider>
     </KeyboardAvoidingView>
@@ -325,26 +399,50 @@ const AccountSettings = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: "#f4f4f4",
+    flexGrow: 1,
   },
   title: {
+    fontSize: 24,
     fontWeight: "bold",
-    fontSize: 18,
-    marginBottom: 10,
+    color: "#014b3e",
+    marginBottom: 20,
+    textAlign: "left",
   },
   input: {
-    marginBottom: 10,
+    marginBottom: 15,
+    backgroundColor: "#fff",
+    borderRadius: 15,
   },
   button: {
     marginVertical: 10,
-  },
-  divider: {
-    marginVertical: 25,
+    borderRadius: 10,
   },
   error: {
     color: "red",
-    marginBottom: 10,
     fontSize: 12,
+    marginBottom: 8,
+  },
+  divider: {
+    marginVertical: 30,
+  },
+  textButton: {
+    alignSelf: "center",
+    textDecorationLine: "underline",
+    fontSize: 12,
+    color: "#52B788",
+  },
+  linkRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  linkIcon: {
+    marginLeft: 0,
+    color: "#52B788",
+  },
+  linkButton: {
+    flexDirection: "row-reverse",
   },
 });
 

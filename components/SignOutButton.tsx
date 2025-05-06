@@ -20,7 +20,7 @@ export const SignOutButton = () => {
   };
 
   return (
-    <Button mode="contained" style={styles.button} onPress={handleSignOut}>
+    <Button mode="outlined" style={styles.button} onPress={handleSignOut}>
       Me déconnecter
     </Button>
   );
@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginVertical: 10,
+    borderRadius: 10,
   },
   divider: {
     marginVertical: 25,

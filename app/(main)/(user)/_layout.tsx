@@ -18,11 +18,6 @@ export default function Layout() {
         name="unConnectedUserPage"
         options={{ headerShown: false }}
       />
-      <Stack.Screen
-        name="updateRessource"
-        options={{ title: "Modifier une ressource" }}
-      />
-      <Stack.Screen name="accountSettings" options={{ title: "Paramètres" }} />
     </Stack>
   );
 }

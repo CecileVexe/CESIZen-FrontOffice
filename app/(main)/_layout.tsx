@@ -33,6 +33,7 @@ export default function Layout() {
           title: "Infos",
           headerShown: false,
           tabBarIcon: () => <Icon size={20} source="book" />,
+          popToTopOnBlur: true,
         }}
       />
       <Tabs.Screen
@@ -56,11 +57,11 @@ export default function Layout() {
       />
 
       <Tabs.Screen
-        name="(citizen)"
+        name="(user)"
         options={{
           title: "Compte",
           headerShown: false,
-          tabBarIcon: () => <Icon size={20} source="account" />,
+          tabBarIcon: () => <Icon size={20} source="account-circle" />,
           popToTopOnBlur: true,
         }}
       />

@@ -1,5 +1,5 @@
 import { StyleSheet, View } from "react-native";
-import { PaperProvider, Text } from "react-native-paper";
+import { Divider, PaperProvider, Text } from "react-native-paper";
 import { SignInButton } from "../../../components/SignInButton";
 import { customTheme } from "../../../utils/theme/theme";
 import { SignOutButton } from "../../../components/SignOutButton";
@@ -12,8 +12,9 @@ const UnConnectedUserPage = () => {
           Veuillez vous connecter pour accéder à la page de votre compte
         </Text>
         <SignInButton />
+        <Divider />
         <Text variant="titleLarge" style={styles.title}>
-          En cas de problème de session :
+          En cas de problème de session (dev only) :
         </Text>
         <SignOutButton />
       </View>
