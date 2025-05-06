@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { SegmentedButtons, Text, Card } from "react-native-paper";
+import { SegmentedButtons, Text, Card, useTheme } from "react-native-paper";
 import { Calendar } from "react-native-calendars";
 import { useConnectedUser } from "../../../utils/ConnectedUserContext";
 import { VictoryPie } from "victory-native";
@@ -24,6 +24,7 @@ import { fr } from "date-fns/locale";
 import { checkCanGoNext } from "../../../utils/functions/datesFunction";
 
 const JournalScreen = () => {
+  const theme = useTheme();
   const [period, setPeriod] = useState<string>("week");
   const [emotionData, setEmotionData] = useState<any>([]);
   const [calendarMarks, setCalendarMarks] = useState({});
@@ -158,6 +159,8 @@ const JournalScreen = () => {
     }
   };
 
+  const totalEntries = emotionData.reduce((sum, item) => sum + item.y, 0);
+
   return (
     <ScrollView style={styles.container}>
       <Text variant="titleMedium" style={styles.title}>
@@ -186,15 +189,24 @@ const JournalScreen = () => {
         />
       </View>
 
-      <VictoryPie
-        data={emotionData}
-        colorScale={emotionData.map((item) => item.color)}
-        innerRadius={70}
-        labelRadius={100}
-        style={{
-          labels: { fill: "black", fontSize: 12, fontWeight: "bold" },
-        }}
-      />
+      <View style={styles.pieContainer}>
+        <VictoryPie
+          data={emotionData}
+          colorScale={emotionData.map((item) => item.color)}
+          innerRadius={100}
+          labels={() => null}
+          width={250}
+          height={250}
+        />
+        <View style={styles.pieCenterText}>
+          <Text variant="headlineLarge" style={{ color: theme.colors.primary }}>
+            {totalEntries}
+          </Text>
+          <Text variant="titleMedium" style={{ color: theme.colors.primary }}>
+            Emotions
+          </Text>
+        </View>
+      </View>
 
       <View style={styles.legend}>
         {emotionData.map((item) => (
@@ -253,6 +265,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 12,
+  },
+  pieContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+    marginVertical: 16,
+  },
+  pieCenterText: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
