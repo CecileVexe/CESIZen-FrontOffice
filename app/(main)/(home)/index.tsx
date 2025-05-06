@@ -1,320 +1,216 @@
-import { useCallback, useEffect, useState, useRef } from "react";
-import {
-  FlatList,
-  RefreshControl,
-  View,
-  StyleSheet,
-  ScrollView,
-  Image,
-} from "react-native";
-import {
-  Card,
-  Text,
-  PaperProvider,
-  useTheme,
-  Chip,
-  Title,
-  Button,
-} from "react-native-paper";
-import { Link } from "expo-router";
-// import { Ressource } from "../../../utils/types/Article.types";
-// import { getRessources } from "../../../services/article.service";
-// import { getCategory } from "../../../services/category.service";
-import { customTheme } from "../../../utils/theme/theme";
+import React, { useCallback, useState } from "react";
+import { View, StyleSheet, ScrollView, FlatList } from "react-native";
+import { Text, Card, Chip, ActivityIndicator } from "react-native-paper";
 import { useConntedUser } from "../../../utils/ConnectedUserContext";
-import { ActivityIndicator } from "react-native-paper";
+import { getArticles } from "../../../services/article.service";
+import { getUserFavorite } from "../../../services/favorite.service";
+import { useFocusEffect, useRouter } from "expo-router";
+import { SignInButton } from "../../../components/SignInButton";
 
-// const RenderItem = ({ item }: { item: Ressource }) => {
-//   const { colors } = useTheme();
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
-//   return (
-//     <Link href={`/(ressource)/${item.id}`} asChild>
-//       <Card style={styles.card} mode="elevated">
-//         <View style={styles.cardContent}>
-//           <View style={styles.imageContainer}>
-//             {item.file ? (
-//               <Card.Cover
-//                 source={{ uri: `${item.file}` }}
-//                 style={styles.cover}
-//               />
-//             ) : (
-//               <View style={styles.placeholder}>
-//                 <Text style={styles.placeholderText}>Image</Text>
-//               </View>
-//             )}
-//           </View>
+const HomeScreen = () => {
+  const { connectedUser } = useConntedUser();
 
-//           <View style={styles.infoContainer}>
-//             <Text variant="titleLarge" style={styles.title}>
-//               {item.title}
-//             </Text>
+  const router = useRouter();
 
-//             <View style={styles.Participant_progress}>
-//               <Chip icon="account-group" style={styles.badge}>
-//                 {item.nbParticipant} / {item.maxParticipant} participants
-//               </Chip>
-//             </View>
+  const [latestArticle, setLatestArticle] = useState<any>(null);
+  const [favorites, setFavorites] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-//             <View style={styles.badgeContainer}>
-//               <View
-//                 style={[
-//                   styles.categoryBadge,
-//                   { backgroundColor: colors.primary },
-//                 ]}
-//               >
-//                 <Text style={styles.badgeText}>{item.category.name}</Text>
-//               </View>
-//             </View>
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        const articlesRes = await getArticles(1, 1);
+        if (articlesRes?.data?.length) {
+          setLatestArticle(articlesRes.data[0]);
+        }
 
-//             <Text variant="bodyMedium">
-//               Deadline : {new Date(item.deadLine).toLocaleDateString("fr-FR")}
-//             </Text>
-//           </View>
-//         </View>
-//       </Card>
-//     </Link>
-//   );
-// };
+        if (connectedUser?.id) {
+          const favoritesRes = await getUserFavorite(connectedUser.id);
 
-export default function Page() {
-  // const { connectedUser } = useConntedUser();
-  // const [ressources, setRessources] = useState<Ressource[]>([]);
-  // const [categories, setCategories] = useState<{ id: string; name: string }[]>(
-  //   [],
-  // );
-  // const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  // const [loading, setLoading] = useState(false);
-  // const [page, setPage] = useState(1);
-  // const [totalPages, setTotalPages] = useState(1);
-  // const [pageSize] = useState(10);
+          if (favoritesRes?.data) {
+            setFavorites(favoritesRes.data);
+          }
+        }
 
-  // const flatListRef = useRef<FlatList>(null);
+        setLoading(false);
+      };
 
-  // const getDatas = useCallback(async () => {
-  //   setLoading(true);
-  //   const [resRessources, resCategories] = await Promise.all([
-  //     getRessources(page, pageSize), // Passe les paramètres page et pageSize
-  //     getCategory(),
-  //   ]);
-  //   if (resRessources && resCategories) {
-  //     const validated = resRessources.data.filter((r) => r.isValidate);
-  //     setRessources(validated);
-  //     setCategories(resCategories.data);
-  //     if (resRessources.total) {
-  //       setTotalPages(Math.ceil(resRessources.total / pageSize));
-  //     } // Calcul du nombre de pages
-  //   }
-  //   setLoading(false);
-  // }, [page, pageSize]);
+      fetchData();
+    }, [connectedUser?.id]),
+  );
 
-  // const filteredRessources = selectedCategory
-  //   ? ressources.filter((r) => r.category.id === selectedCategory)
-  //   : ressources;
+  const emotions = [
+    { label: "Joie", emoji: "😊" },
+    { label: "Colère", emoji: "😠" },
+    { label: "Peur", emoji: "😨" },
+    { label: "Tristesse", emoji: "😢" },
+    { label: "Surprise", emoji: "😲" },
+    { label: "Dégoût", emoji: "🤢" },
+  ];
 
-  // useEffect(() => {
-  //   getDatas();
-  // }, [getDatas, page]); // Mise à jour des données quand la page change
-
-  // // Fonctions de pagination
-  // const handleNextPage = () => {
-  //   if (page < totalPages) {
-  //     setPage(page + 1); // Passe à la page suivante
-  //     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 }); // Revenir en haut
-  //   }
-  // };
-
-  // const handlePrevPage = () => {
-  //   if (page > 1) {
-  //     setPage(page - 1); // Passe à la page précédente
-  //     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 }); // Revenir en haut
-  //   }
-  // };
-
-  // // Fonction pour changer de catégorie et revenir en haut
-  // const handleCategoryChange = (categoryId: string | null) => {
-  //   setSelectedCategory(categoryId);
-  //   flatListRef.current?.scrollToOffset({ animated: true, offset: 0 }); // Revenir en haut
-  // };
+  if (loading) {
+    return <ActivityIndicator style={{ marginTop: 40 }} />;
+  }
 
   return (
-    <PaperProvider theme={customTheme}>
-      <View style={styles.container}>
-        <Title style={styles.greeting}>Bienvenue dans VivActive !</Title>
-        <Image
-          source={{
-            uri: "http://192.168.1.119:3000/image/8f70d0a4-14c4-4632-a19d-41cbdcefec20",
-          }}
-          style={{ width: "100%", height: 150 }}
-          resizeMode="cover"
-        />
-        {/* <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.filterScroll}
-        >
-          <Chip
-            style={styles.chip}
-            selected={!selectedCategory}
-            onPress={() => handleCategoryChange(null)}
-          >
-            <Text style={styles.badgeText}>Toutes</Text>
-          </Chip>
-          {categories.map((cat) => (
-            <Chip
-              key={cat.id}
-              style={styles.chip}
-              selected={selectedCategory === cat.id}
-              onPress={() => handleCategoryChange(cat.id)}
-            >
-              <Text style={styles.badgeText}>{cat.name}</Text>
-            </Chip>
-          ))}
-        </ScrollView>
-        {loading ? (
-          <View style={styles.loaderContainer}>
-            <ActivityIndicator animating={true} size="large" />
-          </View>
-        ) : filteredRessources.length > 0 ? (
-          <FlatList
-            ref={flatListRef}
-            data={filteredRessources}
-            keyExtractor={(item) => `${item.title}_card`}
-            renderItem={({ item }) => <RenderItem item={item} />}
-            contentContainerStyle={styles.listContent}
-            refreshControl={
-              <RefreshControl refreshing={loading} onRefresh={getDatas} />
-            }
-          />
-        ) : (
-          <Text style={styles.emptyText}>Aucune ressource disponible !</Text>
-        )}
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <Text style={styles.title}>Bonjour {connectedUser?.name ?? ""} !</Text>
 
-        <View style={styles.paginationContainer}>
-          <Button onPress={handlePrevPage} disabled={page === 1}>
-            Précédent
-          </Button>
-          <Text>{`Page ${page} sur ${totalPages}`}</Text>
-          <Button onPress={handleNextPage} disabled={page === totalPages}>
-            Suivant
-          </Button>
-        </View> */}
+      <View style={styles.emotionsBox}>
+        <Text style={styles.sectionTitle}>
+          Comment vous sentez-vous aujourd’hui ?
+        </Text>
+        <View style={styles.emotionRow}>
+          {emotions.map((emo) => (
+            <View key={emo.label} style={styles.emotionItem}>
+              <Text style={{ fontSize: 24 }}>{emo.emoji}</Text>
+              <Text style={styles.emotionLabel}>{emo.label}</Text>
+            </View>
+          ))}
+        </View>
       </View>
-    </PaperProvider>
+
+      <Text style={styles.sectionTitle}>Notre dernière actualité</Text>
+      {latestArticle && (
+        <Card
+          style={styles.articleCard}
+          onPress={() => router.push(`(articles)/${latestArticle.id}`)}
+        >
+          <Card.Content>
+            <Text style={styles.articleTitle}>{latestArticle.title}</Text>
+            <Text style={styles.articleSubtitle}>
+              {latestArticle.description}
+            </Text>
+            <Chip style={styles.articleChip}>
+              {latestArticle.category.name}
+            </Chip>
+          </Card.Content>
+        </Card>
+      )}
+
+      <Text style={styles.sectionTitle}>Vos favoris</Text>
+      {connectedUser ? (
+        <FlatList
+          data={favorites}
+          horizontal
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.favoriteList}
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <Card
+              style={styles.favoriteCard}
+              onPress={() => router.push(`(articles)/${item.article.id}`)}
+            >
+              {item.article.bannerId && (
+                <Card.Cover
+                  source={{ uri: `${BASE_URL}image/${item.article.bannerId}` }}
+                  style={{ height: 150 }}
+                />
+              )}
+              <Card.Content>
+                <Text style={styles.favoriteTitle}>{item.article.title}</Text>
+                <Text style={styles.favoriteDescription} numberOfLines={3}>
+                  {item.article.description}
+                </Text>
+                <Text style={styles.readTime}>
+                  {`Lecture ${item.article.readingTime} min`}
+                </Text>
+              </Card.Content>
+            </Card>
+          )}
+        />
+      ) : (
+        <View>
+          <Text>Veuillez vous connecter pour ajouter des favoris</Text>
+          <SignInButton />
+        </View>
+      )}
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#f4f6f8",
-    padding: 12,
+    backgroundColor: "#f5f5f5",
+    padding: 20,
   },
-  titleContainer: {
-    flex: 0,
-    marginBottom: 16,
-  },
-  filterScroll: {
-    marginBottom: 12,
-    height: 50,
-  },
-  chip: {
-    color: "#f4f6f8",
-    backgroundColor: "#4BA8B4",
-    marginRight: 8,
-    height: 30,
-  },
-  listContent: {
-    paddingBottom: 16,
-  },
-  card: {
-    marginBottom: 16,
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  cardContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-  },
-  imageContainer: {
-    width: 115,
-    height: 115,
-    marginRight: 12,
-  },
-  cover: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 8,
-  },
-  placeholder: {
-    width: "100%",
-    height: "100%",
-    backgroundColor: "#ccc",
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  placeholderText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  infoContainer: {
-    flex: 1,
-    justifyContent: "center",
+  dateText: {
+    textAlign: "center",
+    marginBottom: 10,
+    color: "#444",
   },
   title: {
-    marginBottom: 4,
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  Participant: {
-    color: "#555",
-    marginRight: 8,
-  },
-  Participant_progress: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 8,
-  },
-  emptyText: {
-    marginTop: 40,
-    textAlign: "center",
-    fontSize: 16,
-    color: "#777",
-  },
-  badgeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  categoryBadge: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-    marginBottom: 10,
-  },
-  badgeText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  greeting: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
     marginBottom: 20,
   },
-  badge: {
-    marginRight: 8,
-    marginBottom: 8,
-    backgroundColor: "#e3f2fd",
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 10,
   },
-  paginationContainer: {
+  emotionsBox: {
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 20,
+  },
+  emotionRow: {
     flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 16,
+    justifyContent: "space-around",
+    marginTop: 10,
   },
-  loaderContainer: {
-    flex: 1,
-    justifyContent: "center",
+  emotionItem: {
     alignItems: "center",
+  },
+  emotionLabel: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  articleCard: {
+    backgroundColor: "#E0F2E9",
+    borderRadius: 16,
+    marginBottom: 30,
+  },
+  articleTitle: {
+    fontWeight: "bold",
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  articleSubtitle: {
+    color: "#444",
+    marginBottom: 10,
+  },
+  articleChip: {
+    alignSelf: "flex-start",
+    backgroundColor: "#B2DFDB",
+  },
+  favoriteList: {
+    paddingBottom: 50,
+  },
+  favoriteCard: {
+    width: 200,
+    marginRight: 15,
+    backgroundColor: "white",
+    borderRadius: 16,
+  },
+  favoriteTitle: {
+    fontWeight: "bold",
+    fontSize: 14,
+    marginTop: 10,
+  },
+  favoriteDescription: {
+    fontSize: 12,
+    color: "#555",
+    marginTop: 5,
+  },
+  readTime: {
+    fontSize: 12,
+    marginTop: 8,
+    color: "#009688",
   },
 });
+
+export default HomeScreen;

@@ -39,7 +39,7 @@ export const getUserFavorite = async (
   userId: string,
 ): Promise<ApiResponse<Favorite[]> | undefined> => {
   try {
-    const response = await fetch(`${_URL}favorites/citizen/${userId}`, {
+    const response = await fetch(`${_URL}favorites/user/${userId}`, {
       headers: {
         "Content-Type": "application/json",
       },

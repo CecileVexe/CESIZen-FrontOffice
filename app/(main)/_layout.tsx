@@ -2,6 +2,7 @@ import { useAuth } from "@clerk/clerk-expo";
 import { Redirect, Tabs } from "expo-router";
 import { Icon } from "react-native-paper";
 import { useConntedUser } from "../../utils/ConnectedUserContext";
+import { View } from "react-native";
 
 export default function Layout() {
   const { isSignedIn } = useAuth();
@@ -14,15 +15,40 @@ export default function Layout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "blue",
         tabBarHideOnKeyboard: true,
+        tabBarStyle: {
+          backgroundColor: "#52B788",
+          height: 60,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "bold",
+          color: "#ffffff",
+        },
       }}
     >
       <Tabs.Screen
         name="(home)"
         options={{
-          title: "Home",
-          tabBarIcon: () => <Icon size={20} source="home" />,
+          title: "Accueil",
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                backgroundColor: focused ? "#ffffff" : "transparent", // violet clair si actif
+                width: 30,
+                height: 30,
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: 15,
+              }}
+            >
+              <Icon
+                size={20}
+                source="home"
+                color={focused ? "#52B788" : "white"}
+              />
+            </View>
+          ),
           headerShown: false,
           popToTopOnBlur: true,
         }}
@@ -32,26 +58,86 @@ export default function Layout() {
         options={{
           title: "Infos",
           headerShown: false,
-          tabBarIcon: () => <Icon size={20} source="book" />,
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                backgroundColor: focused ? "#ffffff" : "transparent", // violet clair si actif
+                width: 30,
+                height: 30,
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: 15,
+              }}
+            >
+              <Icon
+                size={20}
+                source="book"
+                color={focused ? "#52B788" : "white"}
+              />
+            </View>
+          ),
           popToTopOnBlur: true,
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+
+            navigation.navigate("(articles)", {
+              screen: "index",
+            });
+          },
+        })}
       />
       <Tabs.Screen
-        name="(onGoingRessource)"
+        name="(emotion)"
         options={{
-          title: "Activité",
+          title: "Emotion",
           headerShown: false,
-          tabBarIcon: () => <Icon size={20} source="camera-timer" />,
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                backgroundColor: focused ? "#ffffff" : "transparent", // violet clair si actif
+                width: 30,
+                height: 30,
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: 15,
+              }}
+            >
+              <Icon
+                size={20}
+                source="head-plus"
+                color={focused ? "#52B788" : "white"}
+              />
+            </View>
+          ),
           popToTopOnBlur: true,
         }}
       />
 
       <Tabs.Screen
-        name="(creation)"
+        name="(journal)"
         options={{
-          title: "Créer",
+          title: "Journal",
           headerShown: false,
-          tabBarIcon: () => <Icon size={20} source="plus" />,
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                backgroundColor: focused ? "#ffffff" : "transparent", // violet clair si actif
+                width: 30,
+                height: 30,
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: 15,
+              }}
+            >
+              <Icon
+                size={20}
+                source="chart-arc"
+                color={focused ? "#52B788" : "white"}
+              />
+            </View>
+          ),
           popToTopOnBlur: true,
         }}
       />
@@ -61,7 +147,32 @@ export default function Layout() {
         options={{
           title: "Compte",
           headerShown: false,
-          tabBarIcon: () => <Icon size={20} source="account-circle" />,
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                backgroundColor: focused ? "#ffffff" : "transparent", // violet clair si actif
+                width: 30,
+                height: 30,
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: 15,
+              }}
+            >
+              <Icon
+                size={20}
+                source="account-circle"
+                color={focused ? "#52B788" : "white"}
+              />
+            </View>
+          ),
+          popToTopOnBlur: true,
+        }}
+      />
+      <Tabs.Screen
+        name="(legal)"
+        options={{
+          href: null,
+          headerShown: false,
           popToTopOnBlur: true,
         }}
       />
