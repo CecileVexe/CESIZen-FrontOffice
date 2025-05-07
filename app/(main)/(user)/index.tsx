@@ -116,7 +116,7 @@ const AccountSettings = () => {
         password: data.newPassword,
       };
       const response = await updateUserCredtials(dataToSend);
-      console.log(response);
+
       if (response.status === 200) {
         reset();
         router.back();
@@ -134,12 +134,11 @@ const AccountSettings = () => {
   const handleDeleteUser = async () => {
     if (connectedUser) {
       const response = await deleteUser(connectedUser.id);
-      console.log(response);
       if (!response.error) {
         try {
           await signOut();
           handleNonConnectedUser(false);
-          Linking.openURL(Linking.createURL("/(home)"));
+          Linking.openURL(Linking.createURL("/(0-home)"));
         } catch (err) {
           console.error(JSON.stringify(err, null, 2));
         }

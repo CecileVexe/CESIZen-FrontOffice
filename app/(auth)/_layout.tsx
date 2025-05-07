@@ -7,7 +7,7 @@ export default function AuthRoutesLayout() {
   const { userChoseToUnconnect } = useConnectedUser();
 
   if (userChoseToUnconnect || isSignedIn) {
-    return <Redirect href={"/(home)"} />;
+    return <Redirect href={"/(0-home)"} />;
   }
 
   return (

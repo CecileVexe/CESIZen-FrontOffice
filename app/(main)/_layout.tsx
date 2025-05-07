@@ -28,14 +28,13 @@ export default function Layout() {
       }}
     >
       <Tabs.Screen
-        name="(home)"
+        name="(0-home)"
         options={{
           title: "Accueil",
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                backgroundColor: focused ? "#ffffff" : "transparent", // violet clair si actif
-                width: 30,
+                backgroundColor: focused ? "#ffffff" : "transparent",
                 height: 30,
                 justifyContent: "center",
                 alignItems: "center",
@@ -61,7 +60,7 @@ export default function Layout() {
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                backgroundColor: focused ? "#ffffff" : "transparent", // violet clair si actif
+                backgroundColor: focused ? "#ffffff" : "transparent",
                 width: 30,
                 height: 30,
                 justifyContent: "center",
@@ -78,15 +77,15 @@ export default function Layout() {
           ),
           popToTopOnBlur: true,
         }}
-        listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            e.preventDefault();
+        // listeners={({ navigation }) => ({
+        //   tabPress: (e) => {
+        //     e.preventDefault();
 
-            navigation.navigate("(articles)", {
-              screen: "index",
-            });
-          },
-        })}
+        //     navigation.navigate("(articles)", {
+        //       screen: "index",
+        //     });
+        //   },
+        // })}
       />
       <Tabs.Screen
         name="(emotion)"

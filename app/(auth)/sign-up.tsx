@@ -90,7 +90,7 @@ const SignUpScreen = () => {
 
   const handleNonSignIn = () => {
     handleNonConnectedUser(true);
-    router.navigate("/(home)");
+    router.navigate("/(0-home)");
   };
 
   if (pendingVerification) {

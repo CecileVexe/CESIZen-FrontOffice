@@ -31,8 +31,6 @@ const HomeScreen = () => {
   const [favorites, setFavorites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  console.log(favorites);
-
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {

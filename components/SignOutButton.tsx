@@ -13,7 +13,7 @@ export const SignOutButton = () => {
     try {
       await signOut();
       handleNonConnectedUser(false);
-      Linking.openURL(Linking.createURL("/(home)"));
+      Linking.openURL(Linking.createURL("/(0-home)"));
     } catch (err) {
       console.error(JSON.stringify(err, null, 2));
     }

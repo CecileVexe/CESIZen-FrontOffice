@@ -35,15 +35,13 @@ const JournalScreen = () => {
   const [canGoNext, setCanGoNext] = useState(true);
   const [calendarDate, setCalendarDate] = useState(new Date());
 
-  console.log("calendarMarks", calendarMarks);
-
   const updateCanGoNext = useCallback(() => {
     const result = checkCanGoNext(selectedDate, period);
     setCanGoNext(result);
   }, [period, selectedDate]);
 
   const { connectedUser } = useConnectedUser();
-  console.log(emotionData);
+
   useEffect(() => {
     if (!connectedUser) return;
     fetchData();
@@ -65,8 +63,6 @@ const JournalScreen = () => {
           getUserJournal(connectedUser.id, period, targetDateISO),
           getEmotionCategories(),
         ]);
-
-        console.log(journalRes);
 
         const entries = journalRes?.data?.entries || [];
         const allCategories = categoriesRes?.data || [];
