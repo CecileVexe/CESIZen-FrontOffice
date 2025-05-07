@@ -23,9 +23,12 @@ import {
 import { fr } from "date-fns/locale";
 import { checkCanGoNext } from "../../../utils/functions/datesFunction";
 import { formatDateKey } from "../../../utils/functions/calendarFunctions";
+import { useRouter } from "expo-router";
 
 const JournalScreen = () => {
   const theme = useTheme();
+  const router = useRouter();
+
   const [period, setPeriod] = useState<string>("week");
   const [emotionData, setEmotionData] = useState<any>([]);
   const [calendarMarks, setCalendarMarks] = useState({});
@@ -315,6 +318,15 @@ const JournalScreen = () => {
                 setPeriod("month");
               }
               setSelectedDate(newDate);
+            }}
+            onDayPress={(date) => {
+              const dateIso = new Date(date.timestamp);
+              router.push({
+                pathname: "(emotion)",
+                params: { date: dateIso.toString() },
+              });
+
+              console.log(new Date(date.timestamp));
             }}
           />
         </Card.Content>

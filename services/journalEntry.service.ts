@@ -18,3 +18,23 @@ export const getUserJournalEntry = async (
     console.error(e);
   }
 };
+
+export const getUserJournalEntryByDate = async (
+  entryDate: string,
+  userId: string,
+): Promise<ApiResponse<JournalEntry> | undefined> => {
+  try {
+    const response = await fetch(
+      `${_URL}journal-entry/date/${entryDate}?userId=${userId}`,
+      {
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+      },
+    );
+
+    return await response.json();
+  } catch (e) {
+    console.error(e);
+  }
+};

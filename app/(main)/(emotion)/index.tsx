@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import {
   Text,
@@ -7,20 +7,27 @@ import {
   Chip,
   ActivityIndicator,
   IconButton,
+  useTheme,
 } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import { useRoute } from "@react-navigation/native";
-import { getUserJournalEntry } from "../../../services/journalEntry.service";
+import {
+  getUserJournalEntry,
+  getUserJournalEntryByDate,
+} from "../../../services/journalEntry.service";
 import { getEmotionCategories } from "../../../services/emotionCategories.service";
 import { getEmotions } from "../../../services/emotions.service";
 import { EmotionCategory } from "../../../utils/types/EmotionCategory";
 import { Emotion } from "../../../utils/types/Emotion.types";
+import { useConnectedUser } from "../../../utils/ConnectedUserContext";
+import { useFocusEffect } from "expo-router";
 
 const EmotionFormScreen = () => {
   const route = useRoute();
-  const entryId = route.params?.id || null;
+  const { colors } = useTheme();
+  const entryDate = route.params?.date || null;
   const selectedCategoryFromParams = route.params?.categoryId || null;
-
+  const { connectedUser } = useConnectedUser();
   const {
     control,
     handleSubmit,
@@ -41,28 +48,34 @@ const EmotionFormScreen = () => {
   );
   const [emotions, setEmotions] = useState<Emotion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [selectedEmotionId, setSelectedEmotionId] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
 
-  useEffect(() => {
-    if (!loading && emotionCategories.length > 0) {
-      if (route.params?.categoryId) {
-        setSelectedCategoryId(route.params.categoryId);
-      } else {
-        const joyCategory = emotionCategories.find((c) => c.name === "Joie");
-        if (joyCategory) setSelectedCategoryId(joyCategory.id);
-      }
-    }
+  // useEffect(() => {
+  //   if (!loading && emotionCategories.length > 0) {
+  //     if (route.params?.categoryId) {
+  //       setSelectedCategoryId(route.params.categoryId);
+  //     } else {
+  //       const joyCategory = emotionCategories.find((c) => c.name === "Joie");
+  //       if (joyCategory) setSelectedCategoryId(joyCategory.id);
+  //     }
+  //   }
 
-    return () => {
-      setSelectedCategoryId(null);
-    };
-  }, [route.params?.categoryId, loading, emotionCategories]);
+  //   return () => {
+  //     setSelectedCategoryId(null);
+  //   };
+  // }, [route.params?.categoryId, loading, emotionCategories]);
 
   useEffect(() => {
+    setLoading(true);
     const fetchData = async () => {
+      reset({
+        emotionId: "",
+        description: "",
+      });
       try {
         const [categoriesRes, emotionsRes] = await Promise.all([
           getEmotionCategories(),
@@ -73,13 +86,17 @@ const EmotionFormScreen = () => {
           setEmotions(emotionsRes.data);
         }
 
-        if (entryId) {
-          const entryRes = await getUserJournalEntry(entryId);
-          if (entryRes) {
-            const { emotionId, description } = entryRes?.data;
+        if (entryDate && connectedUser) {
+          const entryRes = await getUserJournalEntryByDate(
+            entryDate,
+            connectedUser.id,
+          );
+          if (entryRes?.data) {
+            const { emotionId, description } = entryRes.data;
             setValue("emotionId", emotionId);
             setValue("description", description);
             setSelectedEmotionId(emotionId);
+
             const emotion = emotionsRes?.data.find((e) => e.id === emotionId);
             const category = categoriesRes?.data.find(
               (c) => c.name === emotion?.emotionCategory?.name,
@@ -101,12 +118,7 @@ const EmotionFormScreen = () => {
       }
     };
     fetchData();
-  }, [entryId]);
-
-  useEffect(() => {
-    setSelectedEmotionId("");
-    setValue("emotionId", "");
-  }, [selectedCategoryId]);
+  }, [connectedUser, entryDate, reset, selectedCategoryFromParams, setValue]);
 
   const onSubmit = async (data) => {
     if (!data.emotionId) {
@@ -123,8 +135,8 @@ const EmotionFormScreen = () => {
     };
 
     try {
-      if (entryId) {
-        console.log("Update", entryId, payload);
+      if (entryDate) {
+        console.log("Update", entryDate, payload);
       } else {
         console.log("Create", payload);
       }
@@ -134,25 +146,41 @@ const EmotionFormScreen = () => {
   };
 
   const renderEmotionCategories = () => (
-    <View
-      style={{
-        flexDirection: "row",
-        flexWrap: "wrap",
-        gap: 12,
-        marginBottom: 24,
-      }}
-    >
-      {emotionCategories.map((cat) => (
-        <View key={cat.id} style={{ alignItems: "center" }}>
-          <IconButton
-            icon={cat.smiley}
-            size={32}
-            iconColor={cat.color}
-            onPress={() => setSelectedCategoryId(cat.id)}
-          />
-          <Text style={{ color: cat.color, fontSize: 12 }}>{cat.name}</Text>
-        </View>
-      ))}
+    <View style={styles.emotionsBox}>
+      <Text variant="titleSmall" style={styles.sectionTitle}>
+        Comment vous sentez-vous aujourd’hui ?
+      </Text>
+      <View style={styles.emotionRow}>
+        {emotionCategories.map((cat) => {
+          const isSelected = selectedCategoryId === cat.id;
+          return (
+            <View key={cat.id} style={styles.emotionItem}>
+              <IconButton
+                icon={cat.smiley}
+                size={32}
+                iconColor={isSelected ? cat.color : "#ccc"}
+                style={{ margin: 0, padding: 0 }}
+                onPress={() => {
+                  setSelectedEmotionId("");
+                  setValue("emotionId", "");
+                  setSelectedCategoryId(cat.id);
+                }}
+              />
+              <Text
+                style={{
+                  color: isSelected ? cat.color : "#ccc",
+                  fontSize: 11,
+                  marginTop: 4,
+                  fontWeight: "700",
+                  textAlign: "center",
+                }}
+              >
+                {cat.name}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
     </View>
   );
 
@@ -184,7 +212,7 @@ const EmotionFormScreen = () => {
                 } else {
                   setSelectedEmotionId(emotion.id);
                   setValue("emotionId", emotion.id);
-                  clearErrors("emotionId"); // on enlève l'erreur si on sélectionne une émotion
+                  clearErrors("emotionId");
                 }
               }}
               style={{ backgroundColor: emotion.color }}
@@ -204,68 +232,6 @@ const EmotionFormScreen = () => {
     );
   };
 
-  const renderEmotionCategoriesIcons = () => (
-    <View style={styles.emotionsBox}>
-      <View style={styles.emotionRow}>
-        {emotionCategories.map((cat) => (
-          <View key={cat.id} style={styles.emotionItem}>
-            <IconButton
-              icon={cat.smiley}
-              size={32}
-              iconColor={cat.color}
-              style={{ margin: 0, padding: 0 }}
-            />
-            <Text
-              variant="labelSmall"
-              style={[styles.emotionLabel, { color: cat.color }]}
-            >
-              {cat.name}
-            </Text>
-          </View>
-        ))}
-      </View>
-    </View>
-  );
-
-  const renderEmotions = () => {
-    return emotionCategories.map((category) => {
-      const relatedEmotions = emotions.filter(
-        (e) => e.emotionCategory?.name === category.name,
-      );
-      return (
-        <View key={category.id} style={{ marginBottom: 16 }}>
-          <Text variant="titleMedium">
-            {category.smiley ? `${category.smiley} ` : ""}
-            {category.name}
-          </Text>
-          <View
-            style={{
-              flexDirection: "row",
-              flexWrap: "wrap",
-              gap: 8,
-              marginTop: 8,
-            }}
-          >
-            {relatedEmotions.map((emotion) => (
-              <Chip
-                key={emotion.id}
-                selected={selectedEmotionId === emotion.id}
-                onPress={() => {
-                  setSelectedEmotionId(emotion.id);
-                  setValue("emotionId", emotion.id);
-                }}
-                style={{ backgroundColor: emotion.color }}
-                textStyle={{ color: "white" }}
-              >
-                {emotion.name}
-              </Chip>
-            ))}
-          </View>
-        </View>
-      );
-    });
-  };
-
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -275,7 +241,10 @@ const EmotionFormScreen = () => {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
+    <ScrollView
+      style={{ ...styles.container, backgroundColor: colors.background }}
+      showsVerticalScrollIndicator={false}
+    >
       <Text
         variant="titleLarge"
         style={{ textAlign: "center", marginBottom: 24 }}
@@ -321,18 +290,27 @@ const EmotionFormScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
   emotionsBox: {
-    marginBottom: 24,
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    marginBottom: 10,
+    fontWeight: "700",
   },
   emotionRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: 16,
+    justifyContent: "space-around",
+    marginTop: 10,
   },
   emotionItem: {
     alignItems: "center",
-    marginHorizontal: 8,
+    justifyContent: "space-around",
   },
   emotionLabel: {
     marginTop: -8,
