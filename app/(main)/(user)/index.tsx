@@ -21,7 +21,7 @@ import { useForm, Controller } from "react-hook-form";
 import { customTheme } from "../../../utils/theme/theme";
 
 import { useConnectedUser } from "../../../utils/ConnectedUserContext";
-import { useFocusEffect, useRouter } from "expo-router";
+import { Redirect, useFocusEffect, useRouter } from "expo-router";
 import { useClerk, useUser } from "@clerk/clerk-expo";
 import { SignOutButton } from "../../../components/SignOutButton";
 import * as Linking from "expo-linking";
@@ -43,8 +43,12 @@ const AccountSettings = () => {
   const theme = useTheme();
   const router = useRouter();
   const { user } = useUser();
-  const { connectedUser, handleNonConnectedUser, refreshConnectedUser } =
-    useConnectedUser();
+  const {
+    userChoseToUnconnect,
+    connectedUser,
+    handleNonConnectedUser,
+    refreshConnectedUser,
+  } = useConnectedUser();
 
   const {
     control,
@@ -146,6 +150,10 @@ const AccountSettings = () => {
     }
   };
 
+  if (userChoseToUnconnect || !connectedUser) {
+    return <Redirect href="/unConnectedUserPage" />;
+  }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -153,7 +161,12 @@ const AccountSettings = () => {
       style={{ flex: 1 }}
     >
       <PaperProvider theme={customTheme}>
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView
+          contentContainerStyle={{
+            ...styles.container,
+            backgroundColor: theme.colors.background,
+          }}
+        >
           <Text style={styles.title}>
             {`${connectedUser?.name ?? "Utilisateur"} ${connectedUser?.surname ?? "Inconnu"}`}
           </Text>

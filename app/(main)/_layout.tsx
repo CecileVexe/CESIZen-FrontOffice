@@ -35,6 +35,7 @@ export default function Layout() {
             <View
               style={{
                 backgroundColor: focused ? "#ffffff" : "transparent",
+                width: 30,
                 height: 30,
                 justifyContent: "center",
                 alignItems: "center",
@@ -90,12 +91,13 @@ export default function Layout() {
       <Tabs.Screen
         name="(emotion)"
         options={{
+          href: null,
           title: "Emotion",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                backgroundColor: focused ? "#ffffff" : "transparent", // violet clair si actif
+                backgroundColor: focused ? "#ffffff" : "transparent",
                 width: 30,
                 height: 30,
                 justifyContent: "center",

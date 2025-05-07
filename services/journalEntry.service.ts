@@ -59,9 +59,7 @@ export const updateUserJournalEntry = async (
   }
 };
 
-export const deleteUserJournalEntry = async (
-  entryId: string,
-): Promise<ApiResponse<JournalEntry> | undefined> => {
+export const deleteUserJournalEntry = async (entryId: string) => {
   try {
     const response = await fetch(`${_URL}journal-entry/${entryId}`, {
       method: "DELETE",

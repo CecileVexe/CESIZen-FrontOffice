@@ -4,7 +4,7 @@ import { SignInButton } from "../../../components/SignInButton";
 import { customTheme } from "../../../utils/theme/theme";
 import { SignOutButton } from "../../../components/SignOutButton";
 
-const UnConnectedUserPage = () => {
+const UnConnectedJournalPage = () => {
   return (
     <PaperProvider theme={customTheme}>
       <View
@@ -14,7 +14,7 @@ const UnConnectedUserPage = () => {
         }}
       >
         <Text variant="titleLarge" style={styles.title}>
-          Veuillez vous connecter pour accéder à la page de votre compte
+          Veuillez vous connecter pour créer un journal
         </Text>
         <SignInButton />
         <Divider />
@@ -38,4 +38,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default UnConnectedUserPage;
+export default UnConnectedJournalPage;

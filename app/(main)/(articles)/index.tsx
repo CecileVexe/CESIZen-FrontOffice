@@ -93,7 +93,7 @@ export default function InfoPage() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{ ...styles.container, backgroundColor: colors.background }}>
       <Title style={styles.header}>Informations</Title>
 
       <FlatList

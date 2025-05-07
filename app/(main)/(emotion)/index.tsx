@@ -8,11 +8,14 @@ import {
   ActivityIndicator,
   IconButton,
   useTheme,
+  Portal,
+  Dialog,
 } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import { useRoute } from "@react-navigation/native";
 import {
   createUserJournalEntry,
+  deleteUserJournalEntry,
   getUserJournalEntryByDate,
   updateUserJournalEntry,
 } from "../../../services/journalEntry.service";
@@ -21,15 +24,22 @@ import { getEmotions } from "../../../services/emotions.service";
 import { EmotionCategory } from "../../../utils/types/EmotionCategory";
 import { Emotion } from "../../../utils/types/Emotion.types";
 import { useConnectedUser } from "../../../utils/ConnectedUserContext";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useNavigation, useRouter } from "expo-router";
 
 const EmotionFormScreen = () => {
   const route = useRoute();
   const { colors } = useTheme();
   const router = useRouter();
+  const navigation = useNavigation();
   const entryDate = route.params?.date || null;
   const selectedCategoryFromParams = route.params?.categoryId || null;
   const { connectedUser } = useConnectedUser();
+
+  const [visible, setVisible] = useState(false);
+
+  const showDialog = () => setVisible(true);
+  const hideDialog = () => setVisible(false);
+
   const {
     control,
     handleSubmit,
@@ -72,59 +82,81 @@ const EmotionFormScreen = () => {
   //   };
   // }, [route.params?.categoryId, loading, emotionCategories]);
 
-  useEffect(() => {
-    setLoading(true);
-    const fetchData = async () => {
-      reset({
-        emotionId: "",
-        description: "",
-      });
-      setEntryId(undefined);
-      setSelectedEmotionId("");
-      try {
-        const [categoriesRes, emotionsRes] = await Promise.all([
-          getEmotionCategories(),
-          getEmotions(),
-        ]);
-        if (categoriesRes?.data && emotionsRes?.data) {
-          setEmotionCategories(categoriesRes.data);
-          setEmotions(emotionsRes.data);
-        }
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
 
-        if (entryDate && connectedUser) {
-          const entryRes = await getUserJournalEntryByDate(
-            entryDate,
-            connectedUser.id,
-          );
-          if (entryRes?.data) {
-            const { emotionId, description, id } = entryRes.data;
-            setEntryId(id);
-            setValue("emotionId", emotionId);
-            setValue("description", description);
-            setSelectedEmotionId(emotionId);
+      const fetchData = async () => {
+        setLoading(true);
+        reset({
+          emotionId: "",
+          description: "",
+        });
+        setEntryId(undefined);
+        setSelectedEmotionId("");
+        try {
+          const [categoriesRes, emotionsRes] = await Promise.all([
+            getEmotionCategories(),
+            getEmotions(),
+          ]);
 
-            const emotion = emotionsRes?.data.find((e) => e.id === emotionId);
-            const category = categoriesRes?.data.find(
-              (c) => c.name === emotion?.emotionCategory?.name,
-            );
-            if (category) setSelectedCategoryId(category.id);
+          if (!isActive) return;
+
+          if (categoriesRes?.data && emotionsRes?.data) {
+            setEmotionCategories(categoriesRes.data);
+            setEmotions(emotionsRes.data);
           }
-        } else if (selectedCategoryFromParams) {
-          setSelectedCategoryId(selectedCategoryFromParams);
-        } else {
-          const joyCategory = categoriesRes?.data.find(
-            (c) => c.name === "Joie",
-          );
-          if (joyCategory) setSelectedCategoryId(joyCategory.id);
+
+          if (connectedUser) {
+            const dateToUse =
+              entryDate || new Date().toISOString().split("T")[0];
+            const entryRes = await getUserJournalEntryByDate(
+              dateToUse,
+              connectedUser.id,
+            );
+
+            if (entryRes?.data) {
+              const { emotionId, description, id } = entryRes.data;
+              setEntryId(id);
+              setValue("emotionId", emotionId);
+              setValue("description", description);
+              setSelectedEmotionId(emotionId);
+
+              const emotion = emotionsRes?.data.find((e) => e.id === emotionId);
+              const category = categoriesRes?.data.find(
+                (c) => c.name === emotion?.emotionCategory?.name,
+              );
+              if (category) setSelectedCategoryId(category.id);
+            } else if (selectedCategoryFromParams) {
+              setSelectedCategoryId(selectedCategoryFromParams);
+            } else {
+              const joyCategory = categoriesRes?.data.find(
+                (c) => c.name === "Joie",
+              );
+              if (joyCategory) setSelectedCategoryId(joyCategory.id);
+            }
+          } else if (selectedCategoryFromParams) {
+            setSelectedCategoryId(selectedCategoryFromParams);
+          } else {
+            const joyCategory = categoriesRes?.data.find(
+              (c) => c.name === "Joie",
+            );
+            if (joyCategory) setSelectedCategoryId(joyCategory.id);
+          }
+        } catch (error) {
+          console.error("Erreur lors du chargement des données :", error);
+        } finally {
+          if (isActive) setLoading(false);
         }
-      } catch (error) {
-        console.error("Erreur lors du chargement des données :", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [connectedUser, entryDate, reset, selectedCategoryFromParams, setValue]);
+      };
+
+      fetchData();
+
+      return () => {
+        isActive = false;
+      };
+    }, [connectedUser, entryDate, reset, selectedCategoryFromParams, setValue]),
+  );
 
   const updateEntry = async (entryId: string, payload) => {
     const reponse = await updateUserJournalEntry(entryId, payload);
@@ -259,6 +291,18 @@ const EmotionFormScreen = () => {
     );
   };
 
+  const handleDeleteEntry = async () => {
+    if (entryId) {
+      const response = await deleteUserJournalEntry(entryId);
+      if (response?.statusCode === 200) {
+        hideDialog();
+        router.replace("(0-home)");
+      } else {
+        console.error(response.message);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -274,10 +318,40 @@ const EmotionFormScreen = () => {
     >
       <Text
         variant="titleLarge"
-        style={{ textAlign: "center", marginBottom: 24 }}
+        style={{
+          textAlign: "center",
+          marginBottom: 16,
+          color: colors.primary,
+          fontWeight: 800,
+        }}
       >
         Tracker d'émotion
       </Text>
+      <View style={styles.dateView}>
+        <Text variant="labelLarge">
+          {entryDate
+            ? new Date(entryDate).toLocaleDateString("fr-FR", {
+                day: "numeric",
+                year: "numeric",
+                month: "long",
+                weekday: "long",
+              })
+            : new Date().toLocaleDateString("fr-FR", {
+                day: "numeric",
+                year: "numeric",
+                month: "long",
+                weekday: "long",
+              })}
+        </Text>
+        {entryId && (
+          <IconButton
+            icon={"trash-can"}
+            iconColor={colors.error}
+            onPress={() => showDialog()}
+            style={{ padding: 0, margin: 0 }}
+          />
+        )}
+      </View>
 
       {renderEmotionCategories()}
       {renderSelectedCategoryEmotions()}
@@ -321,6 +395,20 @@ const EmotionFormScreen = () => {
           {entryId ? "Modifier" : "Valider"}
         </Button>
       </View>
+      <Portal>
+        <Dialog visible={visible} onDismiss={hideDialog}>
+          <Dialog.Title>Confirmer la suppression</Dialog.Title>
+          <Dialog.Content>
+            <Text>
+              Es-tu sûr de vouloir supprimer cette entrée de journal ?
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={hideDialog}>Annuler</Button>
+            <Button onPress={handleDeleteEntry}>Supprimer</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </ScrollView>
   );
 };
@@ -351,6 +439,12 @@ const styles = StyleSheet.create({
   emotionLabel: {
     marginTop: -8,
     textAlign: "center",
+  },
+  dateView: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 10,
   },
 });
 

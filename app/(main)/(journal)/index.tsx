@@ -23,7 +23,7 @@ import {
 import { fr } from "date-fns/locale";
 import { checkCanGoNext } from "../../../utils/functions/datesFunction";
 import { formatDateKey } from "../../../utils/functions/calendarFunctions";
-import { useFocusEffect, useRouter } from "expo-router";
+import { Redirect, useFocusEffect, useRouter } from "expo-router";
 
 import { LocaleConfig } from "react-native-calendars";
 
@@ -88,7 +88,7 @@ const JournalScreen = () => {
     setCanGoNext(result);
   }, [period, selectedDate]);
 
-  const { connectedUser } = useConnectedUser();
+  const { userChoseToUnconnect, connectedUser } = useConnectedUser();
 
   useFocusEffect(
     useCallback(() => {
@@ -235,8 +235,14 @@ const JournalScreen = () => {
     ? 0
     : emotionData.reduce((sum, item) => sum + item.y, 0);
 
+  if (userChoseToUnconnect || !connectedUser) {
+    return <Redirect href="/unConnectedJournalPage" />;
+  }
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={{ ...styles.container, backgroundColor: theme.colors.background }}
+    >
       <Text variant="titleMedium" style={styles.title}>
         Journal de bord
       </Text>
@@ -353,7 +359,7 @@ const JournalScreen = () => {
             }}
             onDayPress={(date) => {
               const dateIso = new Date(date.timestamp);
-              router.push({
+              router.replace({
                 pathname: "(emotion)",
                 params: { date: dateIso.toString() },
               });

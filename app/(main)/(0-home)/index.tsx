@@ -83,9 +83,9 @@ const HomeScreen = () => {
                 iconColor={cat.color}
                 style={{ margin: 0, padding: 0 }}
                 onPress={() => {
-                  router.push({
+                  router.replace({
                     pathname: "(emotion)",
-                    params: { categoryId: cat.id },
+                    params: { date: null, categoryId: cat.id },
                   });
                 }}
               />
