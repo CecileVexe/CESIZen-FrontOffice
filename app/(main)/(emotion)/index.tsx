@@ -21,7 +21,15 @@ const EmotionFormScreen = () => {
   const entryId = route.params?.id || null;
   const selectedCategoryFromParams = route.params?.categoryId || null;
 
-  const { control, handleSubmit, reset, setValue } = useForm({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    setError,
+    clearErrors,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       emotionId: "",
       description: "",
@@ -95,14 +103,31 @@ const EmotionFormScreen = () => {
     fetchData();
   }, [entryId]);
 
+  useEffect(() => {
+    setSelectedEmotionId("");
+    setValue("emotionId", "");
+  }, [selectedCategoryId]);
+
   const onSubmit = async (data) => {
+    if (!data.emotionId) {
+      setError("emotionId", {
+        type: "manual",
+        message: "Veuillez sélectionner une émotion.",
+      });
+      return;
+    }
+
+    const payload = {
+      ...data,
+      description: data.description.trim() === "" ? null : data.description,
+    };
+
     try {
       if (entryId) {
-        console.log(entryId, data);
+        console.log("Update", entryId, payload);
       } else {
-        console.log(data);
+        console.log("Create", payload);
       }
-      // Rediriger ou afficher confirmation ici
     } catch (error) {
       console.error("Erreur lors de la soumission :", error);
     }
@@ -146,14 +171,21 @@ const EmotionFormScreen = () => {
         <Text variant="titleMedium" style={{ marginBottom: 8 }}>
           {selectedCategory?.name}
         </Text>
+
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
           {relatedEmotions.map((emotion) => (
             <Chip
               key={emotion.id}
               selected={selectedEmotionId === emotion.id}
               onPress={() => {
-                setSelectedEmotionId(emotion.id);
-                setValue("emotionId", emotion.id);
+                if (selectedEmotionId === emotion.id) {
+                  setSelectedEmotionId("");
+                  setValue("emotionId", "");
+                } else {
+                  setSelectedEmotionId(emotion.id);
+                  setValue("emotionId", emotion.id);
+                  clearErrors("emotionId"); // on enlève l'erreur si on sélectionne une émotion
+                }
               }}
               style={{ backgroundColor: emotion.color }}
               textStyle={{ color: "white" }}
@@ -162,6 +194,12 @@ const EmotionFormScreen = () => {
             </Chip>
           ))}
         </View>
+
+        {errors.emotionId && (
+          <Text style={{ color: "red", fontSize: 12, marginTop: 8 }}>
+            {errors.emotionId.message}
+          </Text>
+        )}
       </View>
     );
   };
