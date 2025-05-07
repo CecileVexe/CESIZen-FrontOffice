@@ -6,12 +6,15 @@ import {
   Chip,
   ActivityIndicator,
   useTheme,
+  IconButton,
 } from "react-native-paper";
 import { useConnectedUser } from "../../../utils/ConnectedUserContext";
 import { getArticles } from "../../../services/article.service";
 import { getUserFavorite } from "../../../services/favorite.service";
 import { useFocusEffect, useRouter } from "expo-router";
 import { SignInButton } from "../../../components/SignInButton";
+import { getEmotionCategories } from "../../../services/emotionCategories.service";
+import { EmotionCategory } from "../../../utils/types/EmotionCategory";
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -22,13 +25,23 @@ const HomeScreen = () => {
   const router = useRouter();
 
   const [latestArticle, setLatestArticle] = useState<any>(null);
+  const [emotionCategories, setEmotionCategories] = useState<EmotionCategory[]>(
+    [],
+  );
   const [favorites, setFavorites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  console.log(favorites);
 
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
         const articlesRes = await getArticles(1, 1);
+        const emotionRes = await getEmotionCategories();
+        if (emotionRes?.data) {
+          setEmotionCategories(emotionRes.data);
+        }
+
         if (articlesRes?.data?.length) {
           setLatestArticle(articlesRes.data[0]);
         }
@@ -48,15 +61,6 @@ const HomeScreen = () => {
     }, [connectedUser?.id]),
   );
 
-  const emotions = [
-    { label: "Joie", emoji: "😊" },
-    { label: "Colère", emoji: "😠" },
-    { label: "Peur", emoji: "😨" },
-    { label: "Tristesse", emoji: "😢" },
-    { label: "Surprise", emoji: "😲" },
-    { label: "Dégoût", emoji: "🤢" },
-  ];
-
   if (loading) {
     return <ActivityIndicator style={{ marginTop: 40 }} />;
   }
@@ -69,38 +73,85 @@ const HomeScreen = () => {
       <Text style={styles.title}>Bonjour {connectedUser?.name ?? ""} !</Text>
 
       <View style={styles.emotionsBox}>
-        <Text style={styles.sectionTitle}>
+        <Text variant="titleSmall" style={styles.sectionTitle}>
           Comment vous sentez-vous aujourd’hui ?
         </Text>
         <View style={styles.emotionRow}>
-          {emotions.map((emo) => (
-            <View key={emo.label} style={styles.emotionItem}>
-              <Text style={{ fontSize: 24 }}>{emo.emoji}</Text>
-              <Text style={styles.emotionLabel}>{emo.label}</Text>
+          {emotionCategories.map((cat) => (
+            <View key={cat.id} style={styles.emotionItem}>
+              <IconButton
+                icon={cat.smiley}
+                size={32}
+                iconColor={cat.color}
+                style={{ margin: 0, padding: 0 }}
+              />
+              <Text
+                variant="labelSmall"
+                style={[styles.emotionLabel, { color: cat.color }]}
+              >
+                {cat.name}
+              </Text>
             </View>
           ))}
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Notre dernière actualité</Text>
+      <Text
+        variant="titleMedium"
+        style={{ ...styles.sectionTitle, color: colors.primary }}
+      >
+        Notre dernière actualité
+      </Text>
       {latestArticle && (
         <Card
-          style={styles.articleCard}
+          style={{ ...styles.articleCard, backgroundColor: colors.primary }}
+          contentStyle={{
+            flexDirection: "row-reverse",
+            alignItems: "flex-end",
+            justifyContent: "space-evenly",
+          }}
           onPress={() => router.push(`(articles)/${latestArticle.id}`)}
         >
-          <Card.Content>
-            <Text style={styles.articleTitle}>{latestArticle.title}</Text>
-            <Text style={styles.articleSubtitle}>
+          <Card.Cover
+            source={require("../../../assets/inspire-idea.png")}
+            style={{
+              height: 90,
+              width: 90,
+              backgroundColor: colors.primary,
+            }}
+          />
+          <Card.Content style={{ width: "70%", padding: 8 }}>
+            <Text
+              variant="labelMedium"
+              style={{ ...styles.articleTitle, color: colors.onPrimary }}
+            >
+              {latestArticle.title}
+            </Text>
+            <Text
+              variant="bodySmall"
+              style={{ ...styles.articleSubtitle, color: colors.onPrimary }}
+            >
               {latestArticle.description}
             </Text>
-            <Chip style={styles.articleChip}>
+            <Chip
+              style={{
+                ...styles.articleChip,
+                backgroundColor: colors.onPrimary,
+              }}
+              textStyle={{ color: colors.primary, fontSize: 8 }}
+            >
               {latestArticle.category.name}
             </Chip>
           </Card.Content>
         </Card>
       )}
 
-      <Text style={styles.sectionTitle}>Vos favoris</Text>
+      <Text
+        variant="titleMedium"
+        style={{ ...styles.sectionTitle, color: colors.primary }}
+      >
+        Vos favoris
+      </Text>
       {connectedUser ? (
         <FlatList
           data={favorites}
@@ -120,7 +171,11 @@ const HomeScreen = () => {
                 />
               )}
               <Card.Content>
-                <Text style={styles.favoriteTitle}>{item.article.title}</Text>
+                <Text
+                  style={{ ...styles.favoriteTitle, color: colors.primary }}
+                >
+                  {item.article.title}
+                </Text>
                 <Text style={styles.favoriteDescription} numberOfLines={3}>
                   {item.article.description}
                 </Text>
@@ -156,9 +211,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
     marginBottom: 10,
+    fontWeight: "700",
   },
   emotionsBox: {
     backgroundColor: "white",
@@ -173,28 +227,26 @@ const styles = StyleSheet.create({
   },
   emotionItem: {
     alignItems: "center",
+    justifyContent: "space-around",
   },
   emotionLabel: {
-    fontSize: 12,
+    fontSize: 11,
     marginTop: 4,
+    fontWeight: "700",
+    textAlign: "center",
   },
   articleCard: {
-    backgroundColor: "#E0F2E9",
     borderRadius: 16,
     marginBottom: 30,
   },
   articleTitle: {
-    fontWeight: "bold",
-    fontSize: 16,
     marginBottom: 4,
   },
   articleSubtitle: {
-    color: "#444",
     marginBottom: 10,
   },
   articleChip: {
     alignSelf: "flex-start",
-    backgroundColor: "#B2DFDB",
   },
   favoriteList: {
     paddingBottom: 50,
@@ -204,6 +256,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
     backgroundColor: "white",
     borderRadius: 16,
+    justifyContent: "space-evenly",
   },
   favoriteTitle: {
     fontWeight: "bold",

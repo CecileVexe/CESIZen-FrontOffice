@@ -200,7 +200,7 @@ const JournalScreen = () => {
     ? 0
     : emotionData.reduce((sum, item) => sum + item.y, 0);
 
-  console.log(formatDateKey(calendarDate));
+  //TODO séparer les appels du calendrier et du chart (car sinon en mode semaine, le calendrier affiche que la semaine en cours... pas top)
 
   return (
     <ScrollView style={styles.container}>
@@ -266,11 +266,14 @@ const JournalScreen = () => {
             <View key={cat.id} style={styles.emotionItem}>
               <IconButton
                 icon={cat.smiley}
-                size={28}
+                size={32}
                 iconColor={cat.color}
-                style={{ margin: 0 }}
+                style={{ margin: 0, padding: 0 }}
               />
-              <Text style={[styles.emotionLabel, { color: cat.color }]}>
+              <Text
+                variant="labelSmall"
+                style={[styles.emotionLabel, { color: cat.color }]}
+              >
                 {cat.name}
               </Text>
             </View>
@@ -380,12 +383,13 @@ const styles = StyleSheet.create({
   },
   emotionItem: {
     alignItems: "center",
-
+    justifyContent: "space-around",
     marginVertical: 6,
   },
   emotionLabel: {
-    fontSize: 12,
+    fontSize: 11,
     marginTop: 4,
+    fontWeight: "700",
     textAlign: "center",
   },
   sectionTitle: {
