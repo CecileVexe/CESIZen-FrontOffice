@@ -1,13 +1,13 @@
 import { ApiResponse } from "../utils/types/Api.types";
-import { EmotionCategory } from "../utils/types/EmotionCategory";
+import { Emotion } from "../utils/types/Emotion.types";
 
 const _URL = process.env.EXPO_PUBLIC_API_URL;
 
-export const getEmotionCategories = async (): Promise<
-  ApiResponse<EmotionCategory[]> | undefined
+export const getEmotions = async (): Promise<
+  ApiResponse<Emotion[]> | undefined
 > => {
   try {
-    const response = await fetch(`${_URL}emotion-category`, {
+    const response = await fetch(`${_URL}emotion`, {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
       },

@@ -12,3 +12,10 @@ export interface Journal {
   updatedAt: string;
   entries: JournalEntrys[];
 }
+
+export interface JournalEntry {
+  id: string;
+  date: string;
+  emotionId: string;
+  description: string;
+}

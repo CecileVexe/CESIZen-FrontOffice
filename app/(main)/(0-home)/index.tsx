@@ -82,6 +82,12 @@ const HomeScreen = () => {
                 size={32}
                 iconColor={cat.color}
                 style={{ margin: 0, padding: 0 }}
+                onPress={() => {
+                  router.push({
+                    pathname: "(emotion)",
+                    params: { categoryId: cat.id },
+                  });
+                }}
               />
               <Text
                 variant="labelSmall"
