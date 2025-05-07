@@ -12,19 +12,21 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { useRoute } from "@react-navigation/native";
 import {
-  getUserJournalEntry,
+  createUserJournalEntry,
   getUserJournalEntryByDate,
+  updateUserJournalEntry,
 } from "../../../services/journalEntry.service";
 import { getEmotionCategories } from "../../../services/emotionCategories.service";
 import { getEmotions } from "../../../services/emotions.service";
 import { EmotionCategory } from "../../../utils/types/EmotionCategory";
 import { Emotion } from "../../../utils/types/Emotion.types";
 import { useConnectedUser } from "../../../utils/ConnectedUserContext";
-import { useFocusEffect } from "expo-router";
+import { useRouter } from "expo-router";
 
 const EmotionFormScreen = () => {
   const route = useRoute();
   const { colors } = useTheme();
+  const router = useRouter();
   const entryDate = route.params?.date || null;
   const selectedCategoryFromParams = route.params?.categoryId || null;
   const { connectedUser } = useConnectedUser();
@@ -53,6 +55,7 @@ const EmotionFormScreen = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
+  const [entryId, setEntryId] = useState<string | undefined>(undefined);
 
   // useEffect(() => {
   //   if (!loading && emotionCategories.length > 0) {
@@ -76,6 +79,8 @@ const EmotionFormScreen = () => {
         emotionId: "",
         description: "",
       });
+      setEntryId(undefined);
+      setSelectedEmotionId("");
       try {
         const [categoriesRes, emotionsRes] = await Promise.all([
           getEmotionCategories(),
@@ -92,7 +97,8 @@ const EmotionFormScreen = () => {
             connectedUser.id,
           );
           if (entryRes?.data) {
-            const { emotionId, description } = entryRes.data;
+            const { emotionId, description, id } = entryRes.data;
+            setEntryId(id);
             setValue("emotionId", emotionId);
             setValue("description", description);
             setSelectedEmotionId(emotionId);
@@ -120,6 +126,24 @@ const EmotionFormScreen = () => {
     fetchData();
   }, [connectedUser, entryDate, reset, selectedCategoryFromParams, setValue]);
 
+  const updateEntry = async (entryId: string, payload) => {
+    const reponse = await updateUserJournalEntry(entryId, payload);
+    if (reponse?.data) {
+      router.navigate("/(journal)");
+    } else {
+      console.error(reponse);
+    }
+  };
+
+  const createEntry = async (payload) => {
+    const reponse = await createUserJournalEntry(payload);
+    if (reponse?.data) {
+      router.navigate("/(journal)");
+    } else {
+      console.error(reponse);
+    }
+  };
+
   const onSubmit = async (data) => {
     if (!data.emotionId) {
       setError("emotionId", {
@@ -129,19 +153,22 @@ const EmotionFormScreen = () => {
       return;
     }
 
-    const payload = {
-      ...data,
-      description: data.description.trim() === "" ? null : data.description,
-    };
+    if (connectedUser) {
+      const payload = {
+        ...data,
+        description: data.description.trim() === "" ? null : data.description,
+        userId: connectedUser.id,
+      };
 
-    try {
-      if (entryDate) {
-        console.log("Update", entryDate, payload);
-      } else {
-        console.log("Create", payload);
+      try {
+        if (entryDate && entryId) {
+          updateEntry(entryId, payload);
+        } else {
+          createEntry(payload);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la soumission :", error);
       }
-    } catch (error) {
-      console.error("Erreur lors de la soumission :", error);
     }
   };
 
@@ -278,11 +305,20 @@ const EmotionFormScreen = () => {
           marginTop: 24,
         }}
       >
-        <Button mode="outlined" onPress={() => reset()}>
+        <Button
+          mode="outlined"
+          onPress={() => {
+            reset();
+            setEntryId(undefined);
+            entryId
+              ? router.navigate("/(journal)")
+              : router.navigate("/(0-home)");
+          }}
+        >
           Annuler
         </Button>
         <Button mode="contained" onPress={handleSubmit(onSubmit)}>
-          Valider
+          {entryId ? "Modifier" : "Valider"}
         </Button>
       </View>
     </ScrollView>

@@ -23,7 +23,53 @@ import {
 import { fr } from "date-fns/locale";
 import { checkCanGoNext } from "../../../utils/functions/datesFunction";
 import { formatDateKey } from "../../../utils/functions/calendarFunctions";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
+
+import { LocaleConfig } from "react-native-calendars";
+
+LocaleConfig.locales["fr"] = {
+  monthNames: [
+    "Janvier",
+    "Février",
+    "Mars",
+    "Avril",
+    "Mai",
+    "Juin",
+    "Juillet",
+    "Août",
+    "Septembre",
+    "Octobre",
+    "Novembre",
+    "Décembre",
+  ],
+  monthNamesShort: [
+    "Janv.",
+    "Févr.",
+    "Mars",
+    "Avr.",
+    "Mai",
+    "Juin",
+    "Juil.",
+    "Août",
+    "Sept.",
+    "Oct.",
+    "Nov.",
+    "Déc.",
+  ],
+  dayNames: [
+    "Dimanche",
+    "Lundi",
+    "Mardi",
+    "Mercredi",
+    "Jeudi",
+    "Vendredi",
+    "Samedi",
+  ],
+  dayNamesShort: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+  today: "Aujourd'hui",
+};
+
+LocaleConfig.defaultLocale = "fr";
 
 const JournalScreen = () => {
   const theme = useTheme();
@@ -36,7 +82,6 @@ const JournalScreen = () => {
   const [categories, setCategories] = useState<EmotionCategory[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [canGoNext, setCanGoNext] = useState(true);
-  const [calendarDate, setCalendarDate] = useState(new Date());
 
   const updateCanGoNext = useCallback(() => {
     const result = checkCanGoNext(selectedDate, period);
@@ -45,18 +90,14 @@ const JournalScreen = () => {
 
   const { connectedUser } = useConnectedUser();
 
-  useEffect(() => {
-    if (!connectedUser) return;
-    fetchData();
-    updateCanGoNext();
-  }, [connectedUser, period, selectedDate, updateCanGoNext]);
+  useFocusEffect(
+    useCallback(() => {
+      if (!connectedUser) return;
 
-  useEffect(() => {
-    // Quand on passe à la période "month", synchronise aussi le mois affiché
-    if (period === "month") {
-      setCalendarDate(selectedDate);
-    }
-  }, [period, selectedDate]);
+      fetchData();
+      updateCanGoNext();
+    }, [connectedUser, period, selectedDate, updateCanGoNext]),
+  );
 
   const fetchData = async () => {
     if (connectedUser) {
@@ -141,11 +182,6 @@ const JournalScreen = () => {
     };
   };
 
-  const getCategoryCount = (categoryName: string) => {
-    const found = emotionData.find((item) => item.x === categoryName);
-    return found ? found.y : 0;
-  };
-
   const handleNext = () => {
     let newDate;
 
@@ -199,8 +235,6 @@ const JournalScreen = () => {
     ? 0
     : emotionData.reduce((sum, item) => sum + item.y, 0);
 
-  //TODO séparer les appels du calendrier et du chart (car sinon en mode semaine, le calendrier affiche que la semaine en cours... pas top)
-
   return (
     <ScrollView style={styles.container}>
       <Text variant="titleMedium" style={styles.title}>
@@ -211,9 +245,6 @@ const JournalScreen = () => {
         value={period}
         onValueChange={(v) => {
           setPeriod(v);
-          if (v === "month") {
-            setCalendarDate(selectedDate);
-          }
         }}
         buttons={[
           { value: "week", label: "Semaine" },
@@ -284,12 +315,15 @@ const JournalScreen = () => {
         <Card.Title title="Mon tracker d’émotions" />
         <Card.Content>
           <Calendar
+            firstDay={1}
+            maxDate={new Date().toISOString().split("T")[0]}
             markedDates={calendarMarks}
             markingType={"dot"}
+            disableArrowRight={!canGoNext}
             theme={{
               arrowColor: theme.colors.primary,
               selectedDayBackgroundColor: "#E0E0E0",
-              todayTextColor: "#4CAF50",
+              todayTextColor: "#000000",
               dotStyle: {
                 marginTop: -30,
                 height: 40,
@@ -298,8 +332,8 @@ const JournalScreen = () => {
                 zIndex: 0,
               },
               textDayStyle: { zIndex: 3 },
-
               textDayFontWeight: "800",
+
               //     Day of week text (mon tue...)
               textSectionTitleColor: "#000000",
               textDayHeaderFontWeight: "700",
@@ -308,12 +342,10 @@ const JournalScreen = () => {
               //     Today
               todayBackgroundColor: "white",
 
-              //     textSectionTitleDisabledColor: 'black',
               selectedDayTextColor: "#ffffff",
             }}
             onMonthChange={(month) => {
               const newDate = new Date(month.year, month.month - 1, 1);
-              setCalendarDate(newDate);
               if (period !== "month") {
                 setPeriod("month");
               }
@@ -325,8 +357,6 @@ const JournalScreen = () => {
                 pathname: "(emotion)",
                 params: { date: dateIso.toString() },
               });
-
-              console.log(new Date(date.timestamp));
             }}
           />
         </Card.Content>

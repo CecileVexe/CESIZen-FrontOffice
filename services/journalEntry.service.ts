@@ -38,3 +38,61 @@ export const getUserJournalEntryByDate = async (
     console.error(e);
   }
 };
+
+export const updateUserJournalEntry = async (
+  entryId: string,
+  data: { description: string | null; emotionId: string; userId: string },
+): Promise<ApiResponse<JournalEntry> | undefined> => {
+  try {
+    const response = await fetch(`${_URL}journal-entry/${entryId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+
+      body: JSON.stringify(data),
+    });
+
+    return await response.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const deleteUserJournalEntry = async (
+  entryId: string,
+): Promise<ApiResponse<JournalEntry> | undefined> => {
+  try {
+    const response = await fetch(`${_URL}journal-entry/${entryId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+    });
+
+    return await response.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const createUserJournalEntry = async (data: {
+  description: string | null;
+  emotionId: string;
+  userId: string;
+}): Promise<ApiResponse<JournalEntry> | undefined> => {
+  try {
+    const response = await fetch(`${_URL}journal-entry/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+
+      body: JSON.stringify(data),
+    });
+
+    return await response.json();
+  } catch (e) {
+    console.error(e);
+  }
+};
