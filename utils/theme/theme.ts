@@ -7,7 +7,7 @@ export const customTheme = {
     onPrimary: "#ffffff",
     primaryContainer: "rgb(141, 247, 194)",
     onPrimaryContainer: "rgb(0, 33, 19)",
-    secondary: "rgb(0, 108, 83)",
+    secondary: "#006c53",
     onSecondary: "rgb(255, 255, 255)",
     secondaryContainer: "rgb(129, 248, 208)",
     onSecondaryContainer: "rgb(0, 33, 23)",

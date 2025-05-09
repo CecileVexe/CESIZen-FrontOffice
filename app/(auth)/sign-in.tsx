@@ -45,6 +45,10 @@ export default function Page() {
     router.navigate("/(0-home)");
   };
 
+  const handleForgotPassword = () => {
+    router.navigate("/forgotPassword");
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -110,6 +114,13 @@ export default function Page() {
                 }
                 theme={{ roundness: 15 }}
               />
+              <Button
+                mode="text"
+                onPress={handleForgotPassword}
+                labelStyle={styles.forgotPassword}
+              >
+                J'ai oublié mon mot de passe
+              </Button>
               <View style={{ width: "100%", alignItems: "flex-end" }}>
                 <Button
                   mode="contained"
@@ -165,7 +176,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: 50,
   },
-
   logo: {
     width: 200,
     height: 80,
@@ -224,5 +234,12 @@ const styles = StyleSheet.create({
   },
   later: {
     marginBottom: 30,
+  },
+  forgotPassword: {
+    color: "#fff",
+    fontStyle: "italic",
+    textAlign: "right",
+    textDecorationLine: "underline",
+    fontSize: 14,
   },
 });
