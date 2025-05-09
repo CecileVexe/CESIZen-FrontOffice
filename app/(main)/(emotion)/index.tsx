@@ -110,6 +110,7 @@ const EmotionFormScreen = () => {
           if (connectedUser) {
             const dateToUse =
               entryDate || new Date().toISOString().split("T")[0];
+
             const entryRes = await getUserJournalEntryByDate(
               dateToUse,
               connectedUser.id,
@@ -188,12 +189,12 @@ const EmotionFormScreen = () => {
     if (connectedUser) {
       const payload = {
         ...data,
-        description: data.description.trim() === "" ? null : data.description,
+        description: data.description?.trim() === "" ? null : data.description,
         userId: connectedUser.id,
+        date: entryDate ? new Date(entryDate) : new Date(),
       };
-
       try {
-        if (entryDate && entryId) {
+        if (entryId) {
           updateEntry(entryId, payload);
         } else {
           createEntry(payload);
