@@ -131,6 +131,7 @@ const ForgotPasswordPage = () => {
                     underlineColor="transparent"
                     activeUnderlineColor="transparent"
                     textColor="#000"
+                    cursorColor={customTheme.colors.primary}
                     theme={{ roundness: 15 }}
                   />
 
@@ -165,6 +166,7 @@ const ForgotPasswordPage = () => {
                     underlineColor="transparent"
                     activeUnderlineColor="transparent"
                     textColor="#000"
+                    cursorColor={customTheme.colors.primary}
                     right={
                       <TextInput.Icon
                         icon={showPassword ? "eye-off" : "eye"}
@@ -186,6 +188,7 @@ const ForgotPasswordPage = () => {
                     underlineColor="transparent"
                     activeUnderlineColor="transparent"
                     textColor="#000"
+                    cursorColor={customTheme.colors.primary}
                     theme={{ roundness: 15 }}
                   />
 

@@ -15,7 +15,6 @@ import {
   PaperProvider,
   Dialog,
   Portal,
-  IconButton,
 } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import { customTheme } from "../../../utils/theme/theme";
@@ -66,6 +65,8 @@ const AccountSettings = () => {
       confirmPassword: "",
     },
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = React.useState("");
 
   useFocusEffect(
     useCallback(() => {
@@ -80,7 +81,7 @@ const AccountSettings = () => {
       return () => {
         isActive = false;
       };
-    }, [refreshConnectedUser]),
+    }, [refreshConnectedUser])
   );
 
   useEffect(() => {
@@ -113,6 +114,7 @@ const AccountSettings = () => {
   };
 
   const onSubmitPassword = async (data: FormData) => {
+    setApiError("");
     if (user) {
       const dataToSend = {
         clerkId: user.id,
@@ -125,10 +127,7 @@ const AccountSettings = () => {
         reset();
         router.back();
       } else if (response.error) {
-        return setError("oldPassword", {
-          type: "manual",
-          message: "Mot de passe actuel incorrect.",
-        });
+        setApiError(response.message);
       }
     }
   };
@@ -187,6 +186,7 @@ const AccountSettings = () => {
                   underlineColor="transparent"
                   activeUnderlineColor="transparent"
                   textColor="#000"
+                  cursorColor={customTheme.colors.primary}
                   theme={{ roundness: 15 }}
                 />
                 {errors.name && (
@@ -210,6 +210,7 @@ const AccountSettings = () => {
                   underlineColor="transparent"
                   activeUnderlineColor="transparent"
                   textColor="#000"
+                  cursorColor={customTheme.colors.primary}
                   theme={{ roundness: 15 }}
                 />
                 {errors.surname && (
@@ -246,7 +247,7 @@ const AccountSettings = () => {
               <>
                 <TextInput
                   label="Ancien mot de passe"
-                  secureTextEntry
+                  secureTextEntry={!showPassword}
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
@@ -255,6 +256,13 @@ const AccountSettings = () => {
                   underlineColor="transparent"
                   activeUnderlineColor="transparent"
                   textColor="#000"
+                  cursorColor={customTheme.colors.primary}
+                  right={
+                    <TextInput.Icon
+                      icon={showPassword ? "eye-off" : "eye"}
+                      onPress={() => setShowPassword((prev) => !prev)}
+                    />
+                  }
                   theme={{ roundness: 15 }}
                 />
                 {errors.oldPassword && (
@@ -279,7 +287,7 @@ const AccountSettings = () => {
               <>
                 <TextInput
                   label="Nouveau mot de passe"
-                  secureTextEntry
+                  secureTextEntry={!showPassword}
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
@@ -288,6 +296,7 @@ const AccountSettings = () => {
                   underlineColor="transparent"
                   activeUnderlineColor="transparent"
                   textColor="#000"
+                  cursorColor={customTheme.colors.primary}
                   theme={{ roundness: 15 }}
                 />
                 {errors.newPassword && (
@@ -315,7 +324,7 @@ const AccountSettings = () => {
               <>
                 <TextInput
                   label="Confirmer le mot de passe"
-                  secureTextEntry
+                  secureTextEntry={!showPassword}
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
@@ -324,6 +333,7 @@ const AccountSettings = () => {
                   underlineColor="transparent"
                   activeUnderlineColor="transparent"
                   textColor="#000"
+                  cursorColor={customTheme.colors.primary}
                   theme={{ roundness: 15 }}
                 />
                 {errors.confirmPassword && (
@@ -343,6 +353,9 @@ const AccountSettings = () => {
             Mettre à jour le mot de passe
           </Button>
 
+          {apiError !== "" && (
+            <Text style={{ color: "red", marginVertical: 10 }}>{apiError}</Text>
+          )}
           <Divider style={styles.divider} />
 
           <Text style={styles.title}>Compte</Text>

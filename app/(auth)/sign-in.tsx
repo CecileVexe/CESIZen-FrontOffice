@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import { TextInput, Button, Text, PaperProvider } from "react-native-paper";
+import { useForm, Controller } from "react-hook-form";
 import { useConnectedUser } from "../../utils/ConnectedUserContext";
 import { customTheme } from "../../utils/theme/theme";
 
@@ -17,26 +18,39 @@ export default function Page() {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
   const { handleNonConnectedUser } = useConnectedUser();
-  const [emailAddress, setEmailAddress] = React.useState("");
-  const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
+  const [apiError, setApiError] = React.useState("");
 
-  const onSignInPress = async () => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSignInPress = async (data: { email: string; password: string }) => {
     if (!isLoaded) return;
+    setApiError("");
+
     try {
       const signInAttempt = await signIn.create({
-        identifier: emailAddress.trim(),
-        password,
+        identifier: data.email.trim(),
+        password: data.password,
       });
 
       if (signInAttempt.status === "complete") {
         await setActive({ session: signInAttempt.createdSessionId });
         router.replace("/(0-home)");
       } else {
-        console.error(JSON.stringify(signInAttempt, null, 2));
+        setApiError("Échec de la connexion. Veuillez réessayer.");
       }
-    } catch (err) {
-      console.error(JSON.stringify(err, null, 2));
+    } catch (err: any) {
+      const clerkError = err?.errors?.[0]?.message || "Erreur de connexion.";
+      setApiError(clerkError);
     }
   };
 
@@ -62,58 +76,93 @@ export default function Page() {
             { backgroundColor: customTheme.colors.primary },
           ]}
         >
-          <View
-            style={{
-              justifyContent: "flex-start",
-              alignItems: "center",
-            }}
-          >
+          <View style={{ justifyContent: "flex-start", alignItems: "center" }}>
             <Image
               source={require("../../assets/logo-bg-vert.png")}
               style={styles.logo}
               resizeMode="contain"
             />
-
             <Text style={styles.welcome} variant="headlineLarge">
               Ravis de vous revoir !
             </Text>
           </View>
+
           <Text style={styles.label}>Connexion</Text>
+
           <ScrollView
             contentContainerStyle={styles.scrollContainer}
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.form}>
-              <TextInput
-                label="Email"
-                mode="flat"
-                value={emailAddress}
-                autoCapitalize="none"
-                onChangeText={setEmailAddress}
-                style={styles.input}
-                underlineColor="transparent"
-                activeUnderlineColor="transparent"
-                textColor="#000"
-                theme={{ roundness: 15 }}
-              />
-              <TextInput
-                label="Mot de passe"
-                mode="flat"
-                value={password}
-                secureTextEntry={!showPassword}
-                onChangeText={setPassword}
-                style={styles.input}
-                underlineColor="transparent"
-                activeUnderlineColor="transparent"
-                textColor="#000"
-                right={
-                  <TextInput.Icon
-                    icon={showPassword ? "eye-off" : "eye"}
-                    onPress={() => setShowPassword((prev) => !prev)}
+              <Controller
+                control={control}
+                rules={{
+                  required: "Email requis",
+                  pattern: {
+                    value: /\S+@\S+\.\S+/,
+                    message: "Format d'email invalide",
+                  },
+                }}
+                render={({ field: { onChange, value, onBlur } }) => (
+                  <TextInput
+                    label="Email"
+                    mode="flat"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    autoCapitalize="none"
+                    style={styles.input}
+                    underlineColor="transparent"
+                    activeUnderlineColor="transparent"
+                    textColor="#000"
+                    cursorColor={customTheme.colors.primary}
+                    theme={{ roundness: 15 }}
+                    error={!!errors.email}
                   />
-                }
-                theme={{ roundness: 15 }}
+                )}
+                name="email"
               />
+              {errors.email && (
+                <Text style={{ color: "red", alignSelf: "flex-start" }}>
+                  {errors.email.message}
+                </Text>
+              )}
+
+              <Controller
+                control={control}
+                rules={{
+                  required: "Mot de passe requis",
+                }}
+                render={({ field: { onChange, value, onBlur } }) => (
+                  <TextInput
+                    label="Mot de passe"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    secureTextEntry={!showPassword}
+                    style={styles.input}
+                    underlineColor="transparent"
+                    activeUnderlineColor="transparent"
+                    textColor="#000"
+                    cursorColor={customTheme.colors.primary}
+                    right={
+                      <TextInput.Icon
+                        icon={showPassword ? "eye-off" : "eye"}
+                        onPress={() => setShowPassword((prev) => !prev)}
+                      />
+                    }
+                    theme={{ roundness: 15 }}
+                    error={!!errors.password}
+                  />
+                )}
+                name="password"
+              />
+              {errors.password && (
+                <Text style={{ color: "red", alignSelf: "flex-start" }}>
+                  {errors.password.message}
+                </Text>
+              )}
+
               <Button
                 mode="text"
                 onPress={handleForgotPassword}
@@ -121,10 +170,11 @@ export default function Page() {
               >
                 J'ai oublié mon mot de passe
               </Button>
+
               <View style={{ width: "100%", alignItems: "flex-end" }}>
                 <Button
                   mode="contained"
-                  onPress={onSignInPress}
+                  onPress={handleSubmit(onSignInPress)}
                   style={styles.loginButton}
                   labelStyle={{
                     color: customTheme.colors.primary,
@@ -134,8 +184,15 @@ export default function Page() {
                 >
                   Valider
                 </Button>
+                {apiError !== "" && (
+                  <Text style={{ color: "red", marginVertical: 10 }}>
+                    {apiError}
+                  </Text>
+                )}
               </View>
+
               <Text style={styles.signupText}>Vous n’avez pas de compte ?</Text>
+
               <Link href="/sign-up" asChild>
                 <Button
                   mode="contained"
@@ -150,6 +207,7 @@ export default function Page() {
                 </Button>
               </Link>
             </View>
+
             <View style={styles.later}>
               <Button
                 mode="text"
@@ -180,21 +238,11 @@ const styles = StyleSheet.create({
     width: 200,
     height: 80,
   },
-  appName: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 20,
-  },
   welcome: {
     textAlign: "center",
     color: "#fff",
     fontWeight: "bold",
     marginBottom: 30,
-  },
-  form: {
-    width: "100%",
-    alignItems: "center",
   },
   label: {
     alignSelf: "flex-start",
@@ -203,10 +251,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 10,
   },
+  form: {
+    width: "100%",
+    alignItems: "center",
+  },
   input: {
     width: "100%",
     backgroundColor: "#fff",
-    marginBottom: 15,
+    marginBottom: 10,
     borderRadius: 15,
   },
   loginButton: {

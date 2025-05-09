@@ -30,6 +30,7 @@ const SignUpScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [pendingVerification, setPendingVerification] = useState(false);
   const [code, setCode] = useState("");
+  const [clerkError, setClerkError] = useState<string | null>(null);
   const { handleNonConnectedUser } = useConnectedUser();
 
   const {
@@ -62,8 +63,11 @@ const SignUpScreen = () => {
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setPendingVerification(true);
-    } catch (err) {
-      console.error(JSON.stringify(err, null, 2));
+      setClerkError(null);
+    } catch (err: any) {
+      const firstError =
+        err?.errors?.[0]?.message || "Une erreur est survenue.";
+      setClerkError(firstError);
     }
   };
 
@@ -83,8 +87,10 @@ const SignUpScreen = () => {
       } else {
         console.error(JSON.stringify(signUpAttempt, null, 2));
       }
-    } catch (err) {
-      console.error(JSON.stringify(err, null, 2));
+    } catch (err: any) {
+      const firstError =
+        err?.errors?.[0]?.message || "Une erreur est survenue.";
+      setClerkError(firstError);
     }
   };
 
@@ -113,6 +119,7 @@ const SignUpScreen = () => {
             style={styles.input}
             underlineColor="transparent"
             textColor="#000"
+            cursorColor={customTheme.colors.primary}
             theme={{ roundness: 15 }}
           />
           <Button
@@ -127,6 +134,7 @@ const SignUpScreen = () => {
           >
             Vérifier
           </Button>
+          {clerkError && <Text style={styles.error}>{clerkError}</Text>}
         </View>
       </PaperProvider>
     );
@@ -179,6 +187,7 @@ const SignUpScreen = () => {
                   underlineColor="transparent"
                   activeUnderlineColor="transparent"
                   textColor="#000"
+                  cursorColor={customTheme.colors.primary}
                   theme={{ roundness: 15 }}
                 />
               )}
@@ -201,6 +210,7 @@ const SignUpScreen = () => {
                   underlineColor="transparent"
                   activeUnderlineColor="transparent"
                   textColor="#000"
+                  cursorColor={customTheme.colors.primary}
                   theme={{ roundness: 15 }}
                 />
               )}
@@ -230,6 +240,7 @@ const SignUpScreen = () => {
                   underlineColor="transparent"
                   activeUnderlineColor="transparent"
                   textColor="#000"
+                  cursorColor={customTheme.colors.primary}
                   theme={{ roundness: 15 }}
                 />
               )}
@@ -253,6 +264,7 @@ const SignUpScreen = () => {
                   underlineColor="transparent"
                   activeUnderlineColor="transparent"
                   textColor="#000"
+                  cursorColor={customTheme.colors.primary}
                   theme={{ roundness: 15 }}
                   right={
                     <TextInput.Icon
@@ -287,6 +299,7 @@ const SignUpScreen = () => {
                   underlineColor="transparent"
                   activeUnderlineColor="transparent"
                   textColor="#000"
+                  cursorColor={customTheme.colors.primary}
                   theme={{ roundness: 15 }}
                 />
               )}
@@ -308,6 +321,8 @@ const SignUpScreen = () => {
             >
               S’inscrire
             </Button>
+
+            {clerkError && <Text style={styles.error}>{clerkError}</Text>}
 
             <Text style={styles.questionText}>Vous avez déjà un compte ?</Text>
             <Link href="/sign-in" asChild>
