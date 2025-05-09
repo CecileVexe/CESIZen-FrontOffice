@@ -1,3 +1,4 @@
+import { authFetch } from "../utils/authFetch";
 import { ApiResponse } from "../utils/types/Api.types";
 import { Favorite } from "../utils/types/Favorite.types";
 
@@ -8,7 +9,7 @@ export const addFavorite = async (data: {
   userId: string;
 }) => {
   try {
-    const response = await fetch(`${_URL}favorites`, {
+    const response = await authFetch(`${_URL}favorites`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -23,7 +24,7 @@ export const addFavorite = async (data: {
 
 export const deleteFavorite = async (favoriteId: string) => {
   try {
-    const response = await fetch(`${_URL}favorites/${favoriteId}`, {
+    const response = await authFetch(`${_URL}favorites/${favoriteId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -39,7 +40,7 @@ export const getUserFavorite = async (
   userId: string,
 ): Promise<ApiResponse<Favorite[]> | undefined> => {
   try {
-    const response = await fetch(`${_URL}favorites/user/${userId}`, {
+    const response = await authFetch(`${_URL}favorites/user/${userId}`, {
       headers: {
         "Content-Type": "application/json",
       },

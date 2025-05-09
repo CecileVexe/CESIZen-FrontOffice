@@ -1,3 +1,5 @@
+import { authFetch } from "../utils/authFetch";
+
 const _URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const createUser = async (citizen: any) => {
@@ -17,7 +19,7 @@ export const createUser = async (citizen: any) => {
 
 export const getUser = async (clerkId: string) => {
   try {
-    const response = await fetch(`${_URL}user/clerk/${clerkId}`, {
+    const response = await authFetch(`${_URL}user/clerk/${clerkId}`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -30,7 +32,7 @@ export const getUser = async (clerkId: string) => {
 
 export const getUsers = async () => {
   try {
-    const response = await fetch(`${_URL}user`, {
+    const response = await authFetch(`${_URL}user`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -43,7 +45,7 @@ export const getUsers = async () => {
 
 export const updateUser = async (citizenId: string, data: any) => {
   try {
-    const response = await fetch(`${_URL}user/${citizenId}`, {
+    const response = await authFetch(`${_URL}user/${citizenId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -62,7 +64,7 @@ export const updateUserCredtials = async (data: {
   clerkId: string;
 }) => {
   try {
-    const response = await fetch(`${_URL}user/credentials`, {
+    const response = await authFetch(`${_URL}user/credentials`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -77,7 +79,7 @@ export const updateUserCredtials = async (data: {
 
 export const deleteUser = async (id: string) => {
   try {
-    const response = await fetch(`${_URL}user/${id}`, {
+    const response = await authFetch(`${_URL}user/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

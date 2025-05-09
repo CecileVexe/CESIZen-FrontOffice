@@ -1,5 +1,6 @@
+import { authFetch } from "../utils/authFetch";
 import { ApiResponse } from "../utils/types/Api.types";
-import { Journal, JournalEntry } from "../utils/types/JournalEntry.typeps";
+import { JournalEntry } from "../utils/types/JournalEntry.typeps";
 
 const _URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -7,7 +8,7 @@ export const getUserJournalEntry = async (
   entryId: string,
 ): Promise<ApiResponse<JournalEntry> | undefined> => {
   try {
-    const response = await fetch(`${_URL}journal-entry/${entryId}`, {
+    const response = await authFetch(`${_URL}journal-entry/${entryId}`, {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
       },
@@ -24,7 +25,7 @@ export const getUserJournalEntryByDate = async (
   userId: string,
 ): Promise<ApiResponse<JournalEntry> | undefined> => {
   try {
-    const response = await fetch(
+    const response = await authFetch(
       `${_URL}journal-entry/date/${entryDate}?userId=${userId}`,
       {
         headers: {
@@ -44,7 +45,7 @@ export const updateUserJournalEntry = async (
   data: { description: string | null; emotionId: string; userId: string },
 ): Promise<ApiResponse<JournalEntry> | undefined> => {
   try {
-    const response = await fetch(`${_URL}journal-entry/${entryId}`, {
+    const response = await authFetch(`${_URL}journal-entry/${entryId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json; charset=utf-8",
@@ -61,7 +62,7 @@ export const updateUserJournalEntry = async (
 
 export const deleteUserJournalEntry = async (entryId: string) => {
   try {
-    const response = await fetch(`${_URL}journal-entry/${entryId}`, {
+    const response = await authFetch(`${_URL}journal-entry/${entryId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json; charset=utf-8",
@@ -80,7 +81,7 @@ export const createUserJournalEntry = async (data: {
   userId: string;
 }): Promise<ApiResponse<JournalEntry> | undefined> => {
   try {
-    const response = await fetch(`${_URL}journal-entry/`, {
+    const response = await authFetch(`${_URL}journal-entry/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=utf-8",

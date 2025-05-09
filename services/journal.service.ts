@@ -1,3 +1,4 @@
+import { authFetch } from "../utils/authFetch";
 import { ApiResponse } from "../utils/types/Api.types";
 import { Journal } from "../utils/types/JournalEntry.typeps";
 
@@ -9,7 +10,7 @@ export const getUserJournal = async (
   targetDate: string,
 ): Promise<ApiResponse<Journal> | undefined> => {
   try {
-    const response = await fetch(
+    const response = await authFetch(
       `${_URL}journal/${userId}?period=${period}&targetDate=${targetDate}`,
       {
         headers: {
