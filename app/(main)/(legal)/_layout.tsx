@@ -18,7 +18,7 @@ export default function Layout() {
         }}
       />
       <Stack.Screen
-        name="rpg"
+        name="rgpd"
         options={{
           headerShown: false,
         }}

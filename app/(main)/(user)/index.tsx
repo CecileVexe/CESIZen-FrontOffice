@@ -54,7 +54,6 @@ const AccountSettings = () => {
     handleSubmit,
     formState: { errors },
     watch,
-    setError,
     reset,
   } = useForm<FormData>({
     defaultValues: {
@@ -81,7 +80,7 @@ const AccountSettings = () => {
       return () => {
         isActive = false;
       };
-    }, [refreshConnectedUser])
+    }, [refreshConnectedUser]),
   );
 
   useEffect(() => {
@@ -394,7 +393,7 @@ const AccountSettings = () => {
 
           <View style={styles.linkRow}>
             <Button
-              onPress={() => router.push("/(legal)/cgu")}
+              onPress={() => router.replace("/(legal)/cgu")}
               icon="open-in-new"
               contentStyle={styles.linkButton}
             >
@@ -406,7 +405,7 @@ const AccountSettings = () => {
 
           <View style={styles.linkRow}>
             <Button
-              onPress={() => router.push("/(legal)/rgpd")}
+              onPress={() => router.replace("/(legal)/rgpd")}
               icon="open-in-new"
               contentStyle={styles.linkButton}
             >
