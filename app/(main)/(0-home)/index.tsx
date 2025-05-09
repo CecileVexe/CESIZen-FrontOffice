@@ -10,11 +10,16 @@ import {
 } from "react-native-paper";
 import { useConnectedUser } from "../../../utils/ConnectedUserContext";
 import { getArticles } from "../../../services/article.service";
-import { getUserFavorite } from "../../../services/favorite.service";
+import {
+  deleteFavorite,
+  getUserFavorite,
+} from "../../../services/favorite.service";
 import { useFocusEffect, useRouter } from "expo-router";
 import { SignInButton } from "../../../components/SignInButton";
 import { getEmotionCategories } from "../../../services/emotionCategories.service";
 import { EmotionCategory } from "../../../utils/types/EmotionCategory";
+import { Favorite } from "../../../utils/types/Favorite.types";
+import FavoriteDeleteModal from "../../../components/FavoriteDeleteModal";
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -29,7 +34,33 @@ const HomeScreen = () => {
     [],
   );
   const [favorites, setFavorites] = useState<any[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedFavorite, setSelectedFavorite] = useState<Favorite | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
+
+  const handleDeleteFavorite = async (favorite: Favorite) => {
+    setSelectedFavorite(favorite);
+    setModalVisible(true);
+  };
+
+  const confirmDeleteFavorite = async () => {
+    if (selectedFavorite) {
+      const response = await deleteFavorite(selectedFavorite.id);
+      if (!response.error) {
+        if (connectedUser?.id) {
+          const favoritesRes = await getUserFavorite(connectedUser.id);
+
+          if (favoritesRes?.data) {
+            setFavorites(favoritesRes.data);
+          }
+        }
+        setSelectedFavorite(null);
+        setModalVisible(false);
+      }
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -64,139 +95,165 @@ const HomeScreen = () => {
   }
 
   return (
-    <ScrollView
-      style={{ ...styles.container, backgroundColor: colors.background }}
-      showsVerticalScrollIndicator={false}
-    >
-      <Text style={styles.title}>Bonjour {connectedUser?.name ?? ""} !</Text>
-
-      <View style={styles.emotionsBox}>
-        <Text variant="titleSmall" style={styles.sectionTitle}>
-          Comment vous sentez-vous aujourd’hui ?
-        </Text>
-        <View style={styles.emotionRow}>
-          {emotionCategories.map((cat) => (
-            <View key={cat.id} style={styles.emotionItem}>
-              <IconButton
-                icon={cat.smiley}
-                size={32}
-                iconColor={cat.color}
-                style={{ margin: 0, padding: 0 }}
-                onPress={() => {
-                  router.replace({
-                    pathname: "(emotion)",
-                    params: { date: null, categoryId: cat.id },
-                  });
-                }}
-              />
-              <Text
-                variant="labelSmall"
-                style={[styles.emotionLabel, { color: cat.color }]}
-              >
-                {cat.name}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      <Text
-        variant="titleMedium"
-        style={{ ...styles.sectionTitle, color: colors.primary }}
+    <>
+      <FavoriteDeleteModal
+        visible={modalVisible}
+        favorite={selectedFavorite}
+        onCancel={() => setModalVisible(false)}
+        onConfirm={confirmDeleteFavorite}
+      />
+      <ScrollView
+        style={{ ...styles.container, backgroundColor: colors.background }}
+        showsVerticalScrollIndicator={false}
       >
-        Notre dernière actualité
-      </Text>
-      {latestArticle && (
-        <Card
-          style={{ ...styles.articleCard, backgroundColor: colors.primary }}
-          contentStyle={{
-            flexDirection: "row-reverse",
-            alignItems: "flex-end",
-            justifyContent: "space-evenly",
-          }}
-          onPress={() => router.push(`(articles)/${latestArticle.id}`)}
-        >
-          <Card.Cover
-            source={require("../../../assets/inspire-idea.png")}
-            style={{
-              height: 90,
-              width: 90,
-              backgroundColor: colors.primary,
-            }}
-          />
-          <Card.Content style={{ width: "70%", padding: 8 }}>
-            <Text
-              variant="labelMedium"
-              style={{ ...styles.articleTitle, color: colors.onPrimary }}
-            >
-              {latestArticle.title}
-            </Text>
-            <Text
-              variant="bodySmall"
-              style={{ ...styles.articleSubtitle, color: colors.onPrimary }}
-            >
-              {latestArticle.description}
-            </Text>
-            <Chip
-              style={{
-                ...styles.articleChip,
-                backgroundColor: colors.onPrimary,
-              }}
-              textStyle={{ color: colors.primary, fontSize: 8 }}
-            >
-              {latestArticle.category.name}
-            </Chip>
-          </Card.Content>
-        </Card>
-      )}
+        <Text style={styles.title}>Bonjour {connectedUser?.name ?? ""} !</Text>
 
-      <Text
-        variant="titleMedium"
-        style={{ ...styles.sectionTitle, color: colors.primary }}
-      >
-        Vos favoris
-      </Text>
-      {connectedUser ? (
-        <FlatList
-          data={favorites}
-          horizontal
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.favoriteList}
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <Card
-              style={styles.favoriteCard}
-              onPress={() => router.push(`(articles)/${item.article.id}`)}
-            >
-              {item.article.bannerId && (
-                <Card.Cover
-                  source={{ uri: `${BASE_URL}image/${item.article.bannerId}` }}
-                  style={{ height: 150 }}
+        <View style={styles.emotionsBox}>
+          <Text variant="titleSmall" style={styles.sectionTitle}>
+            Comment vous sentez-vous aujourd’hui ?
+          </Text>
+          <View style={styles.emotionRow}>
+            {emotionCategories.map((cat) => (
+              <View key={cat.id} style={styles.emotionItem}>
+                <IconButton
+                  icon={cat.smiley}
+                  size={32}
+                  iconColor={cat.color}
+                  style={{ margin: 0, padding: 0 }}
+                  onPress={() => {
+                    router.replace({
+                      pathname: "(emotion)",
+                      params: { date: null, categoryId: cat.id },
+                    });
+                  }}
                 />
-              )}
-              <Card.Content>
                 <Text
-                  style={{ ...styles.favoriteTitle, color: colors.primary }}
+                  variant="labelSmall"
+                  style={[styles.emotionLabel, { color: cat.color }]}
                 >
-                  {item.article.title}
+                  {cat.name}
                 </Text>
-                <Text style={styles.favoriteDescription} numberOfLines={3}>
-                  {item.article.description}
-                </Text>
-                <Text style={styles.readTime}>
-                  {`Lecture ${item.article.readingTime} min`}
-                </Text>
-              </Card.Content>
-            </Card>
-          )}
-        />
-      ) : (
-        <View>
-          <Text>Veuillez vous connecter pour ajouter des favoris</Text>
-          <SignInButton />
+              </View>
+            ))}
+          </View>
         </View>
-      )}
-    </ScrollView>
+
+        <Text
+          variant="titleMedium"
+          style={{ ...styles.sectionTitle, color: colors.primary }}
+        >
+          Notre dernière actualité
+        </Text>
+        {latestArticle && (
+          <Card
+            style={{ ...styles.articleCard, backgroundColor: colors.primary }}
+            contentStyle={{
+              flexDirection: "row-reverse",
+              alignItems: "flex-end",
+              justifyContent: "space-evenly",
+            }}
+            onPress={() => router.push(`(articles)/${latestArticle.id}`)}
+          >
+            <Card.Cover
+              source={require("../../../assets/inspire-idea.png")}
+              style={{
+                height: 90,
+                width: 90,
+                backgroundColor: colors.primary,
+              }}
+            />
+            <Card.Content style={{ width: "70%", padding: 8 }}>
+              <Text
+                variant="labelMedium"
+                style={{ ...styles.articleTitle, color: colors.onPrimary }}
+              >
+                {latestArticle.title}
+              </Text>
+              <Text
+                variant="bodySmall"
+                style={{ ...styles.articleSubtitle, color: colors.onPrimary }}
+              >
+                {latestArticle.description}
+              </Text>
+              <Chip
+                style={{
+                  ...styles.articleChip,
+                  backgroundColor: colors.onPrimary,
+                }}
+                textStyle={{ color: colors.primary, fontSize: 8 }}
+              >
+                {latestArticle.category.name}
+              </Chip>
+            </Card.Content>
+          </Card>
+        )}
+
+        <Text
+          variant="titleMedium"
+          style={{ ...styles.sectionTitle, color: colors.primary }}
+        >
+          Vos favoris
+        </Text>
+        {connectedUser ? (
+          <FlatList
+            data={favorites}
+            horizontal
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={styles.favoriteList}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <Card
+                style={styles.favoriteCard}
+                onPress={() => router.push(`(articles)/${item.article.id}`)}
+              >
+                {item.article.bannerId && (
+                  <Card.Cover
+                    source={{
+                      uri: `${BASE_URL}image/${item.article.bannerId}`,
+                    }}
+                    style={{ height: 150 }}
+                  />
+                )}
+                <Card.Content>
+                  <Text
+                    style={{ ...styles.favoriteTitle, color: colors.primary }}
+                  >
+                    {item.article.title}
+                  </Text>
+                  <Text style={styles.favoriteDescription} numberOfLines={3}>
+                    {item.article.description}
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Text style={styles.readTime}>
+                      {`Lecture ${item.article.readingTime} min`}
+                    </Text>
+                    <IconButton
+                      icon="trash-can"
+                      size={20}
+                      iconColor={colors.error}
+                      onPress={() => {
+                        handleDeleteFavorite(item);
+                      }}
+                    />
+                  </View>
+                </Card.Content>
+              </Card>
+            )}
+          />
+        ) : (
+          <View>
+            <Text>Veuillez vous connecter pour ajouter des favoris</Text>
+            <SignInButton />
+          </View>
+        )}
+      </ScrollView>
+    </>
   );
 };
 
@@ -260,7 +317,7 @@ const styles = StyleSheet.create({
     marginRight: 15,
     backgroundColor: "white",
     borderRadius: 16,
-    justifyContent: "space-evenly",
+    justifyContent: "flex-start",
   },
   favoriteTitle: {
     fontWeight: "bold",
@@ -274,7 +331,7 @@ const styles = StyleSheet.create({
   },
   readTime: {
     fontSize: 12,
-    marginTop: 8,
+
     color: "#009688",
   },
 });

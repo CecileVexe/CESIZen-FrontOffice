@@ -1,4 +1,3 @@
-// components/FavoriteDeleteModal.tsx
 import React from "react";
 import { Portal, Dialog, Button, Text } from "react-native-paper";
 import { Favorite } from "../utils/types/Favorite.types";
@@ -24,7 +23,7 @@ const FavoriteDeleteModal = ({
           <Text>
             Es-tu sûr de vouloir supprimer{" "}
             <Text style={{ fontWeight: "bold" }}>
-              {favorite?.ressource.title}
+              {favorite?.article.title}
             </Text>{" "}
             de tes favoris ?
           </Text>
