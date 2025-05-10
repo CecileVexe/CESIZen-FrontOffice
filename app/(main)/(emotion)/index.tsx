@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import {
   Text,
@@ -24,13 +24,12 @@ import { getEmotions } from "../../../services/emotions.service";
 import { EmotionCategory } from "../../../utils/types/EmotionCategory";
 import { Emotion } from "../../../utils/types/Emotion.types";
 import { useConnectedUser } from "../../../utils/ConnectedUserContext";
-import { useFocusEffect, useNavigation, useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 
 const EmotionFormScreen = () => {
   const route = useRoute();
   const { colors } = useTheme();
   const router = useRouter();
-  const navigation = useNavigation();
   const entryDate = route.params?.date || null;
   const selectedCategoryFromParams = route.params?.categoryId || null;
   const { connectedUser } = useConnectedUser();
@@ -60,7 +59,6 @@ const EmotionFormScreen = () => {
   );
   const [emotions, setEmotions] = useState<Emotion[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isInitializing, setIsInitializing] = useState(true);
   const [selectedEmotionId, setSelectedEmotionId] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
@@ -159,7 +157,10 @@ const EmotionFormScreen = () => {
     }, [connectedUser, entryDate, reset, selectedCategoryFromParams, setValue]),
   );
 
-  const updateEntry = async (entryId: string, payload) => {
+  const updateEntry = async (
+    entryId: string,
+    payload: { description: string | null; emotionId: string; userId: string },
+  ) => {
     const reponse = await updateUserJournalEntry(entryId, payload);
     if (reponse?.data) {
       router.navigate("/(journal)");
@@ -168,7 +169,11 @@ const EmotionFormScreen = () => {
     }
   };
 
-  const createEntry = async (payload) => {
+  const createEntry = async (payload: {
+    description: string | null;
+    emotionId: string;
+    userId: string;
+  }) => {
     const reponse = await createUserJournalEntry(payload);
     if (reponse?.data) {
       router.navigate("/(journal)");
@@ -177,7 +182,10 @@ const EmotionFormScreen = () => {
     }
   };
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: {
+    description: string | null;
+    emotionId: string;
+  }) => {
     if (!data.emotionId) {
       setError("emotionId", {
         type: "manual",
@@ -385,6 +393,7 @@ const EmotionFormScreen = () => {
           onPress={() => {
             reset();
             setEntryId(undefined);
+            // eslint-disable-next-line no-unused-expressions
             entryId
               ? router.navigate("/(journal)")
               : router.navigate("/(0-home)");
