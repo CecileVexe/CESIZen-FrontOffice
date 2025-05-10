@@ -44,7 +44,7 @@ API_URL=http://localhost:3000
 
 ## 🚀 Démarrage
 
-### Lancer le serveur en mode développement
+### Lancer en mode développement
 
 ```bash
 npm run start
@@ -64,8 +64,6 @@ L’authentification est gérée avec [Clerk Expo](https://clerk.com/docs/quicks
 
 - Le SDK utilise expo-secure-store pour stocker les tokens
 - L'utilisateur peut se connecter, s'inscrire et accéder à des écrans protégés
-
-Synchronisation des utilisateurs avec la base de données manuellement ou via webhook (selon ton implémentation)
 
 ## 🧾 Licence
 ### Ce projet est sous licence UNLICENSED.
