@@ -24,7 +24,7 @@ import { getEmotions } from "../../../services/emotions.service";
 import { EmotionCategory } from "../../../utils/types/EmotionCategory";
 import { Emotion } from "../../../utils/types/Emotion.types";
 import { useConnectedUser } from "../../../utils/ConnectedUserContext";
-import { useFocusEffect, useRouter } from "expo-router";
+import { Redirect, useFocusEffect, useRouter } from "expo-router";
 
 const EmotionFormScreen = () => {
   const route = useRoute();
@@ -32,7 +32,7 @@ const EmotionFormScreen = () => {
   const router = useRouter();
   const entryDate = route.params?.date || null;
   const selectedCategoryFromParams = route.params?.categoryId || null;
-  const { connectedUser } = useConnectedUser();
+  const { connectedUser, userChoseToUnconnect } = useConnectedUser();
 
   const [visible, setVisible] = useState(false);
 
@@ -212,6 +212,10 @@ const EmotionFormScreen = () => {
       }
     }
   };
+
+  if (userChoseToUnconnect || !connectedUser) {
+    return <Redirect href="/unConnectedEmotionPage" />;
+  }
 
   const renderEmotionCategories = () => (
     <View style={styles.emotionsBox}>
