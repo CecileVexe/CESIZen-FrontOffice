@@ -212,7 +212,4 @@ const styles = StyleSheet.create({
     marginRight: 8,
     height: 30,
   },
-  // selectedChip: {
-  //   backgroundColor: "#bbdefb",
-  // },
 });

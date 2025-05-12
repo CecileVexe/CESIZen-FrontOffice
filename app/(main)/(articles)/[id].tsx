@@ -101,12 +101,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 22,
     fontWeight: "bold",
-    // color: "#2A8C6D",
   },
   chip: {
     alignSelf: "flex-start",
     marginVertical: 8,
-    // backgroundColor: "#C3EAD9",
   },
   image: {
     width: "100%",
@@ -115,13 +113,11 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   readTime: {
-    // color: "#6ABFAD",
     fontWeight: "500",
     marginBottom: 8,
   },
   content: {
     fontSize: 14,
-    // color: "#444",
     lineHeight: 22,
   },
 });

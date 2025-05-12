@@ -1,4 +1,3 @@
-// components/CustomHeader.tsx
 import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Icon, Text } from "react-native-paper";
