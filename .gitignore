@@ -36,7 +36,7 @@ yarn-error.*
 *.tsbuildinfo
 
 #package.lock
-package-lock.json
+# package-lock.json : versionné pour des installations reproductibles (Vercel)
 
 #C'est quoi ?
 .idea
