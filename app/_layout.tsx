@@ -8,6 +8,7 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { customTheme } from "../utils/theme/theme";
 import { PaperProvider } from "react-native-paper";
+import WebDemoModal from "../components/WebDemoModal";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -60,6 +61,7 @@ function RootLayoutNav() {
             <PaperProvider theme={customTheme}>
               <StatusBar />
               <Slot />
+              <WebDemoModal />
             </PaperProvider>
           </SafeAreaView>
         </ConnectedUserProvider>
