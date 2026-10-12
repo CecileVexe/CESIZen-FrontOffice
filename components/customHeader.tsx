@@ -2,6 +2,7 @@
 import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Icon, Text } from "react-native-paper";
+import WebDemoBanner from "./WebDemoBanner";
 
 export const CustomHeader = ({ navigation, back }: any) => {
   const today = new Date();
@@ -12,15 +13,21 @@ export const CustomHeader = ({ navigation, back }: any) => {
   });
 
   return (
-    <View style={styles.header}>
-      {back && (
-        <TouchableOpacity onPress={navigation.goBack} style={styles.backButton}>
-          <Icon source="arrow-left" size={24} color="#fff" />
-        </TouchableOpacity>
-      )}
-      <Text variant="titleMedium" style={styles.title}>
-        {parseToday}
-      </Text>
+    <View>
+      <View style={styles.header}>
+        {back && (
+          <TouchableOpacity
+            onPress={navigation.goBack}
+            style={styles.backButton}
+          >
+            <Icon source="arrow-left" size={24} color="#fff" />
+          </TouchableOpacity>
+        )}
+        <Text variant="titleMedium" style={styles.title}>
+          {parseToday}
+        </Text>
+      </View>
+      <WebDemoBanner />
     </View>
   );
 };
