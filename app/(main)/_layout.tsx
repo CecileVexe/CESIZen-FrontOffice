@@ -78,15 +78,14 @@ export default function Layout() {
           ),
           popToTopOnBlur: true,
         }}
-        // listeners={({ navigation }) => ({
-        //   tabPress: (e) => {
-        //     e.preventDefault();
-
-        //     navigation.navigate("(articles)", {
-        //       screen: "index",
-        //     });
-        //   },
-        // })}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate("(articles)", {
+              screen: "index",
+            });
+          },
+        })}
       />
       <Tabs.Screen
         name="(emotion)"

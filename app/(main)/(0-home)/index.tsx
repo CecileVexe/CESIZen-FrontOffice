@@ -14,7 +14,7 @@ import {
   deleteFavorite,
   getUserFavorite,
 } from "../../../services/favorite.service";
-import { useFocusEffect, useRouter } from "expo-router";
+import { Link, useFocusEffect, useRouter } from "expo-router";
 import { SignInButton } from "../../../components/SignInButton";
 import { getEmotionCategories } from "../../../services/emotionCategories.service";
 import { EmotionCategory } from "../../../utils/types/EmotionCategory";
@@ -123,7 +123,10 @@ const HomeScreen = () => {
                   onPress={() => {
                     router.replace({
                       pathname: "(emotion)",
-                      params: { date: null, categoryId: cat.id },
+                      params: {
+                        date: new Date().toISOString(),
+                        categoryId: cat.id,
+                      },
                     });
                   }}
                 />
@@ -145,47 +148,48 @@ const HomeScreen = () => {
           Notre dernière actualité
         </Text>
         {latestArticle && (
-          <Card
-            style={{ ...styles.articleCard, backgroundColor: colors.primary }}
-            contentStyle={{
-              flexDirection: "row-reverse",
-              alignItems: "flex-end",
-              justifyContent: "space-evenly",
-            }}
-            onPress={() => router.push(`(articles)/${latestArticle.id}`)}
-          >
-            <Card.Cover
-              source={require("../../../assets/inspire-idea.png")}
-              style={{
-                height: 90,
-                width: 90,
-                backgroundColor: colors.primary,
+          <Link href={`(articles)/${latestArticle.id}`} asChild>
+            <Card
+              style={{ ...styles.articleCard, backgroundColor: colors.primary }}
+              contentStyle={{
+                flexDirection: "row-reverse",
+                alignItems: "flex-end",
+                justifyContent: "space-evenly",
               }}
-            />
-            <Card.Content style={{ width: "70%", padding: 8 }}>
-              <Text
-                variant="labelMedium"
-                style={{ ...styles.articleTitle, color: colors.onPrimary }}
-              >
-                {latestArticle.title}
-              </Text>
-              <Text
-                variant="bodySmall"
-                style={{ ...styles.articleSubtitle, color: colors.onPrimary }}
-              >
-                {latestArticle.description}
-              </Text>
-              <Chip
+            >
+              <Card.Cover
+                source={require("../../../assets/inspire-idea.png")}
                 style={{
-                  ...styles.articleChip,
-                  backgroundColor: colors.onPrimary,
+                  height: 90,
+                  width: 90,
+                  backgroundColor: colors.primary,
                 }}
-                textStyle={{ color: colors.primary, fontSize: 8 }}
-              >
-                {latestArticle.category.name}
-              </Chip>
-            </Card.Content>
-          </Card>
+              />
+              <Card.Content style={{ width: "70%", padding: 8 }}>
+                <Text
+                  variant="labelMedium"
+                  style={{ ...styles.articleTitle, color: colors.onPrimary }}
+                >
+                  {latestArticle.title}
+                </Text>
+                <Text
+                  variant="bodySmall"
+                  style={{ ...styles.articleSubtitle, color: colors.onPrimary }}
+                >
+                  {latestArticle.description}
+                </Text>
+                <Chip
+                  style={{
+                    ...styles.articleChip,
+                    backgroundColor: colors.onPrimary,
+                  }}
+                  textStyle={{ color: colors.primary, fontSize: 8 }}
+                >
+                  {latestArticle.category.name}
+                </Chip>
+              </Card.Content>
+            </Card>
+          </Link>
         )}
 
         <Text
@@ -202,48 +206,47 @@ const HomeScreen = () => {
             contentContainerStyle={styles.favoriteList}
             showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => (
-              <Card
-                style={styles.favoriteCard}
-                onPress={() => router.push(`(articles)/${item.article.id}`)}
-              >
-                {item.article.bannerId && (
-                  <Card.Cover
-                    source={{
-                      uri: `${BASE_URL}image/${item.article.bannerId}`,
-                    }}
-                    style={{ height: 150 }}
-                  />
-                )}
-                <Card.Content>
-                  <Text
-                    style={{ ...styles.favoriteTitle, color: colors.primary }}
-                  >
-                    {item.article.title}
-                  </Text>
-                  <Text style={styles.favoriteDescription} numberOfLines={3}>
-                    {item.article.description}
-                  </Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Text style={styles.readTime}>
-                      {`Lecture ${item.article.readingTime} min`}
-                    </Text>
-                    <IconButton
-                      icon="trash-can"
-                      size={20}
-                      iconColor={colors.error}
-                      onPress={() => {
-                        handleDeleteFavorite(item);
+              <Link href={`(articles)/${item.article.id}`} asChild>
+                <Card style={styles.favoriteCard}>
+                  {item.article.bannerId && (
+                    <Card.Cover
+                      source={{
+                        uri: `${BASE_URL}image/${item.article.bannerId}`,
                       }}
+                      style={{ height: 150 }}
                     />
-                  </View>
-                </Card.Content>
-              </Card>
+                  )}
+                  <Card.Content>
+                    <Text
+                      style={{ ...styles.favoriteTitle, color: colors.primary }}
+                    >
+                      {item.article.title}
+                    </Text>
+                    <Text style={styles.favoriteDescription} numberOfLines={3}>
+                      {item.article.description}
+                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Text style={styles.readTime}>
+                        {`Lecture ${item.article.readingTime} min`}
+                      </Text>
+                      <IconButton
+                        icon="trash-can"
+                        size={20}
+                        iconColor={colors.error}
+                        onPress={() => {
+                          handleDeleteFavorite(item);
+                        }}
+                      />
+                    </View>
+                  </Card.Content>
+                </Card>
+              </Link>
             )}
           />
         ) : (

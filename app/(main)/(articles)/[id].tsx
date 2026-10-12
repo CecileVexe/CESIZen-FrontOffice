@@ -7,6 +7,9 @@ import RenderHtml from "react-native-render-html";
 import { useWindowDimensions } from "react-native";
 import { addFavorite } from "../../../services/favorite.service";
 import { useConnectedUser } from "../../../utils/ConnectedUserContext";
+import { LogBox } from "react-native";
+
+LogBox.ignoreLogs([/Support for defaultProps will be removed/]);
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
