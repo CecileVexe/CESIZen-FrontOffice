@@ -40,3 +40,5 @@ yarn-error.*
 
 #C'est quoi ?
 .idea
+# Vercel CLI
+.vercel
