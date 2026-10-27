@@ -8,7 +8,9 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { customTheme } from "../utils/theme/theme";
 import { PaperProvider } from "react-native-paper";
-import WebDemoModal from "../components/WebDemoModal";
+import WebPhoneFrame, {
+  useShouldRenderPhoneFrame,
+} from "../components/WebPhoneFrame";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -19,6 +21,7 @@ export {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const shouldRenderPhoneFrame = useShouldRenderPhoneFrame();
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -36,6 +39,11 @@ export default function RootLayout() {
 
   if (!loaded) {
     return null;
+  }
+
+  // Web sur ordinateur : l'app est chargée dans un iframe au format téléphone
+  if (shouldRenderPhoneFrame) {
+    return <WebPhoneFrame />;
   }
 
   return <RootLayoutNav />;
@@ -61,7 +69,6 @@ function RootLayoutNav() {
             <PaperProvider theme={customTheme}>
               <StatusBar />
               <Slot />
-              <WebDemoModal />
             </PaperProvider>
           </SafeAreaView>
         </ConnectedUserProvider>

@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
-import { Platform, StyleSheet, View, useWindowDimensions } from "react-native";
+import { useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { Button, Icon, Modal, Portal, Text } from "react-native-paper";
 import { customTheme } from "../utils/theme/theme";
 
 const STORAGE_KEY = "cesizen-web-demo-modal-seen";
-// En dessous de cette largeur, l'utilisateur est déjà sur mobile (ou en simulation)
-const MOBILE_MAX_WIDTH = 768;
 
 const hasSeenModal = () => {
   try {
@@ -23,22 +21,9 @@ const markModalAsSeen = () => {
   }
 };
 
-// Modale d'accueil affichée uniquement sur la version web (démo portfolio)
+// Modale d'accueil affichée par le cadre téléphone (version web sur ordinateur)
 const WebDemoModal = () => {
-  const { width } = useWindowDimensions();
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (Platform.OS === "web" && width >= MOBILE_MAX_WIDTH && !hasSeenModal()) {
-      setVisible(true);
-    }
-    // Uniquement à l'arrivée sur le site
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  if (Platform.OS !== "web") {
-    return null;
-  }
+  const [visible, setVisible] = useState(() => !hasSeenModal());
 
   const handleClose = () => {
     markModalAsSeen();
@@ -64,33 +49,23 @@ const WebDemoModal = () => {
           Bienvenue sur CESIZen
         </Text>
         <Text style={styles.paragraph}>
-          Cette application est conçue pour mobile. Pour une meilleure
-          expérience :
+          Cette application est conçue pour mobile. Vous allez la découvrir dans
+          un aperçu au format téléphone.
         </Text>
 
-        <View style={styles.option}>
-          <Text style={styles.optionTitle}>
-            1. Ouvrez ce lien sur votre téléphone
-          </Text>
-        </View>
-
-        <View style={styles.option}>
-          <Text style={styles.optionTitle}>
-            2. Ou simulez un téléphone dans votre navigateur
-          </Text>
-          <Text style={styles.optionText}>
-            Ouvrez les outils de développement avec{" "}
-            <Text style={styles.key}>F12</Text>, puis activez le mode appareil
-            avec <Text style={styles.key}>Ctrl + Maj + M</Text>.
-          </Text>
-          <Text style={styles.optionHint}>
-            Sur Mac : <Text style={styles.key}>Cmd + Option + I</Text> puis{" "}
-            <Text style={styles.key}>Cmd + Maj + M</Text>.
+        <View style={styles.tip}>
+          <Icon
+            source="lightbulb-on-outline"
+            size={20}
+            color={customTheme.colors.secondary}
+          />
+          <Text style={styles.tipText}>
+            Pour une expérience complète, ouvrez ce lien sur votre téléphone.
           </Text>
         </View>
 
         <Button mode="contained" onPress={handleClose} style={styles.button}>
-          J'ai compris
+          Découvrir l'application
         </Button>
       </Modal>
     </Portal>
@@ -101,7 +76,7 @@ const styles = StyleSheet.create({
   container: {
     alignSelf: "center",
     width: "90%",
-    maxWidth: 480,
+    maxWidth: 440,
     padding: 24,
     borderRadius: 16,
     backgroundColor: "#ffffff",
@@ -120,27 +95,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 16,
   },
-  option: {
+  tip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
     padding: 12,
     marginBottom: 12,
     borderRadius: 8,
     backgroundColor: customTheme.colors.background,
   },
-  optionTitle: {
+  tipText: {
+    flexShrink: 1,
     fontWeight: "bold",
-    marginBottom: 4,
-  },
-  optionText: {
-    lineHeight: 20,
-  },
-  optionHint: {
-    marginTop: 4,
-    fontSize: 12,
-    opacity: 0.8,
-  },
-  key: {
-    fontWeight: "bold",
-    color: customTheme.colors.secondary,
   },
   button: {
     marginTop: 8,
